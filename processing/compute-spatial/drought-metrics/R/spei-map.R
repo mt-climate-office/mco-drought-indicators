@@ -56,7 +56,7 @@ for(t in 1:length(time_scale)){
   }
   
   #start cluster for parellel computing
-  cl = makeCluster(detectCores()-1)
+  cl = makeCluster(7)
   registerDoParallel(cl)
   
   #sum and mask precip in parellel
