@@ -16,4 +16,5 @@ mkdir /home/zhoylman/mco-drought-indicators-data/ndvi
 mkdir /home/zhoylman/mco-drought-indicators-data/ndvi/temp
 mkdir /home/zhoylman/mco-drought-indicators-data/ndvi/urls
 mkdir /home/zhoylman/mco-drought-indicators-data/ndvi/data
+mkdir /home/zhoylman/mco-drought-indicators-data/usdm
 
