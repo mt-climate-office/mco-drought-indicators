@@ -14,4 +14,6 @@ mkdir /home/zhoylman/mco-drought-indicators-data/snodas/processed/snow_depth
 mkdir /home/zhoylman/mco-drought-indicators-data/snodas/processed/swe
 mkdir /home/zhoylman/mco-drought-indicators-data/ndvi
 mkdir /home/zhoylman/mco-drought-indicators-data/ndvi/temp
+mkdir /home/zhoylman/mco-drought-indicators-data/ndvi/urls
+mkdir /home/zhoylman/mco-drought-indicators-data/ndvi/data
 

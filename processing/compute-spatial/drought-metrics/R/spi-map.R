@@ -71,6 +71,7 @@ for(t in 1:length(time_scale)){
 
   #calcualte current spi in parellel
   clusterExport(cl, "spi_fun")
+  clusterCall(cl, function() {lapply(c("lmomco"), library, character.only = TRUE)})
   current_spi = parApply(cl,integrated_precip, 1, FUN = spi_fun)
   
   #stop parellel cluster
