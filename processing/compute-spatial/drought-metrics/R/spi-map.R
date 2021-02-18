@@ -8,7 +8,7 @@ source(paste0(git.dir,"/processing/ancillary-functions/R/drought-functions.R"))
 
 #import the remote data
 raster_precip = brick("http://thredds.northwestknowledge.net:8080/thredds/dodsC/agg_met_pr_1979_CurrentYear_CONUS.nc", var= "precipitation_amount")
-#proj4string(raster_precip) = CRS("+init=EPSG:4326")
+proj4string(raster_precip) = "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 #import UMRB outline for clipping and watershed for aggregating
 UMRB = readOGR(paste0(git.dir, "/processing/base-data/processed/outline_umrb.shp"))
