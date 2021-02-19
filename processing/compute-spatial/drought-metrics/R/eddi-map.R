@@ -25,7 +25,7 @@ water_year = (length(time$day) - which(time$day == "10-01")[length(which(time$da
 year_to_date = (length(time$day) - which(time$day == "01-01")[length(which(time$day == "01-01"))])
 
 #designate time scale
-time_scale = c(30,60,90,180,365, water_year, year_to_date)
+time_scale = c(15,30,60,90,180,365, water_year, year_to_date)
 
 for(t in 1:length(time_scale)){
   first_date_breaks = which(time$day == time$day[length(time$datetime)])
@@ -101,4 +101,6 @@ for(t in 1:length(time_scale)){
   writeRaster(eddi_map, path_file, format = "GTiff", overwrite = T)
 }
 
-
+#write time out
+out.time = data.frame(time = substr(time$datetime[length(time$datetime)],1,10))
+write.csv(out.time, paste0(export.dir, "eddi/time.csv"))

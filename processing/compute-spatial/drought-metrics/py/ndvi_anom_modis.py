@@ -8,7 +8,6 @@ from datetime import timedelta
 import numpy
 import csv
 
-
 # initialize connection with earth engine
 ee.Initialize()
 
@@ -27,15 +26,10 @@ states = (ee.Collection.loadTable('users/zhoylman/states')
 def clipped(img):
     return img.clip(states)
 
-#add a band to image that converts from milliseconds from epoch to days for trend analysis
-def addTime(image):
-    return (image.addBands(image.metadata('system:time_start').divide(1000 * 60 * 60 * 24)))
-
-
 # import the dataset, select NDVI and clip to region
 dataset = (ee.ImageCollection('MODIS/MOD09GA_006_NDVI')
-           .map(clipped)
-           .map(addTime))
+           .select('NDVI')
+           .map(clipped))
 
 # compute list of valid dates
 dates = ee.List(dataset \
@@ -56,21 +50,32 @@ url_list = []
 
 for i in numpy.arange(0, len(timescale)):
     # compute current NDVI
-
     current = (dataset.filter(ee.Filter.date(dates[timescale[i] - 1], ee.Date(str(tomorrow_date))))
-               .select(['system:time_start', 'NDVI']).reduce(ee.Reducer.linearFit())
-               .select(['scale'])
-               .reduce(ee.Reducer.mean())
-               .rename(str(dates[0])+'_'+str(timescale[i]) + 'day'))
+               .mean())
+
+    # define julian day start and end for
+    julian_end = (ee.Date(dates[0]).getRelative('day', 'year').getInfo())
+    julian_start = (ee.Date(dates[timescale[i] - 1]).getRelative('day', 'year').getInfo())
+
+    # clip dataset for julian days to compute zscore parameters
+    julian_clip = (dataset.filter(ee.Filter.calendarRange(julian_start, julian_end)))
+
+    # calcualte NDVI zscore and set metadata about dates considered
+    z_score = ((current.subtract(julian_clip.mean())) \
+               .divide(julian_clip.reduce(ee.Reducer.stdDev()))
+               # .resample('bilinear')
+               .set('time_end', str(dates[0]))
+               .set('time_start', str(dates[timescale[i] - 1]))
+               .rename(str(dates[0])+'_'+ str(timescale[i]) + 'day'))
 
     # Get a download URL for an image.
-    path = current.getDownloadUrl({
+    path = z_score.getDownloadUrl({
         'scale': 4000,
         'crs': 'EPSG:4326',
         'region': states.geometry()
     })
     url_list.append(path)
 
-with open('/home/zhoylman/drought_indicators/ndvi/data/urls/url_list_greeness_trend.csv', 'w') as myfile:
+with open('/home/zhoylman/mco-drought-indicators-data/ndvi/urls/ndvi_anom_url_list.csv', 'w') as myfile:
     wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
     wr.writerow(url_list)

@@ -25,11 +25,11 @@ revalue_vector_data = function(x, min, max){
   return(x)
 }
 
-build_html_raster = function(revalued_data, timescale_names, variable, time){
+build_html_raster = function(revalued_data, timescale_names, variable, title, color_palette, legend_values){
   m_raster = base_map()
   for(i in 1:length(timescale_names)){
     m_raster = m_raster %>%
-      addRasterImage(revalued_data[[i]], colors = pal, opacity = 0.8, group = timescale_names[i], project = TRUE, layerId = timescale_names[i]) 
+      addRasterImage(revalued_data[[i]], colors = color_palette, opacity = 0.8, group = timescale_names[i], project = TRUE, layerId = timescale_names[i]) 
   } 
   
   m_raster = m_raster%>%
@@ -41,8 +41,8 @@ build_html_raster = function(revalued_data, timescale_names, variable, time){
                      overlayGroups = c("USDM", "States", "Weather", "Streets", "Counties", 'Watersheds', 'Tribal Lands'),
                      options = layersControlOptions(collapsed = FALSE)) %>%
     leaflet::hideGroup(c("Watersheds", "Counties", "Streets", 'Tribal Lands'))%>%
-    addLegend(pal = pal, values = -2.5:2.5,
-              title = paste0("Current ", variable, "<br>", as.character(time)),
+    addLegend(pal = color_palette, values = legend_values,
+              title = title,
               position = "bottomleft") 
   return(m_raster)
 }

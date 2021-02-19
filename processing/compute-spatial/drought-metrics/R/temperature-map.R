@@ -116,3 +116,7 @@ for(t in 1:length(time_scale)){
     writeRaster(maps[[i]], path_file[[i]], format = "GTiff", overwrite = T)
   }
 }
+
+#write time out
+out.time = data.frame(time = substr(time$datetime[length(time$datetime)],1,10))
+write.csv(out.time, paste0(export.dir, "temperature/time.csv"))

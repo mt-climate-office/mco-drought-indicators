@@ -10,8 +10,8 @@ source(paste0(git.dir, '/processing/ancillary-functions/R/widget-functions.R'))
 source(paste0(git.dir, '/processing/ancillary-functions/R/base-map.R'))
 
 #define variable names to process
-variable = c('SPI', 'SPEI', 'EDDI')
-lower_variable = c('spi', 'spei', 'eddi')
+variable = c('Precipitation', 'Temperature')
+lower_variable = c('precipitation', 'temperature')
 
 #import counties
 counties = st_read(paste0(git.dir, 'processing/base-data/processed/county_umrb.shp'))
@@ -22,8 +22,11 @@ tribal = st_read(paste0(git.dir, 'processing/base-data/processed/UMRB_tribal_lan
 timescales = c(15,30,60,90,180,365,'water_year', 'year_to_date')
 
 # define leaflet inputs
-pal = colorNumeric(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66"), -2.5:2.5, na.color = "transparent")
-pal_reverse = colorNumeric(rev(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66")), -2.5:2.5, na.color = "transparent")
+pal_bins = colorBin(colorRamp(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66"), interpolate = "spline"), 
+                     domain = 0:100, bins = seq(0,100,10), na.color = "transparent")
+
+pal_bins_reverse = colorBin(colorRamp(rev(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66")), interpolate = "spline"), 
+                    domain = 0:100, bins = seq(0,100,10), na.color = "transparent")
 
 timescale_names = c("15 Day","30 Day", "60 Day", "90 Day", "180 Day", "365 Day", "Water Year", "Year to Date")
 
@@ -31,7 +34,8 @@ for(v in 1:length(variable)){
   #import data
   files = list.files(paste0(export.dir,lower_variable[v]), full.names = T) %>%
     as_tibble() %>%
-    filter(stringr::str_detect(value, paste(timescales, sep = '', collapse = '|'))) 
+    filter(stringr::str_detect(value, paste(timescales, sep = '', collapse = '|')),
+           stringr::str_detect(value, 'percentile')) 
   
   #reorder filtered vector
   data = files$value[sapply(timescales, function(x) { grep(x, files$value)})] %>%
@@ -84,7 +88,7 @@ for(v in 1:length(variable)){
   # revalue data
   
   revalued_data = data %>%
-    lapply(., revalue_raster_data, min = -2.5, max = 2.5)
+    lapply(., revalue_raster_data, min = 0, max = 100)
   
   #Implement the aggregation by geometry boundries once I figure out how to do this.
   
@@ -98,14 +102,14 @@ for(v in 1:length(variable)){
   #   lapply(., revalue_vector_data, min = -2.5, max = 2.5)
   
   #define legend title name (HTML)
-  title = paste0("Current ", variable[v], "<br>", as.character(time))
+  title = paste0(variable[v], "<br>Percentile<br>", as.character(time))
   
   # make leaflet widgets
-  if(variable[v] == 'SPI'| variable[v] == 'SPEI'){
-    m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal, legend_values = -2.5:2.5)
+  if(variable[v] == 'Precipitation'){
+    m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal_bins, legend_values = seq(0, 100, by = 10))
   }
-  if(variable[v] == 'EDDI'){
-    m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal_reverse, legend_values = -2.5:2.5)
+  if(variable[v] == 'Temperature'){
+    m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal_bins_reverse, legend_values = seq(0, 100, by = 10))
   }
   saveWidget(m_raster, paste0(export.dir, "widgets/m_raster_", lower_variable[v], ".html"), selfcontained = F, libdir = paste0(export.dir, "widgets/libs/"))
 }

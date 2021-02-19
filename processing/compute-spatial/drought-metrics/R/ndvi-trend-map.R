@@ -9,7 +9,7 @@ outline = readOGR(paste0(git.dir, "/processing/base-data/processed/outline_umrb.
 timescales = c(7,15,30,60,90)
 
 #pull in the urls to download greeness grids
-urls = read_csv(paste0(export.dir, '/ndvi/urls/url_list_greeness_trend.csv'), col_names = F) %>%
+urls = read_csv(paste0(export.dir, '/ndvi/urls/ndvi_trend_url_list.csv'), col_names = F) %>%
   t()
 
 for(i in 1:length(timescales)){
@@ -24,8 +24,12 @@ for(i in 1:length(timescales)){
     substr(.,10,19) %>%
     as.Date(., format = "%Y.%m.%d")
   
-  writeRaster(data, paste0(export.dir, 'data/ndvi_trend_', timescales[i], '.tif'), overwrite = T)
+  writeRaster(data, paste0(export.dir, 'data/trend/ndvi_trend_', timescales[i], '.tif'), overwrite = T)
   
   #remove old zip and raster
   system(paste0('rm ', export.dir,'ndvi/temp/*'))
 }
+
+#write time out
+out.time = data.frame(time = substr(time$datetime[length(time$datetime)],1,10))
+write.csv(out.time, paste0(export.dir, "data/trend/time.csv"))
