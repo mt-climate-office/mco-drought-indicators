@@ -16,5 +16,10 @@ mkdir /home/zhoylman/mco-drought-indicators-data/ndvi
 mkdir /home/zhoylman/mco-drought-indicators-data/ndvi/temp
 mkdir /home/zhoylman/mco-drought-indicators-data/ndvi/urls
 mkdir /home/zhoylman/mco-drought-indicators-data/ndvi/data
+mkdir /home/zhoylman/mco-drought-indicators-data/ndvi/data/anom
+mkdir /home/zhoylman/mco-drought-indicators-data/ndvi/data/trend
 mkdir /home/zhoylman/mco-drought-indicators-data/usdm
 mkdir /home/zhoylman/mco-drought-indicators-data/snotel
+mkdir /home/zhoylman/mco-drought-indicators-data/widgets
+mkdir /home/zhoylman/mco-drought-indicators-data/soil-moisture
+mkdir /home/zhoylman/mco-drought-indicators-data/grace
