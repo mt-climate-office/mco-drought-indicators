@@ -2,6 +2,10 @@
 git.dir = '/home/zhoylman/mco-drought-indicators/'
 export.dir = '/home/zhoylman/mco-drought-indicators-data/'
 
+# import ancillary functions
+source(paste0(git.dir, '/processing/ancillary-functions/R/load-libs.R'))
+source(paste0(git.dir,"/processing/ancillary-functions/R/drought-functions.R"))
+
 #umrb outline
 outline = readOGR(paste0(git.dir, "/processing/base-data/processed/outline_umrb.shp"))
 
@@ -24,12 +28,12 @@ for(i in 1:length(timescales)){
     substr(.,10,19) %>%
     as.Date(., format = "%Y.%m.%d")
   
-  writeRaster(data, paste0(export.dir, 'data/anom/ndvi_anom_', timescales[i], '.tif'), overwrite = T)
+  writeRaster(data, paste0(export.dir, 'ndvi/data/anom/ndvi_anom_', timescales[i], '.tif'), overwrite = T)
   
   #remove old zip and raster
   system(paste0('rm ', export.dir,'ndvi/temp/*'))
 }
 
 #write time out
-out.time = data.frame(time = substr(time$datetime[length(time$datetime)],1,10))
-write.csv(out.time, paste0(export.dir, "data/anom/time.csv"))
+out.time = data.frame(time = time)
+write.csv(out.time, paste0(export.dir, "ndvi/data/anom/time.csv"))

@@ -32,8 +32,8 @@ dlshape=function(shploc) {
 usdm = dlshape(shploc = "https://droughtmonitor.unl.edu/data/shapefiles_m/USDM_current_M.zip")
 
 #Export
-path_file_usdm = paste0(export.dir, "USDM_current/current_usdm.shp")
+path_file_usdm = paste0(export.dir, "usdm/current_usdm.shp")
 #rgdal::writeOGR(obj=usdm[[1]], dsn=path_file_usdm, layer = "current_usdm", driver="ESRI Shapefile", overwrite_layer = T)
 sf::st_write(usdm[[1]], dsn=path_file_usdm, layer = "current_usdm", delete_dsn = T)
 #write time
-write.csv(usdm[[2]], paste0(export.dir, "USDM_current/usdm_time.csv"))
+write.csv(usdm[[2]], paste0(export.dir, "usdm/usdm_time.csv"))
