@@ -26,3 +26,4 @@ mkdir /home/zhoylman/mco-drought-indicators-data/snotel/plots
 mkdir /home/zhoylman/mco-drought-indicators-data/widgets
 mkdir /home/zhoylman/mco-drought-indicators-data/soil-moisture
 mkdir /home/zhoylman/mco-drought-indicators-data/grace
+mkdir /home/zhoylman/mco-drought-indicators-data/logs
