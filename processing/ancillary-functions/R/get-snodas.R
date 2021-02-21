@@ -10,6 +10,8 @@ library(httr)
 library(dplyr)
 library(data.table)
 
+export.dir = '/home/zhoylman/mco-drought-indicators-data/'
+
 get_snodas = function(date){
   for(d in 1:length(date)){
     #build data url
@@ -18,8 +20,8 @@ get_snodas = function(date){
                  "/SNODAS_", date[d] %>% format(., "%Y%m%d"), ".tar")
     
     #define where raw tarball will be stored
-    tar.dir = paste0("/home/zhoylman/drought_indicators/snodas/data/raw/SNODAS_", date[d] %>% format(., "%Y%m%d"), ".tar")
-    unzip.dir = paste0("/home/zhoylman/drought_indicators/snodas/data/raw/SNODAS_", date[d] %>% format(., "%Y%m%d"))
+    tar.dir = paste0(export.dir,"snodas/raw/SNODAS_", date[d] %>% format(., "%Y%m%d"), ".tar")
+    unzip.dir = paste0(export.dir, "snodas/raw/SNODAS_", date[d] %>% format(., "%Y%m%d"))
     
     #downlaod zipped data
     httr::GET(url, write_disk(path = tar.dir, overwrite=TRUE))
@@ -53,7 +55,7 @@ byte order = 1", con = file_to_process %>% gsub(".dat.gz", ".hdr", .))
       file_to_process %>%
         R.utils::gunzip(., destname = gsub(".gz", "", .)) 
       
-      processed_name = paste0("/home/zhoylman/drought_indicators/snodas/data/processed/",
+      processed_name = paste0(export.dir, "snodas/processed/",
                               if(files_of_interest[i] == "1034") paste0("swe/snodas_swe_conus_", format(date[d],"%Y%m%d"), ".tif") 
                               else if (files_of_interest[i] == "1036") paste0("snow_depth/snodas_snow_depth_conus_", format(date[d],"%Y%m%d"), ".tif") else NA)
       

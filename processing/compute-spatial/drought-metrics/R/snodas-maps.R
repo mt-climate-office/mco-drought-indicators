@@ -22,7 +22,7 @@ today = c(as.Date(Sys.Date())) %>%
   mutate(year = lubridate::year(value), 
          day = lubridate::day(value),
          month = lubridate::month(value))%>%
-  select(year,month,day) 
+  dplyr::select(year,month,day) 
 
 #dates for standardized swe metric
 standardized_dates = tibble(year = today$year:2004,
@@ -38,7 +38,7 @@ standardized_dates = tibble(year = today$year:2004,
 get_snodas(c(dates, standardized_dates$date[2:length(standardized_dates$date)]))
 
 #get processed files
-files = list.files(snodas.dir, "processed/snow_depth/", full.names = T)
+files = list.files(paste0(snodas.dir, "processed/snow_depth/"), full.names = T)
 
 #compute time
 time = files %>%
@@ -106,18 +106,16 @@ template = raster(paste0(export.dir, 'spi/current_spi_30.tif'))
 #resmple to 4km
 standardized_swe_raster_resampled = resample(standardized_swe_raster, template, method="bilinear")
 
-
-
 ###############################3
 
 #write it out 
-writeRaster(standardized_swe_raster_resampled, paste0('/current_snodas_swe_standardized.tif'),
+writeRaster(standardized_swe_raster_resampled, paste0(export.dir, 'snodas/processed/standardized_swe/current_snodas_swe_standardized.tif'),
             overwrite = T)
 
 #write out time meta 
-write.csv(standardized_dates$date[1], '/home/zhoylman/drought_indicators/snodas/maps/current_snodas_swe_time.csv')
+write.csv(data.frame(time = standardized_dates$date[1]), paste0(export.dir, 'snodas/processed/standardized_swe/time.csv'))
 
 ########################## clean up data ##################################
 
-do.call(file.remove, list(list.files("/home/zhoylman/drought_indicators/snodas/data/processed/swe", full.names = TRUE)))
-do.call(file.remove, list(list.files("/home/zhoylman/drought_indicators/snodas/data/processed/snow_depth", full.names = TRUE)))
+do.call(file.remove, list(list.files(paste0(export.dir, "snodas/processed/swe/"), full.names = TRUE)))
+do.call(file.remove, list(list.files(paste0(export.dir, "snodas/processed/snow_depth/"), full.names = TRUE)))
