@@ -104,6 +104,7 @@ anomaly = function(x){
 
 percentile_inverse = function(x){
   tryCatch({
+    #bins are based on emperical quantile (percentiles) based on vector
     bins = quantile(x, seq(0,1,by = 0.01))
     #convert the first bin to -Inf to catch the min values as 1st percentile
     bins[1] = -Inf
