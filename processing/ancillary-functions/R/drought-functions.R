@@ -1,9 +1,9 @@
 spi_fun = function(x) {
-  #first try log logistic
+  #first try gamma
   tryCatch(
     {
       x = as.numeric(x)
-      #if precip is 0, replace it with 0.5%tile (really dry)
+      #if precip is 0, replace it with 0.01mm Really Dry
       if(any(x == 0, na.rm = T)){
         index = which(x == 0)
         x[index] = 0.01
@@ -104,9 +104,12 @@ anomaly = function(x){
 
 percentile_inverse = function(x){
   tryCatch({
-    temp_cdf = ecdf(x) 
-    cdf = temp_cdf(x)
-    return(cdf[length(cdf)]*100)
+    bins = quantile(x, seq(0,1,by = 0.01))
+    #convert the first bin to -Inf to catch the min values as 1st percentile
+    bins[1] = -Inf
+    #compute percentiles based on the bins
+    percentiles = .bincode(x, bins)
+    return(percentiles[length(percentiles)])
   }, error = function(e) {
     return(NA)
   })
