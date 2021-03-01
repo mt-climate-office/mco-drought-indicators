@@ -1,4 +1,6 @@
 spi_fun = function(x) {
+  #load the package needed for these computations
+  library(lmomco)
   #first try gamma
   tryCatch(
     {
@@ -27,6 +29,8 @@ spi_fun = function(x) {
 }
 
 spei_fun = function(x) {
+  #load the package needed for these computations
+  library(lmomco)
   #first try log logistic
   tryCatch(
     {
