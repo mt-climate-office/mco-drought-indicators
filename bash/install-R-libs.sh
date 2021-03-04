@@ -28,3 +28,7 @@ sudo su - -c "R -q -e \"install.packages('leaflet.extras', repos='http://cran.rs
 sudo su - -c "R -q -e \"install.packages('htmltools', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -q -e \"install.packages('htmlwidgets', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -q -e \"install.packages('XML', repos='http://cran.rstudio.com/')\""
+sudo su - -c "R -q -e \"install.packages('RNRCS', repos='http://cran.rstudio.com/')\""
+sudo su - -c "R -q -e \"install.packages('tictoc', repos='http://cran.rstudio.com/')\""
+sudo su - -c "R -q -e \"install.packages('data.table', repos='http://cran.rstudio.com/')\""
+sudo su - -c "R -q -e \"install.packages('ggplot2', repos='http://cran.rstudio.com/')\""

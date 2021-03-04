@@ -7,7 +7,7 @@ source(paste0(git.dir, '/processing/ancillary-functions/R/load-libs.R'))
 source(paste0(git.dir,"/processing/ancillary-functions/R/drought-functions.R"))
 
 #import remote data
-raster_temp = brick("http://thredds.northwestknowledge.net:8080/thredds/dodsC/agg_met_tmmx_1979_CurrentYear_CONUS.nc", var= 'daily_maximum_temperature')
+raster_temp = brick("[FillMismatch]http://thredds.northwestknowledge.net:8080/thredds/dodsC/agg_met_tmmx_1979_CurrentYear_CONUS.nc", var= 'daily_maximum_temperature')
 proj4string(raster_temp) = "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 #import UMRB outline for clipping and watershed for aggregating

@@ -12,14 +12,14 @@ snotel$site_num = gsub("[^0-9.]","",as.character(snotel$site_name))
 #hit the NRCS server for historical
 tic()
 current = list()
-cl = makeCluster(detectCores()-1)
+cl = makeCluster(10)
 registerDoParallel(cl)
 
 historical = foreach(i = 1:length(snotel$site_num)) %dopar%{
   library(RNRCS)
   tryCatch({
-    grabNRCS.data("SNTL", as.numeric(snotel$site_num[i]), timescale = "daily", DayBgn = "1981-10-01",
-                  DayEnd = "2011-10-01")
+    grabNRCS.data("SNTL", as.numeric(snotel$site_num[i]), timescale = "daily", DayBgn = "1991-10-01",
+                  DayEnd = "2020-10-01")
   }, error = function(e){
     return(NA)
   }
