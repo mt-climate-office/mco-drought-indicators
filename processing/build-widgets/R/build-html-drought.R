@@ -107,5 +107,5 @@ for(v in 1:length(variable)){
   if(variable[v] == 'EDDI'){
     m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal_reverse, legend_values = -2.5:2.5)
   }
-  saveWidget(m_raster, paste0(export.dir, "widgets/m_raster_", lower_variable[v], ".html"), selfcontained = F, libdir = paste0(export.dir, "widgets/libs/"))
+  saveWidget(m_raster, paste0(export.dir, "widgets/m_raster_", lower_variable[v], ".html"), selfcontained = F, libdir = paste0(export.dir, "widgets/libs"))
 }
