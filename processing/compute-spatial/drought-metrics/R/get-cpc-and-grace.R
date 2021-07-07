@@ -27,7 +27,7 @@ soil_moisture = raster(paste0(export.dir, 'soil-moisture/cpc-soil-moisture-conus
   crop(., UMRB)
 
 #write out clipped raster
-writeRaster(soil_moisture, paste0(export.dir, 'soil-moisture/current-cpc-soil-moisture.tif'))
+writeRaster(soil_moisture, paste0(export.dir, 'soil-moisture/current-cpc-soil-moisture.tif'), overwrite = T)
 
 #remove conus file 
 system(paste0('rm ', export.dir, 'soil-moisture/cpc-soil-moisture-conus.tif'))
@@ -50,7 +50,7 @@ grace_data = raster(paste0(export.dir, 'grace/grace-groundwater-drought.tif'))%>
   mask(., UMRB) %>%
   crop(., UMRB)
 
-writeRaster(grace_data, paste0(export.dir, 'grace/current-grace-groundwater-drought.tif'))
+writeRaster(grace_data, paste0(export.dir, 'grace/current-grace-groundwater-drought.tif'), overwrite = T)
 
 system(paste0('rm ', paste0(export.dir, 'grace/grace-groundwater-drought.tif')))
 

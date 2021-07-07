@@ -11,6 +11,7 @@ sudo apt-get install gdal-bin libgdal-dev
 sudo apt-get install libudunits2-dev
 
 # install libraries to the root enviorment
+sudo su - -c "R -q -e \"install.packages('R.utils', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -q -e \"install.packages('devtools', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -q -e \"install.packages('dplyr', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -q -e \"install.packages('raster', repos='http://cran.rstudio.com/')\""

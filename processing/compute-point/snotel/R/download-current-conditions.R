@@ -12,7 +12,7 @@ snotel$site_num = gsub("[^0-9.]","",as.character(snotel$site_name))
 #hit the NRCS server for current data
 tic()
 current = list()
-cl = makeCluster(detectCores()-1)
+cl = makeCluster(10)
 registerDoParallel(cl)
 
 current = foreach(i = 1:length(snotel$site_num)) %dopar%{
@@ -53,7 +53,7 @@ current_select_df = data.frame(matrix(nrow = length(current_select),
 for(i in 1:length(current_select)){
   tryCatch({
     current_select_df[i,1:2] = current_select[[i]] %>%
-      tidyr::drop_na() %>%
+      filter_all(any_vars(!is.na(.))) %>%
       dplyr::filter(Date == max(Date))%>%
       dplyr::select(-Date)
     print(i)
