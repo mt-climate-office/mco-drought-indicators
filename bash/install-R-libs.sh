@@ -35,3 +35,4 @@ sudo su - -c "R -q -e \"install.packages('RNRCS', repos='http://cran.rstudio.com
 sudo su - -c "R -q -e \"install.packages('tictoc', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -q -e \"install.packages('data.table', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -q -e \"install.packages('ggplot2', repos='http://cran.rstudio.com/')\""
+sudo su - -c "R -q -e \"install.packages('flexdashboard', repos='http://cran.rstudio.com/')\""

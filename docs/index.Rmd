@@ -197,7 +197,7 @@ Row {.tabset .tabset-fade data-height=750}
 
 ### **Gridded Data**
 
-<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_percentile.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
+<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_precipitation.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
 
 Row {.tabset .tabset-fade}
 -------------------------------------
@@ -217,58 +217,6 @@ For each timescale we calculate the accumulated precipitation for each year acro
   + Does not account for the capacity of the landscape to store or release moisture (e.g. soil moisture, groundwater and streamflow)
   <br>
   
-
-Precipitation Anomaly (% of Normal) {data-navmenu="Precipitation" data-icon="fa-list" data-orientation=rows}
-========================================================
-### **Precipitation Anomaly**
-
-<br>
-
-#### **Overview:**
-
-Precipitation is a strong driver of drought. In most cases, drought begins with a precipitation deficit which is the exacerbated by atmospheric conditions (such as temperature, humidity and wind speed). In this module we present precipitation anomalies calculated over timescales that range from 15 to 365 days. For each timescale we calculate the average accumulated precipitation relative to the period of record (1979 - present) and compute the percent of average. As an example of how to interpret each map 100% would represent the average expected precipitation (white shading) during a given time period. 
-
-<br>
-
-#### **Data Requirements:**
-
-  + Precipitation 
-
-<br>  
-
-
-##### Select a timescale from the left panel on the map. You can also toggle overlays, such as the current US Drought Monitor (USDM) drought designations, weather (from the National Weather Service) and state boundaries.
-
-<br>
-
-##### Tabs above the map allow you to aggregate the data by political or hydrologic boundaries.
-
-###
-
-Row {.tabset .tabset-fade data-height=750}
--------------------------------------
-
-### **Gridded Data**
-
-<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_anomaly.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
-
-Row {.tabset .tabset-fade}
--------------------------------------
-
-### **Derivation:**
-For each timescale we calculate the average accumulated precipitation across the period of record (1979 - present) and compute the percent of average. 100% represents average expected precipitation. 
-
-**Key Strengths:**
-
-  + Easy to calculate; uses only precipitation data. 
-  + Easy to interpret
-  
-**Key Weaknesses:** 
-
-  + Sensitive to biases in precipitation records over time
-  + Doesn't account for atmospheric demand of moisture, this limits identification of flash drought due to high temperature and large vapor pressure deficits
-  + Does not account for the capacity of the landscape to store or release water (e.g. soil moisture, groundwater and streamflow)
-  <br>
   
 Temperature Percentiles {data-navmenu="Temperature" data-icon="fa-list" data-orientation=rows}
 ========================================================
@@ -302,7 +250,7 @@ Row {.tabset .tabset-fade data-height=750}
 
 ### **Gridded Data**
 
-<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_percentile_temp.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
+<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_temperature.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
 
 Row {.tabset .tabset-fade}
 -------------------------------------
@@ -584,3 +532,25 @@ Row {.tabset .tabset-fade data-height=750}
 ### **Gridded Data**
 
 <iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_eddi.html" webkitallowfullscreen="webkitallowfullscreen"></iframe>
+
+GRACE Shallow Groundwater (Modeled) {data-navmenu="Drought Metrics" data-icon="fa-list" data-orientation=rows}
+========================================================
+### **GRACE Shallow Groundwater Drought Indicator**
+#### **NASA Goddard Space Flight Center**
+
+<br>
+
+#### **Overview:**
+
+This groundwater drought indicator is based on terrestrial water storage observations derived from GRACE-FO satellite data which is then integrated with other observations, using a land surface water and energy model. The drought indicators describe current wet or dry conditions, expressed as a percentile showing the probability of occurrence for that particular location and time of year, with lower values (warm colors) meaning dryer than normal, and higher values (blues) meaning wetter than normal. More information can be found at https://gracefo.jpl.nasa.gov/.
+
+<br>  
+
+###
+
+Row {.tabset .tabset-fade data-height=750}
+-------------------------------------
+
+### **Gridded Data**
+
+<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_grace.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
