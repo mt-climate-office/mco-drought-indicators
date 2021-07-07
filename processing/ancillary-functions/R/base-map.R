@@ -17,7 +17,7 @@ usdm_description = c("(Abnormally Dry)", "(Moderate Drought)",
 
 #google esk gesture control plugin
 gesturePlugin = htmlDependency("Leaflet.GestureHandling", "1.1.8",
-                               src = c(file = paste0(git.dir, "processing/mannual-dependencies/Leaflet.GestureHandling-master/dist/")),
+                               src = c(file = paste0(git.dir, "processing/manual-dependencies/Leaflet.GestureHandling-master/dist/")),
                                stylesheet = "leaflet-gesture-handling.min.css",
                                script = "leaflet-gesture-handling.min.js"
 )
@@ -32,10 +32,10 @@ labels_usdm[[1]] <- sprintf(
   current_usdm_date, current_usdm$DM
 ) %>% lapply(htmltools::HTML)
 
-pal_usdm <- colorBin(colorRamp(c("#ffff00", "#918151", "#ffa500", "#ff0000", "#811616"), interpolate = "spline"), 
-                     domain = 0:4, bins = seq(0,4,1))
+pal_usdm <- colorBin(colorRamp(c("#ffff00", "#D2B48C", "#ffa500", "#ff0000", "#811616"), interpolate = "spline"), 
+                     domain = 0:5, bins = seq(0,5,1))
 
-pal_usdm_legend <- colorFactor(c("#ffff00", "#918151", "#ffa500", "#ff0000", "#811616"), domain = c("D0 (Abnormally Dry)", "D1 (Moderate Drought)",
+pal_usdm_legend <- colorFactor(c("#ffff00", "#D2B48C", "#ffa500", "#ff0000", "#811616"), domain = c("D0 (Abnormally Dry)", "D1 (Moderate Drought)",
                                                                                                     "D2 (Severe Drought)", "D3 (Extreme Drought)",
                                                                                                     "D4 (Exceptional Drought)"))
 # A function that takes a plugin htmlDependency object and adds
@@ -60,10 +60,10 @@ base_map = function(x){
                            , lat1 = 60
                            , lng2 = -80
                            , lat2 = 30)%>%
-    leaflet::setView(lng = -108, lat = 45.5, zoom = 6) %>%
+    leaflet::setView(lng = -110, lat = 45.5, zoom = 6) %>%
     leaflet::addPolygons(data = states, group = "States", fillColor = "transparent", weight = 2, color = "black", opacity = 1)%>%
     leaflet::addPolygons(data = current_usdm, group = "USDM", fillColor = ~pal_usdm(DM), weight = 2, opacity = 1, color = "black",
-                         fillOpacity = 0.5, options = leaflet::pathOptions(pane = "USDM"), highlight = 
+                         fillOpacity = 0.6, options = leaflet::pathOptions(pane = "USDM"), highlight = 
                            leaflet::highlightOptions(weight = 5,color = "#666",fillOpacity = 0.7),label = labels_usdm[[1]], 
                          labelOptions = leaflet::labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"),textsize = "15px",direction = "auto"))%>%
     leaflet::addLegend("bottomright", group = "USDM", pal = pal_usdm_legend, values = c("D0 (Abnormally Dry)", "D1 (Moderate Drought)",
@@ -100,7 +100,7 @@ base_map_mobile = function(x){
     leaflet::addTiles("https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a") %>%
     leaflet::addProviderTiles("Stamen.TonerLines") %>%
     leaflet::addProviderTiles("Stamen.TonerLabels") %>%
-    leaflet::setView(lng = -108, lat = 45.5, zoom = 6) %>%
+    leaflet::setView(lng = -105, lat = 45.5, zoom = 6) %>%
     leaflet::addPolygons(data = states, group = "States", fillColor = "transparent", weight = 5, color = "black", opacity = 1)%>%
     leaflet::addWMSTiles(
       "https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi", group = "Weather",

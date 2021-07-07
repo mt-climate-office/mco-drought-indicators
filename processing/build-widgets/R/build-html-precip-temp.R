@@ -88,7 +88,7 @@ for(v in 1:length(variable)){
   # revalue data
   
   revalued_data = data %>%
-    lapply(., revalue_raster_data, min = 0, max = 100)
+    lapply(., revalue_raster_data, min = 0.1, max = 99.9)
   
   #Implement the aggregation by geometry boundries once I figure out how to do this.
   
