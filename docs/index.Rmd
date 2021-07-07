@@ -291,7 +291,7 @@ Row {.tabset .tabset-fade data-height=750}
 
 ### **Gridded Data**
 
-<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_soil_moisture.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
+<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_soil-moisture.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
 
 NDVI Anomaly {data-navmenu="Vegetation" data-icon="fa-list" data-orientation=rows}
 ========================================================
