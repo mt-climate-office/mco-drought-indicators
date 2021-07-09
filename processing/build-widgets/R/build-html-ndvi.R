@@ -117,7 +117,7 @@ for(v in 1:length(variable)){
     m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal_anom, legend_values = -1.5:1.5)
   }
   if(lower_variable[v] == 'trend'){
-    m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal_trend, -3:3)
+    m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal_trend, -2.5:2.5)
   }
   saveWidget(m_raster, paste0(export.dir, "widgets/m_raster_ndvi_", lower_variable[v], ".html"), selfcontained = F, libdir = paste0(export.dir, "widgets/libs/"))
 }

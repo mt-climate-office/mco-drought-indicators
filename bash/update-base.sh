@@ -22,4 +22,13 @@ Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-h
 Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-cpc-and-grace.R >/home/zhoylman/mco-drought-indicators-data/logs/build-cpc-grace-html 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-snotel-snodas.R >/home/zhoylman/mco-drought-indicators-data/logs/build-snodas-html 2>&1
 
+# Update Earth Engine data
+python3 /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/py/ndvi-anom-modis.py
+Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/ndvi-anom-map.R
+python3 /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/py/ndvi-trend-modis.py
+Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/ndvi-trend-map.R
+
+# Build HTML widget files for Earth Engine datasets 
+Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-ndvi.R
+
 #add transfer sh and git update sh here (after troubleshooting)
