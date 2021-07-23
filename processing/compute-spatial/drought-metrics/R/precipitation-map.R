@@ -69,7 +69,8 @@ for(t in 1:length(time_scale)){
     integrated_precip[,i] = values(raster_precip_clipped[[i]])
   }
 
-  current_anomaly = parApply(cl,integrated_precip, 1, FUN = anomaly)
+  current_percent_of_normal = parApply(cl,integrated_precip, 1, FUN = percent_of_normal)
+  current_deviation_from_normal = parApply(cl,integrated_precip, 1, FUN = deviation_from_normal)
   current_percentile = parApply(cl,integrated_precip, 1, FUN = percentile_inverse)
   current_raw = parApply(cl,integrated_precip, 1, FUN = raw_amount)
   
@@ -80,18 +81,20 @@ for(t in 1:length(time_scale)){
   ############## RASTER FILE #################
   ############################################
   
-  #create spatial template for current anomaly values
-  anomaly_map = raster_precip_clipped[[1]]
+  #create spatial template for current percent_of_normal values
+  percent_of_normal_map = raster_precip_clipped[[1]]
+  deviation_from_normal_map = raster_precip_clipped[[1]]
   percentile_map = raster_precip_clipped[[1]]
   raw_map = raster_precip_clipped[[1]]
 
-  #allocate curent anomaly values to spatial template
-  values(anomaly_map) = current_anomaly
+  #allocate curent percent_of_normal values to spatial template
+  values(percent_of_normal_map) = current_percent_of_normal
+  values(deviation_from_normal_map) = current_deviation_from_normal
   values(percentile_map) = current_percentile
   values(raw_map) = current_raw
   
   #define path for map export
-  vars = c("current_anomaly_", "current_percentile_", "current_raw_")
+  vars = c("current_percent_of_normal_", "current_deviation_from_normal_mm_", "current_percentile_", "current_raw_")
   
   path_file = list()
   
@@ -114,8 +117,8 @@ for(t in 1:length(time_scale)){
   }
   
   #write GeoTiff
-  maps = list(anomaly_map, percentile_map, raw_map)
-  for(i in 1:3){
+  maps = list(percent_of_normal_map, deviation_from_normal_map, percentile_map, raw_map)
+  for(i in 1:4){
     writeRaster(maps[[i]], path_file[[i]], format = "GTiff", overwrite = T)
   }
 }

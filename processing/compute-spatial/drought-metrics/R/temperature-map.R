@@ -69,7 +69,7 @@ for(t in 1:length(time_scale)){
     integrated_temp[,i] = values(raster_temp_clipped[[i]])
   }
   
-  current_anomaly = parApply(cl,integrated_temp, 1, FUN = anomaly)
+  current_deviation_from_normal = parApply(cl,integrated_temp, 1, FUN = deviation_from_normal)
   current_percentile = parApply(cl,integrated_temp, 1, FUN = percentile_inverse)
   
   #stop parellel cluster
@@ -79,16 +79,16 @@ for(t in 1:length(time_scale)){
   ############## RASTER FILE #################
   ############################################
   
-  #create spatial template for current anomaly values
-  anomaly_map = raster_temp_clipped[[1]]
+  #create spatial template for current deviation_from_normal values
+  deviation_from_normal_map = raster_temp_clipped[[1]]
   percentile_map = raster_temp_clipped[[1]]
   
-  #allocate curent anomaly values to spatial template
-  values(anomaly_map) = current_anomaly
+  #allocate curent deviation_from_normal values to spatial template
+  values(deviation_from_normal_map) = current_deviation_from_normal
   values(percentile_map) = current_percentile
   
   #define path for map export
-  vars = c("current_anomaly_", "current_percentile_")
+  vars = c("current_deviation_from_normal_degC_", "current_percentile_")
   
   path_file = list()
   
@@ -111,7 +111,7 @@ for(t in 1:length(time_scale)){
   }
   
   #write GeoTiff
-  maps = list(anomaly_map, percentile_map)
+  maps = list(deviation_from_normal_map, percentile_map)
   for(i in 1:2){
     writeRaster(maps[[i]], path_file[[i]], format = "GTiff", overwrite = T)
   }

@@ -100,10 +100,18 @@ eddi_fun = function(x) {
   }
 }
 
-anomaly = function(x){
+#percent of normal
+percent_of_normal = function(x){
   x_mean = mean(x, na.rm = T)
-  anomaly = ((x[length(x)])/x_mean)*100
-  return(anomaly)
+  percent_of_normal = ((x[length(x)])/x_mean)*100
+  return(percent_of_normal)
+}
+
+#deviation from normal
+deviation_from_normal = function(x){
+  x_mean = mean(x, na.rm = T)
+  deviation_from_normal = ((x[length(x)]) - x_mean)
+  return(deviation_from_normal)
 }
 
 percentile_inverse = function(x){
