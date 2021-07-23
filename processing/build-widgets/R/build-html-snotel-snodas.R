@@ -20,7 +20,7 @@ tribal = st_read(paste0(git.dir, 'processing/base-data/processed/UMRB_tribal_lan
 #define input shp files
 snotel = st_read(paste0(git.dir, "processing/base-data/snotel-data/Snotel_Sites.shp"))
 states =  st_read(paste0(git.dir, "processing/base-data/raw/states.shp"))
-snotel$site_num = gsub("[^0-9.]","",as.character(snotel$site_name))
+snotel$site_num = str_extract(snotel$site_name, "[[:digit:]]+")
 
 #Standardized swe import grid
 snodas_standardized_swe = raster(paste0(export.dir, 'snodas/processed/standardized_swe/current_snodas_swe_standardized.tif'))
