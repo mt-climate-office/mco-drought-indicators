@@ -146,25 +146,6 @@ Row {.tabset .tabset-fade data-height=800}
 
 <iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/swe_snotel.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
 
-Accumulated Precipitation {data-navmenu="Snowpack" data-icon="fa-list" data-orientation=rows}
-========================================================
-
-### **Snow Telemetry (SNOTEL)**
-
-<br>
-
-#### **Overview:**
-SNOTEL is an automated system of snowpack and related environmental sensors. SNOTEL is operated by the Natural Resources Conservation Service (NRCS) of the United States Department of Agriculture in the Western United States. Plots in this module show total snow water equivalent (SWE) and total liquid precipitation (rain + SWE) measured to date compared to historical averages. 
-
-<br>
-
-Row {.tabset .tabset-fade data-height=800}
--------------------------------------
-
-### **Accumulated Precipitation**
-
-<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/precip_snotel.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
-
 Precipitation Percentiles {data-navmenu="Precipitation" data-icon="fa-list" data-orientation=rows}
 ========================================================
 ### **Precipitation Percentiles**
@@ -173,7 +154,7 @@ Precipitation Percentiles {data-navmenu="Precipitation" data-icon="fa-list" data
 
 #### **Overview:**
 
-Precipitation is a strong driver of drought. In most cases, drought begins with a precipitation deficit which is the exacerbated by atmospheric conditions (such as temperature, humidity and wind speed). In this module we present precipitation percentiles calculated over timescales ranging from 15 to 365 days. As an example of how to interpret each map, 50 represents the normal (median; white shading) precipitation over a given time period, 100 would be the wettest period on record (dark blue) and 0 would represent the driest conditions observed (dark red). The analysis is conducted over a period from 1979 to present.
+Precipitation is a strong driver of drought. In most cases, drought begins with a precipitation deficit which is the exacerbated by atmospheric conditions (such as temperature, humidity and wind speed). In this module we present precipitation percentiles calculated over timescales ranging from 15 to 365 days. As an example of how to interpret each map, 50 represents the normal (median; white shading) precipitation over a given time period, 100 would be the wettest period on record (dark blue) and 0 would represent the driest conditions observed (dark red). The analysis is conducted over a period from 1979 to present. Data can be found at: https://data.climate.umt.edu/drought-indicators/precipitation/
 
 <br>
 
@@ -217,6 +198,24 @@ For each timescale we calculate the accumulated precipitation for each year acro
   + Does not account for the capacity of the landscape to store or release moisture (e.g. soil moisture, groundwater and streamflow)
   <br>
   
+Accumulated Precipitation (SNOTEL) {data-navmenu="Precipitation" data-icon="fa-list" data-orientation=rows}
+========================================================
+
+### **Snow Telemetry (SNOTEL)**
+
+<br>
+
+#### **Overview:**
+SNOTEL is an automated system of snowpack and related environmental sensors (including precipitation). SNOTEL is operated by the Natural Resources Conservation Service (NRCS) of the United States Department of Agriculture in the Western United States. Plots in this module show total liquid precipitation (rain +snow water equivalent) measured to date compared to historical averages. 
+
+<br>
+
+Row {.tabset .tabset-fade data-height=800}
+-------------------------------------
+
+### **Accumulated Precipitation**
+
+<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/precip_snotel.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
   
 Temperature Percentiles {data-navmenu="Temperature" data-icon="fa-list" data-orientation=rows}
 ========================================================
@@ -226,7 +225,7 @@ Temperature Percentiles {data-navmenu="Temperature" data-icon="fa-list" data-ori
 
 #### **Overview:**
 
-Temperature is a strong mediator of drought. In most cases, precipitation deficits are exacerbated by atmospheric dryness, which is strongly linked to temperature. In this module we present temperature percentiles calculated over timescales ranging from 15 to 365 days. As an example of how to interpret each map, 50 represents the normal (median; white shading) temperature over a given time period, 100 would be the warmest period on record (dark red) and 0 would represent the coldest conditions observed (dark blue). The analysis is conducted over a period from 1979 to present.
+Temperature is a strong mediator of drought. In most cases, precipitation deficits are exacerbated by atmospheric dryness, which is strongly linked to temperature. In this module we present temperature percentiles calculated over timescales ranging from 15 to 365 days. As an example of how to interpret each map, 50 represents the normal (median; white shading) temperature over a given time period, 100 would be the warmest period on record (dark red) and 0 would represent the coldest conditions observed (dark blue). The analysis is conducted over a period from 1979 to present. Data can be found at: https://data.climate.umt.edu/drought-indicators/temperature/
 
 <br>
 
@@ -301,7 +300,7 @@ NDVI Anomaly {data-navmenu="Vegetation" data-icon="fa-list" data-orientation=row
 
 #### **Overview:**
 
-The Normalized Difference Vegetation Index (NDVI) is a commonly used indicator of ecosystem photosynthesis and provides an indication of vegetation status. Here we present NDVI anomalies computed as a Z-Score. Positive values indicate greener than expected vegetation when compared to the same time period between 2002 – present. These data are provided by the Moderate Resolution Imaging Spectroradiometer (MODIS) Terra Satellite.
+The Normalized Difference Vegetation Index (NDVI) is a commonly used indicator of ecosystem photosynthesis and provides an indication of vegetation status. Here we present NDVI anomalies computed as a Z-Score. Positive values indicate greener than expected vegetation when compared to the same time period between 2002 – present. These data are provided by the Moderate Resolution Imaging Spectroradiometer (MODIS) Terra Satellite. Data can be found at: https://data.climate.umt.edu/drought-indicators/ndvi/anom/
 
 <br>
 
@@ -335,7 +334,7 @@ NDVI Trend {data-navmenu="Vegetation" data-icon="fa-list" data-orientation=rows}
 
 #### **Overview:**
 
-The Normalized Difference Vegetation Index (NDVI) is a commonly used indicator of ecosystem photosynthesis and provides an indication of vegetation status. Here we present NDVI trends computed as a linear trend through time multiplied by the selected timescale. Positive values indicate vegetation that is greening (NDVI increasing), while negative values indicate vegetation that is browning (NDVI decreasing) over the time period selected. These data are provided by the Moderate Resolution Imaging Spectroradiometer (MODIS) Terra Satellite.
+The Normalized Difference Vegetation Index (NDVI) is a commonly used indicator of ecosystem photosynthesis and provides an indication of vegetation status. Here we present NDVI trends computed as a linear trend through time multiplied by the selected timescale. Positive values indicate vegetation that is greening (NDVI increasing), while negative values indicate vegetation that is browning (NDVI decreasing) over the time period selected. These data are provided by the Moderate Resolution Imaging Spectroradiometer (MODIS) Terra Satellite. Data can be found at: https://data.climate.umt.edu/drought-indicators/ndvi/trend/
 
 <br>
 
@@ -369,7 +368,7 @@ Standardized Precipitation Index (SPI) {data-navmenu="Drought Metrics" data-icon
 
 #### **Overview:**
 
-The SPI is a common metric which quantifies precipitation anomalies at various timescales. SPI is often used to estimate a range of hydrological processes that respond to precipitation from short to long periods of time. For example, SPI is related to soil moisture anomalies when calculated over short time scales (days to weeks) but is more related to groundwater and reservoir storage over longer timescales (months to years). The values of SPI can be interpreted as a number of standard deviations away from the average cumulative precipitation depth for a given time period. The SPI has unique statistical qualities in that it is directly related to precipitation probability and it can be used to represent both dry (negative values; represented here with warmer colors) and wet (positive values; represented here with cooler colors) conditions. 
+The SPI is a common metric which quantifies precipitation anomalies at various timescales. SPI is often used to estimate a range of hydrological processes that respond to precipitation from short to long periods of time. For example, SPI is related to soil moisture anomalies when calculated over short time scales (days to weeks) but is more related to groundwater and reservoir storage over longer timescales (months to years). The values of SPI can be interpreted as a number of standard deviations away from the average cumulative precipitation depth for a given time period. The SPI has unique statistical qualities in that it is directly related to precipitation probability and it can be used to represent both dry (negative values; represented here with warmer colors) and wet (positive values; represented here with cooler colors) conditions. Data can be found at: https://data.climate.umt.edu/drought-indicators/spi/
 
 <br>
 
@@ -445,7 +444,7 @@ Standardized Precipitation Evapotranspiration Index (SPEI) {data-navmenu="Drough
 <br>
 
 #### **Overview:**
-SPEI takes into account both precipitation and potential evapotranspiration to describe the wetness or dryness of a time period. SPEI can be calculated at various timescales to represent different drought timescales and its impacts on hydrological conditions ranging from short to long timescales. SPEI incorporates the important effect of atmospheric demand on drought. 
+SPEI takes into account both precipitation and potential evapotranspiration to describe the wetness or dryness of a time period. SPEI can be calculated at various timescales to represent different drought timescales and its impacts on hydrological conditions ranging from short to long timescales. SPEI incorporates the important effect of atmospheric demand on drought. Data can be found at: https://data.climate.umt.edu/drought-indicators/spei/
 
 <br>
 
@@ -509,7 +508,8 @@ Evaporative Demand Drought Index (EDDI) {data-navmenu="Drought Metrics" data-ico
 <br>
 
 #### **Overview:**
-EDDI calculates the rank of accumulated PET for a given region. EDDI does not standardize data based off of theoretical (parameterized) probability distributions (such as SPI and SPEI). Instead, EDDI uses a non-parametric approach to compute empirical probabilities using inverse normal approximation. This method calculates EDDI by ranking the data from smallest to largest and accounting for the number of observations. Therefore, maximum and minimum values of EDDI are constrained by the number of years on record (which determines the number of observations). Practically, this causes EDDI to show the relative ranking of year, with respect to the period of record. 
+EDDI calculates the rank of accumulated PET for a given region. EDDI does not standardize data based off of theoretical (parameterized) probability distributions (such as SPI and SPEI). Instead, EDDI uses a non-parametric approach to compute empirical probabilities using inverse normal approximation. This method calculates EDDI by ranking the data from smallest to largest and accounting for the number of observations. Therefore, maximum and minimum values of EDDI are constrained by the number of years on record (which determines the number of observations). Practically, this causes EDDI to show the relative ranking of year, with respect to the period of record. Data can be found at: https://data.climate.umt.edu/drought-indicators/eddi/
+
 <br>
 
 #### **Data Requirements:**

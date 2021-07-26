@@ -138,7 +138,7 @@ plot_snotel = function(current_data, climatology_data, names){
       scale_color_manual(name = "",values = c(
         'Median' = 'black',
         'Current' = 'blue')) +
-      scale_fill_manual(name = 'Percentiles', values = c("green","red","blue"),
+      scale_fill_manual(name = 'Percentiles', values = c("blue","green","red"),
                         breaks = c("75th - 95th", "25th - 75th", "5th - 25th")) +
       ylab("Snow Water Equivalent (mm)")+
       xlab("Date")+
@@ -169,7 +169,7 @@ plot_snotel_mobile = function(current_data, climatology_data, names){
       scale_color_manual(name = "",values = c(
         'Median' = 'darkgreen',
         'Current' = 'black')) +
-      scale_fill_manual(name = 'Percentiles', values = c("green","red","blue"),
+      scale_fill_manual(name = 'Percentiles', values = c("blue","green","red"),
                         breaks = c("75th - 95th", "25th - 75th", "5th - 25th")) +
       ylab("Snow Water Equivalent (mm)")+
       xlab(NULL)+
@@ -206,7 +206,7 @@ plot_snotel_precip = function(current_data, climatology_data, names){
       scale_color_manual(name = "" ,values = c(
         'Median' = 'black',
         'Current' = 'blue')) +
-      scale_fill_manual(name = 'Percentiles', values = c("green","red","blue"),
+      scale_fill_manual(name = 'Percentiles', values = c("blue","green","red"),
                         breaks = c("75th - 95th", "25th - 75th", "5th - 25th")) +
       ylab("Accumulated Precipitation (mm)")+
       xlab("Date")+

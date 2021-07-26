@@ -21,6 +21,7 @@ tribal = st_read(paste0(git.dir, 'processing/base-data/processed/UMRB_tribal_lan
 snotel = st_read(paste0(git.dir, "processing/base-data/snotel-data/Snotel_Sites.shp"))
 states =  st_read(paste0(git.dir, "processing/base-data/raw/states.shp"))
 snotel$site_num = str_extract(snotel$site_name, "[[:digit:]]+")
+snotel$simple_id = c(1:length(snotel$site_num))
 
 #Standardized swe import grid
 snodas_standardized_swe = raster(paste0(export.dir, 'snodas/processed/standardized_swe/current_snodas_swe_standardized.tif'))
@@ -86,7 +87,7 @@ swe_map = base_map() %>%
   leaflet::addMapPane("Watersheds", zIndex = 410) %>%
   leaflet::addMapPane("USDM", zIndex = 400) %>%
   addCircleMarkers(snotel$lon, snotel$lat, snotel$simple_id, 
-                   popup = paste0("<img src='../plots/snotel_plot_",
+                   popup = paste0("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_",
                                   snotel$simple_id,".png' height='350' width='600' loading='lazy'/>"),
                    radius = 10, stroke = TRUE, fillOpacity = 0.9,
                    color = "black", fillColor = pal(daily_lookup$percent_swe), group = "SNOTEL (SWE)")%>%
@@ -125,7 +126,7 @@ standardized_swe_map = base_map() %>%
   leaflet::addMapPane("Watersheds", zIndex = 410) %>%
   leaflet::addMapPane("USDM", zIndex = 400) %>%
   addCircleMarkers(snotel$lon, snotel$lat, snotel$simple_id, 
-                   popup = paste0("<img src='../plots/snotel_plot_",
+                   popup = paste0("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_",
                                   snotel$simple_id,".png' height='350' width='600' loading='lazy'/>"),
                    radius = 10, stroke = TRUE, fillOpacity = 0.9,
                    color = "black", fillColor = pal(daily_lookup$percent_swe), group = "SNOTEL (SWE)")%>%
@@ -159,7 +160,7 @@ precip_map = base_map() %>%
   addPolygons(data = tribal, group = "Tribal Lands", fillColor = "transparent", weight = 0.5, color = "black", opacity = 1, label = ~GNIS_Name1, labelOptions = labelOptions(textsize = '14px'))%>%
   addPolygons(data = watersheds, group = "Watersheds", fillColor = "transparent", weight = 0.5, color = "black", opacity = 1, label = ~NAME, labelOptions = labelOptions(textsize = '14px'))%>%
   addCircleMarkers(snotel$lon, snotel$lat, snotel$simple_id, 
-                   popup = paste0("<img src='../plots/precip_snotel_plot_",
+                   popup = paste0("<img src='https://data.climate.umt.edu/drought-indicators/plots/precip_snotel_plot_",
                                   snotel$simple_id,".png' height='350' width='600' loading='lazy'/>"),
                    radius = 10, stroke = TRUE, fillOpacity = 0.9,
                    color = "black", fillColor = pal(daily_lookup$percent_precip)
@@ -182,7 +183,7 @@ saveWidget(precip_map, paste0(export.dir, "widgets/precip_snotel.html"), selfcon
 ##### Mobile SWE ######
 swe_map_mobile = base_map_mobile() %>%
   addCircleMarkers(snotel$lon, snotel$lat, snotel$simple_id, group = "SNOTEL (SWE)",
-                   popup = paste0("<img src='../snotel/plots/snotel_plot_mobile_",
+                   popup = paste0("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_mobile_",
                                   snotel$simple_id,".png' height='200' width='270' loading='lazy'/>"),
                    radius = 12, stroke = TRUE, fillOpacity = 0.9,
                    color = "black", fillColor = pal(daily_lookup$percent_swe)
