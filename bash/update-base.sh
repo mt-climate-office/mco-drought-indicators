@@ -21,3 +21,9 @@ Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-h
 Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-precip-temp.R >/home/zhoylman/mco-drought-indicators-data/logs/build-precip-temp-html 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-cpc-and-grace.R >/home/zhoylman/mco-drought-indicators-data/logs/build-cpc-grace-html 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-snotel-snodas.R >/home/zhoylman/mco-drought-indicators-data/logs/build-snodas-html 2>&1
+
+# Transfer Files
+bash /home/zhoylman/bash/transfer-drought-data.sh
+
+# Update USDM Color Scheme Images
+Rscript /home/zhoylman/mco-drought-indicators/processing/build-figures/R/usdm-color-scheme.R >/home/zhoylman/mco-drought-indicators-data/logs/build-usdm-color-scheme 2>&1

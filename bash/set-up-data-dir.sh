@@ -27,6 +27,8 @@ mkdir /home/zhoylman/mco-drought-indicators-data/widgets
 mkdir /home/zhoylman/mco-drought-indicators-data/soil-moisture
 mkdir /home/zhoylman/mco-drought-indicators-data/grace
 mkdir /home/zhoylman/mco-drought-indicators-data/logs
+mkdir /home/zhoylman/mco-drought-indicators-data/figures
+mkdir /home/zhoylman/mco-drought-indicators-data/figures/usdm-color-scheme
 
 sudo chown -R zhoylman: /home/zhoylman/mco-drought-indicators-data/
 sudo chmod -R u+w /home/zhoylman/mco-drought-indicators-data/
