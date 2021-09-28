@@ -126,3 +126,37 @@ for(t in 1:length(time_scale)){
 #write time out
 out.time = data.frame(time = substr(time$datetime[length(time$datetime)],1,10))
 write.csv(out.time, paste0(export.dir, "precipitation/time.csv"))
+
+
+### days without precip ###
+# time_without = time[(length(time$day)-((364*2)+1)):length(time$day),] 
+# base_without = raster_precip_spatial_clip[[(length(time$day)-((364*2)+1)):length(time$day)]]
+# 
+# matrix_without = data.frame(matrix(nrow = length(values(base_without[[1]])), ncol = length(nlayers(base_without))))
+# for(i in 1:nlayers(base_without)){
+#   matrix_without[,i] = values(base_without[[i]])
+# }
+# 
+# cl = makeCluster(3)
+# registerDoParallel(cl)
+# 
+# thresh = c(0.1, 0.25, 0.5) 
+# 
+# for(i in 1:length(thresh)){
+#   val = thresh[i] * 25.4
+#   
+#   clusterExport(cl,'val')
+#   
+#   days_without = parApply(cl,matrix_without, 1, FUN = function(x){library(dplyr); which(x %>% rev > val)[1]})
+#   
+#   days_without_rast = base_without[[1]]
+#   values(days_without_rast) = days_without
+#   
+#   plot(days_without_rast, terrain.colors(20), zlim = c(0,50))
+#   lines(UMRB)
+#   plot(base_without[[nlayers(base_without)-9]])
+#   
+#   writeRaster(days_without_rast, paste0('/home/zhoylman/temp/days_since_', thresh[i],'_in_event.tif')) 
+# }
+# 
+# stopCluster(cl)
