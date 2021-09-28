@@ -368,7 +368,7 @@ Standardized Precipitation Index (SPI) {data-navmenu="Drought Metrics" data-icon
 
 #### **Overview:**
 
-The SPI is a common metric which quantifies precipitation anomalies at various timescales. SPI is often used to estimate a range of hydrological processes that respond to precipitation from short to long periods of time. For example, SPI is related to soil moisture anomalies when calculated over short time scales (days to weeks) but is more related to groundwater and reservoir storage over longer timescales (months to years). The values of SPI can be interpreted as a number of standard deviations away from the average cumulative precipitation depth for a given time period. The SPI has unique statistical qualities in that it is directly related to precipitation probability and it can be used to represent both dry (negative values; represented here with warmer colors) and wet (positive values; represented here with cooler colors) conditions. Data can be found at: https://data.climate.umt.edu/drought-indicators/spi/
+The SPI is a common metric which quantifies precipitation anomalies at various timescales. SPI is often used to estimate a range of hydrological processes that respond to precipitation from short to long periods of time. For example, SPI is related to soil moisture anomalies when calculated over short time scales (days to weeks) but is more related to groundwater and reservoir storage over longer timescales (months to years). The values of SPI can be interpreted as a number of standard deviations away from the average cumulative precipitation depth for a given time period. The SPI has unique statistical qualities in that it is directly related to precipitation probability and it can be used to represent both dry (negative values; represented here with warmer colors) and wet (positive values; represented here with cooler colors) conditions. Data can be found at: https://data.climate.umt.edu/drought-indicators/spi/ SPI Maps with a USDM color scheme can be found at: https://data.climate.umt.edu/drought-indicators/figures/usdm-color-scheme/
 
 <br>
 
@@ -444,7 +444,7 @@ Standardized Precipitation Evapotranspiration Index (SPEI) {data-navmenu="Drough
 <br>
 
 #### **Overview:**
-SPEI takes into account both precipitation and potential evapotranspiration to describe the wetness or dryness of a time period. SPEI can be calculated at various timescales to represent different drought timescales and its impacts on hydrological conditions ranging from short to long timescales. SPEI incorporates the important effect of atmospheric demand on drought. Data can be found at: https://data.climate.umt.edu/drought-indicators/spei/
+SPEI takes into account both precipitation and potential evapotranspiration to describe the wetness or dryness of a time period. SPEI can be calculated at various timescales to represent different drought timescales and its impacts on hydrological conditions ranging from short to long timescales. SPEI incorporates the important effect of atmospheric demand on drought. Data can be found at: https://data.climate.umt.edu/drought-indicators/spei/ SPEI Maps with a USDM color scheme can be found at: https://data.climate.umt.edu/drought-indicators/figures/usdm-color-scheme/
 
 <br>
 
