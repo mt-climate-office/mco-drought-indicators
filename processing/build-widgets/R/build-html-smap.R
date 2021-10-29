@@ -90,31 +90,39 @@ for(v in 1:length(variable)){
   #define legend title name (HTML)
   title = paste0(variable[v], "<br>Anomoly<br>", as.character(time))
   
+  library(RCurl)
+  
+  stations = getURL("https://mesonet.climate.umt.edu/api/stations?type=csv&clean=true") %>%
+    read_csv() %>%
+    mutate(year = substr(`Start date`,9,13)) %>%
+    filter(year <= '2018')
+  
   mesonet = read_csv('/home/zhoylman/mco-drought-indicators-data/mesonet/soil-moisture/current_anom.csv') %>%
-    filter(name %in% c('soilwc08', 'soilwc20')) %>%
+    filter(name %in% c('soilwc08', 'soilwc20'),
+           station_key %in% stations$`Station ID`) %>%
     dplyr::select(datetime,name,anom,Longitude,Latitude) %>%
     mutate(anom = ifelse(anom < -2.5, -2.5, 
                          ifelse(anom > 2.5, 2.5, anom))) %>%
-    tidyr::pivot_wider(names_from = name, values_from = anom)
+    tidyr::pivot_wider(names_from = name, values_from = anom) 
   
   # make leaflet widgets
   if(variable[v] == "SMAP Subsurface<br>Soil Moisture"){
-    m_raster = build_html_raster(revalued_data, 'SMAP Subsurface Soil Moisture Anomaly', variable[v], title, pal, legend_values = -2.5:2.5) #%>%
-      # addCircleMarkers(mesonet$Longitude, mesonet$Latitude,
-      #                  radius = 10, stroke = TRUE, fillOpacity = 0.9,
-      #                  color = "black", fillColor = pal(mesonet$soilwc08), group = "MT Mesonet 8in Anomaly") %>%
-      # addCircleMarkers(mesonet$Longitude, mesonet$Latitude,
-      #                  radius = 10, stroke = TRUE, fillOpacity = 0.9,
-      #                  color = "black", fillColor = pal(mesonet$soilwc20), group = "MT Mesonet 20in Anomaly") %>%
-      # leaflet::addLegend("topright", group = "MT Mesonet 8in Anomaly", pal = pal, values = -2.5:2.5,title = paste0("MT Mesonet<br>Soil Moisture<br>Anomaly<br>",
-      #                                                                                                              mesonet$datetime[1] %>% as.Date())) %>%
+    m_raster = build_html_raster(revalued_data, 'SMAP Subsurface Soil Moisture Anomaly', variable[v], title, pal, legend_values = -2.5:2.5) %>%
+      addCircleMarkers(mesonet$Longitude, mesonet$Latitude,
+                       radius = 10, stroke = TRUE, fillOpacity = 0.9,
+                       color = "black", fillColor = pal(mesonet$soilwc08), group = "MT Mesonet 8in Anomaly") %>%
+      addCircleMarkers(mesonet$Longitude, mesonet$Latitude,
+                       radius = 10, stroke = TRUE, fillOpacity = 0.9,
+                       color = "black", fillColor = pal(mesonet$soilwc20), group = "MT Mesonet 20in Anomaly") %>%
+      leaflet::addLegend("topright", group = "MT Mesonet 8in Anomaly", pal = pal, values = -2.5:2.5,title = paste0("MT Mesonet<br>Soil Moisture<br>Anomaly<br>",
+                                                                                                                   mesonet$datetime[1] %>% as.Date())) %>%
       # leaflet::addLegend("topright", group = "MT Mesonet 20in Anomaly", pal = pal, values = -2.5:2.5,title = paste0("MT Mesonet<br>Soil Moisture<br>Anomaly<br>",
       #                                                                                                               mesonet$datetime[1] %>% as.Date())) %>%
-      # addLayersControl(position = "topleft",
-      #                  baseGroups = c('SMAP Subsurface Soil Moisture Anomaly'),
-      #                  overlayGroups = c("MT Mesonet 8in Anomaly", "MT Mesonet 20in Anomaly", "USDM", "States", "Weather", "Streets", "Counties", 'Watersheds', 'Tribal Lands'),
-      #                  options = layersControlOptions(collapsed = FALSE)) %>%
-      # leaflet::hideGroup(c("Watersheds", "Counties", "Streets", 'Tribal Lands', "MT Mesonet 8in Anomaly", "MT Mesonet 20in Anomaly"))
+      addLayersControl(position = "topleft",
+                       baseGroups = c('SMAP Subsurface Soil Moisture Anomaly'),
+                       overlayGroups = c("MT Mesonet 8in Anomaly", "USDM", "States", "Weather", "Streets", "Counties", 'Watersheds', 'Tribal Lands'),
+                       options = layersControlOptions(collapsed = FALSE)) %>%
+      leaflet::hideGroup(c("Watersheds", "Counties", "Streets", 'Tribal Lands', "MT Mesonet 8in Anomaly", "MT Mesonet 20in Anomaly"))
       
   } 
   saveWidget(m_raster, paste0(export.dir, "widgets/m_raster_", lower_variable[v], ".html"), selfcontained = F, libdir = paste0(export.dir, "widgets/libs/"))

@@ -8,6 +8,7 @@ Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/precipitation-map.R >/home/zhoylman/mco-drought-indicators-data/logs/precip 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/temperature-map.R >/home/zhoylman/mco-drought-indicators-data/logs/temp 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/get-cpc-and-grace.R >/home/zhoylman/mco-drought-indicators-data/logs/cpc-grace 2>&1
+Rscript /home/zhoylman/mco-drought-indicators/processing/compute-point/mesonet/soil-moisture-anomoly.R >/home/zhoylman/mco-drought-indicators-data/logs/mesonet-anom 2>&1
 
 # Update Snotel Data
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-point/snotel/R/download-current-conditions.R >/home/zhoylman/mco-drought-indicators-data/logs/download-snotel 2>&1
