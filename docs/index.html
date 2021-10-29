@@ -2848,17 +2848,17 @@ window.FlexDashboardComponents.push({
 </div>
 </div>
 </div>
-<div id="soil-moisture-percentiles-modeled" class="section level1" data-navmenu="Soil Moisture" data-icon="fa-list" data-orientation="rows">
-<h1 data-navmenu="Soil Moisture" data-icon="fa-list" data-orientation="rows">Soil Moisture Percentiles (Modeled)</h1>
-<div id="soil-moisture-percentiles" class="section level3">
-<h3><strong>Soil Moisture Percentiles</strong></h3>
-<div id="national-weather-service-climate-prediction-center" class="section level4">
-<h4><strong>National Weather Service, Climate Prediction Center</strong></h4>
+<div id="smap-soil-moisture-anomaly" class="section level1" data-navmenu="Soil Moisture" data-icon="fa-list" data-orientation="rows">
+<h1 data-navmenu="Soil Moisture" data-icon="fa-list" data-orientation="rows">SMAP Soil Moisture Anomaly</h1>
+<div id="smap-soil-moisture-anomaly-1" class="section level3">
+<h3><strong>SMAP Soil Moisture Anomaly</strong></h3>
+<div id="national-aeronautics-and-space-administration" class="section level4">
+<h4><strong>National Aeronautics and Space Administration</strong></h4>
 <p><br></p>
 </div>
 <div id="overview-6" class="section level4">
 <h4><strong>Overview:</strong></h4>
-<p>Soil moisture is a strong indicator of drought. In this module we present modeled soil moisture percentiles calculated by the NOAAs Climate Prediction Center. This map is based on an ensemble of the MOSAIC, NOAH, VIC &amp; SAC soil moisture models. The map is derived using a 30 day time scale and is updated every week. As an example of how to read this map, 50 represents the average (median) soil moisture relative to the period from 1980 to 2007. 100 and 0 represent the wettest and driest conditions observed respectively.</p>
+<p>Soil moisture is a strong indicator of drought. In this module we present Soil Moisture Active Passive (SMAP) Level 3 soil moisture anomalies calculated using the NASA-USDA Enhanced SMAP Global soil moisture dataset. For more information, please visit <a href="https://developers.google.com/earth-engine/datasets/catalog/NASA_USDA_HSL_SMAP10KM_soil_moisture" class="uri">https://developers.google.com/earth-engine/datasets/catalog/NASA_USDA_HSL_SMAP10KM_soil_moisture</a>.</p>
 <p><br></p>
 </div>
 </div>
@@ -2868,6 +2868,32 @@ window.FlexDashboardComponents.push({
 <div id="row-8" class="section level2 tabset tabset-fade" data-height="750">
 <h2 class="tabset tabset-fade" data-height="750">Row</h2>
 <div id="gridded-data-2" class="section level3">
+<h3><strong>Gridded Data</strong></h3>
+<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_smap.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy">
+</iframe>
+</div>
+</div>
+</div>
+<div id="soil-moisture-percentiles-modeled" class="section level1" data-navmenu="Soil Moisture" data-icon="fa-list" data-orientation="rows">
+<h1 data-navmenu="Soil Moisture" data-icon="fa-list" data-orientation="rows">Soil Moisture Percentiles (Modeled)</h1>
+<div id="soil-moisture-percentiles" class="section level3">
+<h3><strong>Soil Moisture Percentiles</strong></h3>
+<div id="national-weather-service-climate-prediction-center" class="section level4">
+<h4><strong>National Weather Service, Climate Prediction Center</strong></h4>
+<p><br></p>
+</div>
+<div id="overview-7" class="section level4">
+<h4><strong>Overview:</strong></h4>
+<p>Soil moisture is a strong indicator of drought. In this module we present modeled soil moisture percentiles calculated by the NOAAs Climate Prediction Center. This map is based on an ensemble of the MOSAIC, NOAH, VIC &amp; SAC soil moisture models. The map is derived using a 30 day time scale and is updated every week. As an example of how to read this map, 50 represents the average (median) soil moisture relative to the period from 1980 to 2007. 100 and 0 represent the wettest and driest conditions observed respectively.</p>
+<p><br></p>
+</div>
+</div>
+<div id="section-4" class="section level3">
+<h3></h3>
+</div>
+<div id="row-9" class="section level2 tabset tabset-fade" data-height="750">
+<h2 class="tabset tabset-fade" data-height="750">Row</h2>
+<div id="gridded-data-3" class="section level3">
 <h3><strong>Gridded Data</strong></h3>
 <iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_soil-moisture.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy">
 </iframe>
@@ -2879,7 +2905,7 @@ window.FlexDashboardComponents.push({
 <div id="ndvi-anomaly-1" class="section level3">
 <h3><strong>NDVI Anomaly</strong></h3>
 <p><br></p>
-<div id="overview-7" class="section level4">
+<div id="overview-8" class="section level4">
 <h4><strong>Overview:</strong></h4>
 <p>The Normalized Difference Vegetation Index (NDVI) is a commonly used indicator of ecosystem photosynthesis and provides an indication of vegetation status. Here we present NDVI anomalies computed as a Z-Score. Positive values indicate greener than expected vegetation when compared to the same time period between 2002 – present. These data are provided by the Moderate Resolution Imaging Spectroradiometer (MODIS) Terra Satellite. Data can be found at: <a href="https://data.climate.umt.edu/drought-indicators/ndvi/anom/" class="uri">https://data.climate.umt.edu/drought-indicators/ndvi/anom/</a></p>
 <p><br></p>
@@ -2899,12 +2925,12 @@ window.FlexDashboardComponents.push({
 </div>
 </div>
 </div>
-<div id="section-4" class="section level3">
+<div id="section-5" class="section level3">
 <h3></h3>
 </div>
-<div id="row-9" class="section level2 tabset tabset-fade" data-height="750">
+<div id="row-10" class="section level2 tabset tabset-fade" data-height="750">
 <h2 class="tabset tabset-fade" data-height="750">Row</h2>
-<div id="gridded-data-3" class="section level3">
+<div id="gridded-data-4" class="section level3">
 <h3><strong>Gridded Data</strong></h3>
 <iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_ndvi_anom.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy">
 </iframe>
@@ -2916,7 +2942,7 @@ window.FlexDashboardComponents.push({
 <div id="ndvi-trend-through-time" class="section level3">
 <h3><strong>NDVI Trend Through Time</strong></h3>
 <p><br></p>
-<div id="overview-8" class="section level4">
+<div id="overview-9" class="section level4">
 <h4><strong>Overview:</strong></h4>
 <p>The Normalized Difference Vegetation Index (NDVI) is a commonly used indicator of ecosystem photosynthesis and provides an indication of vegetation status. Here we present NDVI trends computed as a linear trend through time multiplied by the selected timescale. Positive values indicate vegetation that is greening (NDVI increasing), while negative values indicate vegetation that is browning (NDVI decreasing) over the time period selected. These data are provided by the Moderate Resolution Imaging Spectroradiometer (MODIS) Terra Satellite. Data can be found at: <a href="https://data.climate.umt.edu/drought-indicators/ndvi/trend/" class="uri">https://data.climate.umt.edu/drought-indicators/ndvi/trend/</a></p>
 <p><br></p>
@@ -2936,12 +2962,12 @@ window.FlexDashboardComponents.push({
 </div>
 </div>
 </div>
-<div id="section-5" class="section level3">
+<div id="section-6" class="section level3">
 <h3></h3>
 </div>
-<div id="row-10" class="section level2 tabset tabset-fade" data-height="750">
+<div id="row-11" class="section level2 tabset tabset-fade" data-height="750">
 <h2 class="tabset tabset-fade" data-height="750">Row</h2>
-<div id="gridded-data-4" class="section level3">
+<div id="gridded-data-5" class="section level3">
 <h3><strong>Gridded Data</strong></h3>
 <iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_ndvi_trend.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy">
 </iframe>
@@ -2953,7 +2979,7 @@ window.FlexDashboardComponents.push({
 <div id="standardized-precipitation-index-spi-1" class="section level3">
 <h3><strong>Standardized Precipitation Index (SPI)</strong></h3>
 <p><br></p>
-<div id="overview-9" class="section level4">
+<div id="overview-10" class="section level4">
 <h4><strong>Overview:</strong></h4>
 <p>The SPI is a common metric which quantifies precipitation anomalies at various timescales. SPI is often used to estimate a range of hydrological processes that respond to precipitation from short to long periods of time. For example, SPI is related to soil moisture anomalies when calculated over short time scales (days to weeks) but is more related to groundwater and reservoir storage over longer timescales (months to years). The values of SPI can be interpreted as a number of standard deviations away from the average cumulative precipitation depth for a given time period. The SPI has unique statistical qualities in that it is directly related to precipitation probability and it can be used to represent both dry (negative values; represented here with warmer colors) and wet (positive values; represented here with cooler colors) conditions. Data can be found at: <a href="https://data.climate.umt.edu/drought-indicators/spi/" class="uri">https://data.climate.umt.edu/drought-indicators/spi/</a> SPI Maps with a USDM color scheme can be found at: <a href="https://data.climate.umt.edu/drought-indicators/figures/usdm-color-scheme/" class="uri">https://data.climate.umt.edu/drought-indicators/figures/usdm-color-scheme/</a></p>
 <p><br></p>
@@ -2973,18 +2999,18 @@ window.FlexDashboardComponents.push({
 </div>
 </div>
 </div>
-<div id="section-6" class="section level3">
+<div id="section-7" class="section level3">
 <h3></h3>
 </div>
-<div id="row-11" class="section level2 tabset tabset-fade" data-height="750">
+<div id="row-12" class="section level2 tabset tabset-fade" data-height="750">
 <h2 class="tabset tabset-fade" data-height="750">Row</h2>
-<div id="gridded-data-5" class="section level3">
+<div id="gridded-data-6" class="section level3">
 <h3><strong>Gridded Data</strong></h3>
 <iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_spi.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy">
 </iframe>
 </div>
 </div>
-<div id="row-12" class="section level2 tabset tabset-fade">
+<div id="row-13" class="section level2 tabset tabset-fade">
 <h2 class="tabset tabset-fade">Row</h2>
 <div id="derivation-2" class="section level3">
 <h3><strong>Derivation:</strong></h3>
@@ -3028,7 +3054,7 @@ window.FlexDashboardComponents.push({
 <div id="standardized-precipitation-evapotranspiration-index-spei-1" class="section level3">
 <h3><strong>Standardized Precipitation Evapotranspiration Index (SPEI)</strong></h3>
 <p><br></p>
-<div id="overview-10" class="section level4">
+<div id="overview-11" class="section level4">
 <h4><strong>Overview:</strong></h4>
 <p>SPEI takes into account both precipitation and potential evapotranspiration to describe the wetness or dryness of a time period. SPEI can be calculated at various timescales to represent different drought timescales and its impacts on hydrological conditions ranging from short to long timescales. SPEI incorporates the important effect of atmospheric demand on drought. Data can be found at: <a href="https://data.climate.umt.edu/drought-indicators/spei/" class="uri">https://data.climate.umt.edu/drought-indicators/spei/</a> SPEI Maps with a USDM color scheme can be found at: <a href="https://data.climate.umt.edu/drought-indicators/figures/usdm-color-scheme/" class="uri">https://data.climate.umt.edu/drought-indicators/figures/usdm-color-scheme/</a></p>
 <p><br></p>
@@ -3049,18 +3075,18 @@ window.FlexDashboardComponents.push({
 </div>
 </div>
 </div>
-<div id="section-7" class="section level3">
+<div id="section-8" class="section level3">
 <h3></h3>
 </div>
-<div id="row-13" class="section level2 tabset tabset-fade" data-height="750">
+<div id="row-14" class="section level2 tabset tabset-fade" data-height="750">
 <h2 class="tabset tabset-fade" data-height="750">Row</h2>
-<div id="gridded-data-6" class="section level3">
+<div id="gridded-data-7" class="section level3">
 <h3><strong>Gridded Data</strong></h3>
 <iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_spei.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy">
 </iframe>
 </div>
 </div>
-<div id="row-14" class="section level2 tabset tabset-fade">
+<div id="row-15" class="section level2 tabset tabset-fade">
 <h2 class="tabset tabset-fade">Row</h2>
 <div id="derivation-3" class="section level3">
 <h3><strong>Derivation:</strong></h3>
@@ -3100,7 +3126,7 @@ window.FlexDashboardComponents.push({
 <div id="evaporative-demand-drought-index-eddi-1" class="section level3">
 <h3><strong>Evaporative Demand Drought Index (EDDI)</strong></h3>
 <p><br></p>
-<div id="overview-11" class="section level4">
+<div id="overview-12" class="section level4">
 <h4><strong>Overview:</strong></h4>
 <p>EDDI calculates the rank of accumulated PET for a given region. EDDI does not standardize data based off of theoretical (parameterized) probability distributions (such as SPI and SPEI). Instead, EDDI uses a non-parametric approach to compute empirical probabilities using inverse normal approximation. This method calculates EDDI by ranking the data from smallest to largest and accounting for the number of observations. Therefore, maximum and minimum values of EDDI are constrained by the number of years on record (which determines the number of observations). Practically, this causes EDDI to show the relative ranking of year, with respect to the period of record. Data can be found at: <a href="https://data.climate.umt.edu/drought-indicators/eddi/" class="uri">https://data.climate.umt.edu/drought-indicators/eddi/</a></p>
 <p><br></p>
@@ -3120,12 +3146,12 @@ window.FlexDashboardComponents.push({
 </div>
 </div>
 </div>
-<div id="section-8" class="section level3">
+<div id="section-9" class="section level3">
 <h3></h3>
 </div>
-<div id="row-15" class="section level2 tabset tabset-fade" data-height="750">
+<div id="row-16" class="section level2 tabset tabset-fade" data-height="750">
 <h2 class="tabset tabset-fade" data-height="750">Row</h2>
-<div id="gridded-data-7" class="section level3">
+<div id="gridded-data-8" class="section level3">
 <h3><strong>Gridded Data</strong></h3>
 <iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_eddi.html" webkitallowfullscreen="webkitallowfullscreen">
 </iframe>
@@ -3140,18 +3166,18 @@ window.FlexDashboardComponents.push({
 <h4><strong>NASA Goddard Space Flight Center</strong></h4>
 <p><br></p>
 </div>
-<div id="overview-12" class="section level4">
+<div id="overview-13" class="section level4">
 <h4><strong>Overview:</strong></h4>
 <p>This groundwater drought indicator is based on terrestrial water storage observations derived from GRACE-FO satellite data which is then integrated with other observations, using a land surface water and energy model. The drought indicators describe current wet or dry conditions, expressed as a percentile showing the probability of occurrence for that particular location and time of year, with lower values (warm colors) meaning dryer than normal, and higher values (blues) meaning wetter than normal. More information can be found at <a href="https://gracefo.jpl.nasa.gov/" class="uri">https://gracefo.jpl.nasa.gov/</a>.</p>
 <p><br></p>
 </div>
 </div>
-<div id="section-9" class="section level3">
+<div id="section-10" class="section level3">
 <h3></h3>
 </div>
-<div id="row-16" class="section level2 tabset tabset-fade" data-height="750">
+<div id="row-17" class="section level2 tabset tabset-fade" data-height="750">
 <h2 class="tabset tabset-fade" data-height="750">Row</h2>
-<div id="gridded-data-8" class="section level3">
+<div id="gridded-data-9" class="section level3">
 <h3><strong>Gridded Data</strong></h3>
 <iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_grace.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy">
 </iframe>

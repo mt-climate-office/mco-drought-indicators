@@ -270,6 +270,28 @@ For each timescale we calculate the mean maximum temperature for each year acros
   <br>
   
 
+SMAP Soil Moisture Anomaly {data-navmenu="Soil Moisture" data-icon="fa-list" data-orientation=rows}
+========================================================
+### **SMAP Soil Moisture Anomaly**
+#### **National Aeronautics and Space Administration**
+
+<br>
+
+#### **Overview:**
+
+Soil moisture is a strong indicator of drought. In this module we present Soil Moisture Active Passive (SMAP) Level 3 soil moisture anomalies calculated using the NASA-USDA Enhanced SMAP Global soil moisture dataset. For more information, please visit https://developers.google.com/earth-engine/datasets/catalog/NASA_USDA_HSL_SMAP10KM_soil_moisture. 
+
+<br>  
+
+###
+
+Row {.tabset .tabset-fade data-height=750}
+-------------------------------------
+
+### **Gridded Data**
+
+<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_smap.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
+
 Soil Moisture Percentiles (Modeled) {data-navmenu="Soil Moisture" data-icon="fa-list" data-orientation=rows}
 ========================================================
 ### **Soil Moisture Percentiles**

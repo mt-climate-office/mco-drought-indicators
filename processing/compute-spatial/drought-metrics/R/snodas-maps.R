@@ -34,8 +34,14 @@ standardized_dates = tibble(year = today$year:2004,
 ################### SNOW DEPTH CHANGE ####################
 ##########################################################
 
+print('Starting SNODAS download and GDAL proccessing')
+
 #download all appropriate data
 get_snodas(c(dates, standardized_dates$date[2:length(standardized_dates$date)]))
+
+print('Completed SNODAS download and GDAL proccessing')
+
+print('check 1')
 
 #get processed files
 files = list.files(paste0(snodas.dir, "processed/snow_depth/"), full.names = T)
@@ -58,6 +64,9 @@ today = process_raster(Sys.Date())
 delta_1 = process_raster(Sys.Date()) - process_raster(Sys.Date()-1)
 delta_3 = process_raster(Sys.Date()) - process_raster(Sys.Date()-3)
 delta_7 = process_raster(Sys.Date()) - process_raster(Sys.Date()-7)
+
+print('check 2')
+
 
 writeRaster(today, filename = paste0(snodas.dir, "processed/delta_snow_depth/current_depth_in.tif"), overwrite=TRUE)
 writeRaster(delta_1, filename = paste0(snodas.dir,"processed/delta_snow_depth/delta_1_depth_in.tif"), overwrite=TRUE)
@@ -84,6 +93,9 @@ standardized_input = list.files(paste0(snodas.dir, '/processed/swe'), full.names
   lapply(., process_raster_standardize) %>%
   brick()
 
+print('check 3')
+
+
 #calucalte time integrated precip sum
 swe_vec = data.frame(matrix(nrow = length(values(standardized_input[[1]])), ncol = nlayers(standardized_input)))
 for(i in 1:nlayers(standardized_input)){
@@ -92,9 +104,19 @@ for(i in 1:nlayers(standardized_input)){
 
 #replace 0 values with very low value gamma cant take 0
 swe_vec[swe_vec == 0] = 0.001
+
+library(doParallel)
+cl = makeCluster(detectCores()-1)
+registerDoParallel(cl)
+
 gc()
-current_standardized_swe = apply(swe_vec, 1, FUN = spi_fun)
+current_standardized_swe = parApply(cl, swe_vec, 1, FUN = spi_fun)
 gc()
+
+stopCluster(cl)
+
+print('check 4')
+
 
 #populate spatial template with data
 standardized_swe_raster = standardized_input[[1]]
@@ -105,6 +127,9 @@ template = raster(paste0(export.dir, 'spi/current_spi_30.tif'))
 
 #resmple to 4km
 standardized_swe_raster_resampled = resample(standardized_swe_raster, template, method="bilinear")
+
+print('check 5')
+
 
 ###############################3
 
@@ -119,3 +144,6 @@ write.csv(data.frame(time = standardized_dates$date[1]), paste0(export.dir, 'sno
 
 do.call(file.remove, list(list.files(paste0(export.dir, "snodas/processed/swe/"), full.names = TRUE)))
 do.call(file.remove, list(list.files(paste0(export.dir, "snodas/processed/snow_depth/"), full.names = TRUE)))
+
+
+print('check 6')
