@@ -3,12 +3,13 @@ library(sf)
 library(dplyr)
 library(stringr)
 
-states = read_sf("/home/zhoylman/Downloads/states_21basic/states.shp") %>%
+states = read_sf("/home/zhoylman/mco-drought-indicators/processing/base-data/raw/states.shp") %>%
   st_transform(., 4326)
 
 county = read_sf("/home/zhoylman/Downloads/US_County_Boundaries/US_County_Boundaries.shp")
 
-watersheds = read_sf("/home/zhoylman/Downloads/HUC8_CONUS/HUC8_US.shp")
+#from https://www.hydroshare.org/resource/b832a6c2f96541808444ec9562c5247e/
+watersheds = read_sf("/home/zhoylman/Downloads/huc8_conus.zip/HUC8_CONUS/HUC8_US.shp")
 
 states_umrb = states %>% 
   dplyr::filter(STATE_NAME == "Montana"|STATE_NAME == "Idaho"| STATE_NAME == "Wyoming"|
@@ -35,15 +36,17 @@ watersheds_umrb = watersheds %>%
                 str_detect(STATES, 'WA')) %>%
   sf::st_intersection(., st_union(states))
   
-watersheds_umrb_simple = rmapshaper::ms_simplify(watersheds_umrb, keep = 0.003)
+watersheds_umrb_simple = rmapshaper::ms_simplify(watersheds_umrb, keep = 0.005)
 
 outline_umrb = st_union(watersheds_umrb_simple)
 
 county_umrb_simple =  rmapshaper::ms_simplify(county_umrb, keep = 0.02)
 
+
+#this all needs to be updated!
 st_write(county_umrb_simple, "/home/zhoylman/drought_indicators/shp_kml/larger_extent/county_umrb.shp", "county_umrb", driver = "ESRI Shapefile")
 st_write(outline_umrb, "/home/zhoylman/drought_indicators/shp_kml/larger_extent/outline_umrb.shp", "outline_umrb", driver = "ESRI Shapefile")
-st_write(watersheds_umrb_simple, "/home/zhoylman/drought_indicators/shp_kml/larger_extent/watersheds_umrb.shp", "watersheds_umrb", driver = "ESRI Shapefile")
+st_write(watersheds_umrb_simple, "/home/zhoylman/mco-drought-indicators/processing/base-data/processed/watersheds_umrb.shp", "watersheds_umrb", driver = "ESRI Shapefile", append = F)
 
 
 

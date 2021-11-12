@@ -33,7 +33,7 @@ snotel = snotel_info() %>%
 states =  st_read(paste0(git.dir, "processing/base-data/raw/states.shp"))
 
 #Standardized swe import grid
-snodas_standardized_swe = raster(paste0(export.dir, 'snodas/processed/standardized_swe/current_snodas_swe_standardized.tif'))
+snodas_standardized_swe = raster(paste0(export.dir, 'snodas/processed/standardized_swe/current_snodas_swe_standardized_4km.tif'))
 
 snodas_standardized_swe[snodas_standardized_swe >= 2.5] = 2.49
 snodas_standardized_swe[snodas_standardized_swe <= -2.5] = -2.49

@@ -134,10 +134,10 @@ standardized_swe_raster = standardized_input[[1]]
 values(standardized_swe_raster) = current_standardized_swe
 
 #import drought metric template for resampling to 4km
-#template = raster(paste0(export.dir, 'spi/current_spi_30.tif'))
+template = raster(paste0(export.dir, 'spi/current_spi_30.tif'))
 
 #resmple to 4km
-#standardized_swe_raster_resampled = resample(standardized_swe_raster, template, method="bilinear")
+standardized_swe_raster_resampled = resample(standardized_swe_raster, template, method="bilinear")
 
 #print('check 5')
 
@@ -145,6 +145,9 @@ values(standardized_swe_raster) = current_standardized_swe
 
 #write it out
 writeRaster(standardized_swe_raster, paste0(export.dir, 'snodas/processed/standardized_swe/current_snodas_swe_standardized.tif'),
+            overwrite = T)
+
+writeRaster(standardized_swe_raster_resampled, paste0(export.dir, 'snodas/processed/standardized_swe/current_snodas_swe_standardized_4km.tif'),
             overwrite = T)
 
 #write out time meta
@@ -200,7 +203,7 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
     resample(., mean_swe)
   
   data = data.frame(dem = values(dem),
-                    mean_swe_mm = (((values(mean_swe)/1000) * (res(mean_swe)[1] * res(mean_swe)[2]))),
+                    mean_swe_m = (((values(mean_swe)/1000) * (res(mean_swe)[1] * res(mean_swe)[2]))),
                     year_2021 = (((values(last)/1000) * (res(mean_swe)[1] * res(mean_swe)[2])))) %>%
     `colnames<-`(c('dem',  paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'), lubridate::year(Sys.Date()))) %>%
     as_tibble() %>%
@@ -213,8 +216,8 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
               sum = sum(value, na.rm = T)) %>%
     ungroup() %>%
     left_join(., data.frame(dem = values(dem) * 3.28084,
-                            mean_swe_mm = values(mean_swe),
-                            year_2021 = values(last)) %>%
+                            mean_swe_m = (((values(mean_swe)/1000) * (res(mean_swe)[1] * res(mean_swe)[2]))),
+                            year_2021 = (((values(last)/1000) * (res(mean_swe)[1] * res(mean_swe)[2])))) %>%
                 `colnames<-`(c('dem', paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'), lubridate::year(Sys.Date()))) %>%
                 as_tibble() %>%
                 tidyr::drop_na() %>%

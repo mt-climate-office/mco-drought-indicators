@@ -39,20 +39,37 @@ get_snotel_most_recent = function(site_id, state, network){
   return(export)
 }
 
+print('starting snotel data dowload')
+
 cl= makeCluster(4)
 registerDoParallel(cl)
 
 current = foreach(i = 1:length(sites$site_id), .packages = c('lubridate', 'dplyr', 'RCurl', 'readr')) %dopar% {
-  get_snotel_most_recent(sites$site_id[i], sites$state[i], sites$network[i])
+  tryCatch({
+    get_snotel_most_recent(sites$site_id[i], sites$state[i], sites$network[i])
+  }, error = function(e){
+    tibble(site_id = NA, water_year_yday = NA, Date = NA,
+           `Snow Water Equivalent (mm) Start of Day Values` = NA,
+           `Precipitation Accumulation (mm) Start of Day Values` = NA)
+  })
 } %>%
-  bind_rows()
+  bind_rows() %>%
+  tidyr::drop_na(site_id)
+
+print('finsihed snotel data dowload')
+
 
 stopCluster(cl)
+
+print('starting snotel anomaly calculation')
+
 
 anom = current %>%
   left_join(., sites_with_climatology, by = c('site_id', 'water_year_yday')) %>%
   mutate(swe_anom = 100* (`Snow Water Equivalent (mm) Start of Day Values`/swe_q50),
          precip_anom = 100* (`Precipitation Accumulation (mm) Start of Day Values`/precip_q50)) %>%
-  select(site_id, water_year_yday, Date, swe_anom, precip_anom)
+  dplyr::select(site_id, water_year_yday, Date, swe_anom, precip_anom)
 
 write_csv(anom, '/home/zhoylman/mco-drought-indicators-data/snotel/anomaly/current_anomaly.csv')
+
+print('finished snotel anomaly calculation')

@@ -56,16 +56,27 @@ get_snotel_water_year = function(site_id, state, network){
   return(export)
 }
 
+print('starting snotel download')
+
 cl= makeCluster(4)
 registerDoParallel(cl)
 
 current = foreach(i = 1:length(sites$site_id), .packages = c('lubridate', 'dplyr', 'RCurl', 'readr')) %dopar% {
-  get_snotel_water_year(sites$site_id[i], sites$state[i], sites$network[i])
+  tryCatch({
+    get_snotel_water_year(sites$site_id[i], sites$state[i], sites$network[i])
+  }, error = function(e){
+    tibble(site_id = NA, water_year_yday = NA, Date = NA,
+           `Snow Water Equivalent (mm) Start of Day Values` = NA,
+           `Precipitation Accumulation (mm) Start of Day Values` = NA)
+  })
+  
 } %>%
-  bind_rows()
+  bind_rows()%>%
+  tidyr::drop_na(site_id)
 
 stopCluster(cl)
 
+print('finished snotel download')
 
 plot_snotel = function(current_data, climatology_data, site_id_, base_year){
   #tryCatch({
@@ -195,6 +206,8 @@ write.dir = '/home/zhoylman/mco-drought-indicators-data/snotel/plots/'
 
 sites_of_interest = sites_with_climatology$site_id %>% unique()
 
+print('starting plotting')
+
 for(i in 1:length(sites_of_interest)){
   filename = paste0(write.dir,"snotel_plot_", sites_of_interest[i],".png")
   temp_plot = plot_snotel(current, sites_with_climatology, sites_of_interest[i], base_year)
@@ -205,6 +218,10 @@ for(i in 1:length(sites_of_interest)){
     ggsave(filename, plot = error_plot, units = c("in"), width = 9, height = 7, dpi = 150)
   })
 }
+
+print('finished plotting')
+print('done')
+
 # 
 # for(i in 1:length(snotel$site_name)){
 #   filename = paste0(write.dir,"snotel_plot_mobile_", i,".png")
