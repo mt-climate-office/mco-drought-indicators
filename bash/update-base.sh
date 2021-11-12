@@ -11,17 +11,17 @@ Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-point/mesonet/soil-moisture-anomoly.R >/home/zhoylman/mco-drought-indicators-data/logs/mesonet-anom 2>&1
 
 # Update Snotel Data
-Rscript /home/zhoylman/mco-drought-indicators/processing/compute-point/snotel/R/download-current-conditions.R >/home/zhoylman/mco-drought-indicators-data/logs/download-snotel 2>&1
-Rscript /home/zhoylman/mco-drought-indicators/processing/compute-point/snotel/R/plot-current-conditions.R >/home/zhoylman/mco-drought-indicators-data/logs/plot-snotel 2>&1
+#Rscript /home/zhoylman/mco-drought-indicators/processing/compute-point/snotel/R/compute-current-anomaly.R >/home/zhoylman/mco-drought-indicators-data/logs/download-snotel 2>&1
+#Rscript /home/zhoylman/mco-drought-indicators/processing/compute-point/snotel/R/plot-current-conditions.R >/home/zhoylman/mco-drought-indicators-data/logs/plot-snotel 2>&1
 
 # Update SNODAS data
-Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/snodas-maps.R >/home/zhoylman/mco-drought-indicators-data/logs/snodas 2>&1
+#Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/snodas-maps.R >/home/zhoylman/mco-drought-indicators-data/logs/snodas 2>&1
 
 # Build HTML widget files
 Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-drought.R >/home/zhoylman/mco-drought-indicators-data/logs/build-drought-html 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-precip-temp.R >/home/zhoylman/mco-drought-indicators-data/logs/build-precip-temp-html 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-cpc-and-grace.R >/home/zhoylman/mco-drought-indicators-data/logs/build-cpc-grace-html 2>&1
-Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-snotel-snodas.R >/home/zhoylman/mco-drought-indicators-data/logs/build-snodas-html 2>&1
+#Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-snotel-snodas.R >/home/zhoylman/mco-drought-indicators-data/logs/build-snodas-html 2>&1
 
 # Transfer Files
 bash /home/zhoylman/bash/transfer-drought-data.sh

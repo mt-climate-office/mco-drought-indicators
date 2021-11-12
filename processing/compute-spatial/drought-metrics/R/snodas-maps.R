@@ -8,6 +8,10 @@ source(paste0(git.dir, '/processing/ancillary-functions/R/load-libs.R'))
 source(paste0(git.dir,"/processing/ancillary-functions/R/drought-functions.R"))
 source(paste0(git.dir,"/processing/ancillary-functions/R/get-snodas.R"))
 
+########################## clean up data ##################################
+do.call(file.remove, list(list.files(paste0(export.dir, "snodas/processed/swe/"), full.names = TRUE)))
+do.call(file.remove, list(list.files(paste0(export.dir, "snodas/processed/snow_depth/"), full.names = TRUE)))
+
 #import UMRB outline for clipping and watershed for aggregating
 UMRB = readOGR(paste0(git.dir, "/processing/base-data/processed/outline_umrb.shp"))
 
@@ -73,14 +77,21 @@ writeRaster(delta_1, filename = paste0(snodas.dir,"processed/delta_snow_depth/de
 writeRaster(delta_3, filename = paste0(snodas.dir,"processed/delta_snow_depth/delta_3_depth_in.tif"), overwrite=TRUE)
 writeRaster(delta_7, filename = paste0(snodas.dir,"processed/delta_snow_depth/delta_7_depth_in.tif"),overwrite=TRUE)
 
+rm(today, delta_1, delta_3, delta_7)
+gc()
+gc()
+print('cleaned snow depth change workspace')
+
 ##########################################################
 #################### STANDARDIZED SWE ####################
 ##########################################################
 
+
+
 process_raster_standardize = function(file){
   raster_temp = raster(file) %>%
     crop(., extent(UMRB)) %>%
-    mask(., UMRB) 
+    mask(., UMRB)
   return(raster_temp)
 }
 
@@ -123,22 +134,154 @@ standardized_swe_raster = standardized_input[[1]]
 values(standardized_swe_raster) = current_standardized_swe
 
 #import drought metric template for resampling to 4km
-template = raster(paste0(export.dir, 'spi/current_spi_30.tif'))
+#template = raster(paste0(export.dir, 'spi/current_spi_30.tif'))
 
 #resmple to 4km
-standardized_swe_raster_resampled = resample(standardized_swe_raster, template, method="bilinear")
+#standardized_swe_raster_resampled = resample(standardized_swe_raster, template, method="bilinear")
 
-print('check 5')
-
+#print('check 5')
 
 ###############################3
 
-#write it out 
-writeRaster(standardized_swe_raster_resampled, paste0(export.dir, 'snodas/processed/standardized_swe/current_snodas_swe_standardized.tif'),
+#write it out
+writeRaster(standardized_swe_raster, paste0(export.dir, 'snodas/processed/standardized_swe/current_snodas_swe_standardized.tif'),
             overwrite = T)
 
-#write out time meta 
+#write out time meta
 write.csv(data.frame(time = standardized_dates$date[1]), paste0(export.dir, 'snodas/processed/standardized_swe/time.csv'))
+
+rm(standardized_swe_raster, current_standardized_swe, swe_vec, standardized_input)
+gc()
+gc()
+print('cleaned standardized_swe workspace')
+################################################################
+###################### Hypsome-swe #############################
+################################################################
+library(terra)
+library(elevatr)
+library(ggplot2)
+
+watersheds = st_read('/home/zhoylman/mco-drought-indicators/processing/base-data/processed/watersheds_umrb.shp') 
+names = watersheds$HUC8
+print('starting hypsome-swe')
+
+cl = makeCluster(detectCores()-1)
+registerDoParallel(cl)
+tictoc::tic()
+#length(names)
+foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2', 'progress'))%dopar%{
+  
+  roi = watersheds %>% filter(HUC8 == names[i])
+  
+  swe = data.frame(files = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/swe/', full.names = T)) %>%
+    as_tibble() %>%
+    mutate(time = gsub("\\D", "", files),
+           date = as.Date(time, format = '%Y%m%d'),
+           month = lubridate::month(date),
+           day = lubridate::day(date)) %>%
+    filter(month == lubridate::month(Sys.Date()) & day == lubridate::day(Sys.Date())) %$%
+    files %>%
+    lapply(., rast) %>%
+    lapply(., terra::crop, roi %>% vect) %>%
+    lapply(., terra::mask, roi %>% vect) %>%
+    lapply(., terra::project, "epsg:5070")
+  
+  swe = swe %>%
+    lapply(., terra::resample, swe[[length(swe)]], method="bilinear") %>%
+    rast
+  
+  mean_swe = median(swe, na.rm = T)
+  last = swe[[nlyr(swe)]]
+  
+  dem = get_elev_raster(roi, z = 9) %>%
+    rast %>%
+    crop(., roi %>% vect) %>%
+    mask(., roi %>% vect) %>%
+    resample(., mean_swe)
+  
+  data = data.frame(dem = values(dem),
+                    mean_swe_mm = (((values(mean_swe)/1000) * (res(mean_swe)[1] * res(mean_swe)[2]))),
+                    year_2021 = (((values(last)/1000) * (res(mean_swe)[1] * res(mean_swe)[2])))) %>%
+    `colnames<-`(c('dem',  paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'), lubridate::year(Sys.Date()))) %>%
+    as_tibble() %>%
+    tidyr::drop_na() %>%
+    mutate(quantile = .bincode(dem, quantile(dem, seq(0.01,1,by = 0.01))),
+           lin.bins = .bincode(dem, seq(min(dem, na.rm = T)-1, max(dem, na.rm = T)+1, length.out = 50))) %>%
+    tidyr::pivot_longer(names_to = 'name', cols = c(`Median Climatology (2004 - 2021)`, `2021`)) %>%
+    group_by(lin.bins, name) %>%
+    summarise(n = length(value),
+              sum = sum(value, na.rm = T)) %>%
+    ungroup() %>%
+    left_join(., data.frame(dem = values(dem) * 3.28084,
+                            mean_swe_mm = values(mean_swe),
+                            year_2021 = values(last)) %>%
+                `colnames<-`(c('dem', paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'), lubridate::year(Sys.Date()))) %>%
+                as_tibble() %>%
+                tidyr::drop_na() %>%
+                mutate(quantile = .bincode(dem, quantile(dem, seq(0.01,1,by = 0.01))),
+                       lin.bins = .bincode(dem, seq(min(dem, na.rm = T), max(dem, na.rm = T), length.out = 50))) %>%
+                tidyr::pivot_longer(names_to = 'name', cols = c(dem)) %>%
+                group_by(lin.bins, name) %>%
+                summarise(mean_dem = mean(value, na.rm = T)) %>%
+                ungroup() , by = 'lin.bins') %>%
+    dplyr::select(-name.y) %>%
+    mutate(name.x = forcats::fct_relevel(name.x , c(lubridate::year(Sys.Date()) %>% as.character(), paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')')))) %>%
+    bind_rows(data.frame(lin.bins = c(51,51, 0, 0),
+                         name.x = c(lubridate::year(Sys.Date()) %>% as.character(),  paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'),
+                                    lubridate::year(Sys.Date()) %>% as.character(),  paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')')),
+                         n = c(0,0,0,0),
+                         sum = c(0,0,0,0),
+                         mean_dem = c(max(.$mean_dem, na.rm = T)+2, max(.$mean_dem, na.rm = T)+2, min(.$mean_dem, na.rm = T)-2, min(.$mean_dem, na.rm = T)-2))) %>%
+    arrange(lin.bins)
+  
+  center_of_mass = data %>%
+    dplyr::group_by(name.x) %>%
+    summarize(com = weighted.mean(mean_dem, sum))
+  
+  n_int_digits = function(x) {
+    result = floor(log10(abs(x)))
+    result[!is.finite(result)] = 0
+    result
+  }
+  
+  magnitude = max(data$sum) %>% n_int_digits
+  
+  axis_tics = seq(-max(data$sum), max(data$sum), length.out = 5) %>% plyr::round_any(., 1*10^(magnitude-1))
+  
+  climatology = data %>%
+    filter(name.x == paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'))
+  
+  current = data %>%
+    filter(name.x == lubridate::year(Sys.Date()))
+  
+  plot = ggplot()+
+    geom_polygon(data = climatology, aes(y = mean_dem, x = sum, color = name.x, fill = name.x), alpha = 0.6) +
+    geom_polygon(data = climatology, aes(y = mean_dem, x = -sum, color = name.x, fill = name.x), alpha = 0.6) +
+    geom_polygon(data = current, aes(y = mean_dem, x = sum, color = name.x, fill = name.x), alpha = 0.3) +
+    geom_polygon(data = current, aes(y = mean_dem, x = -sum, color = name.x, fill = name.x), alpha = 0.3) +
+    geom_point(data = center_of_mass, aes(y = com, x = 0, fill = name.x), color = 'black', shape = 23, size = 4)+
+    theme_bw(base_size = 16)+
+    theme(legend.position = 'bottom')+
+    scale_x_continuous(breaks=axis_tics,
+                       labels= scales::comma(abs(axis_tics)))+
+    labs(x = 'Cumulative Snow Water Equivalent (m³)', y = 'Elevation (ft)')+
+    scale_fill_manual(values = c('blue', 'darkgrey'), name = 'Produced by the Montana Climate Office\n Contact: zachary.hoylman@umontana.edu')+
+    guides(fill = guide_legend(title.position = "bottom"))+
+    scale_color_manual(values = c('blue', 'darkgrey'), guide = F)+
+    ggtitle(paste0(paste0('Hypsome-SWE for ', roi$NAME, ' (HUC8: ', roi$HUC8, ')\n',max(time))))+
+    theme(plot.title = element_text(hjust = 0.5))+
+    theme(plot.margin=unit(c(1,1,1,1),"cm"))+
+    theme(legend.title.align=0.5) 
+  
+  ggsave(plot, file = paste0('/home/zhoylman/mco-drought-indicators-data/snodas/plots/hypsome-swe-', roi$HUC8, '.png'), width = 8, height = 8, units = 'in')
+  rm(plot, current, climatology, data, dem, swe, mean_swe, last, roi)
+  gc()
+}
+tictoc::toc()
+print('finished hypsome-swe')
+
+stopCluster(cl)
+
 
 ########################## clean up data ##################################
 

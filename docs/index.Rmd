@@ -109,7 +109,7 @@ Row {.tabset .tabset-fade data-height=800}
 
 Collaborators: NOAA National Mesonet Program, Department of Interior Bureau of Land Management, Montana Department of Agriculture, University of Montana - W.A. Franke College of Forestry and Conservation, Montana State University, MSU Extension, Montana Institute on Ecosystems, Montana Agricultural Experiment Stations, Crow Agency, Montana Department of Natural Resources and Conservation, Stillwater County, private landowners, ranchers, farmers and businesses.
 
-Standardized Snow Water Equivalent (SNODAS) {data-navmenu="Snowpack" data-icon="fa-list" data-orientation=rows}
+Standardized Snow Water Equivalent (SNODAS) & Hypsome-SWE {data-navmenu="Snowpack" data-icon="fa-list" data-orientation=rows}
 ========================================================
 ### **Standardized Snow Water Equivalent (SWE) from SNODAS**
 
@@ -198,25 +198,25 @@ For each timescale we calculate the accumulated precipitation for each year acro
   + Does not account for the capacity of the landscape to store or release moisture (e.g. soil moisture, groundwater and streamflow)
   <br>
   
-Accumulated Precipitation (SNOTEL) {data-navmenu="Precipitation" data-icon="fa-list" data-orientation=rows}
-========================================================
+<!-- Accumulated Precipitation (SNOTEL) {data-navmenu="Precipitation" data-icon="fa-list" data-orientation=rows} -->
+<!-- ======================================================== -->
 
-### **Snow Telemetry (SNOTEL)**
+<!-- ### **Snow Telemetry (SNOTEL)** -->
 
-<br>
+<!-- <br> -->
 
-#### **Overview:**
-SNOTEL is an automated system of snowpack and related environmental sensors (including precipitation). SNOTEL is operated by the Natural Resources Conservation Service (NRCS) of the United States Department of Agriculture in the Western United States. Plots in this module show total liquid precipitation (rain +snow water equivalent) measured to date compared to historical averages. 
+<!-- #### **Overview:** -->
+<!-- SNOTEL is an automated system of snowpack and related environmental sensors (including precipitation). SNOTEL is operated by the Natural Resources Conservation Service (NRCS) of the United States Department of Agriculture in the Western United States. Plots in this module show total liquid precipitation (rain +snow water equivalent) measured to date compared to historical averages.  -->
 
-<br>
+<!-- <br> -->
 
-Row {.tabset .tabset-fade data-height=800}
--------------------------------------
+<!-- Row {.tabset .tabset-fade data-height=800} -->
+<!-- ------------------------------------- -->
 
-### **Accumulated Precipitation**
+<!-- ### **Accumulated Precipitation** -->
 
-<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/precip_snotel.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
-  
+<!-- <iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/precip_snotel.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe> -->
+
 Temperature Percentiles {data-navmenu="Temperature" data-icon="fa-list" data-orientation=rows}
 ========================================================
 ### **Temperature Percentiles**

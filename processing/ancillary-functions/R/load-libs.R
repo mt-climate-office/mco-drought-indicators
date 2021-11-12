@@ -16,3 +16,5 @@ library(leaflet.extras)
 library(htmltools)
 library(htmlwidgets)
 library(XML)
+library(snotelr)
+
