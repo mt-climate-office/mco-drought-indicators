@@ -83,7 +83,11 @@ swe_map = base_map() %>%
   leaflet::addMapPane("USDM", zIndex = 400) %>%
   addCircleMarkers(snotel$longitude, snotel$latitude, snotel$sit_id, 
                    popup = paste0("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_",
-                                  snotel$site_id,".png' height='500' width='642' loading='lazy'/>"),
+                                  snotel$site_id,".png' height='500' width='642' loading='lazy'/>", 
+                                  '<a  target="_blank" rel="noopener noreferrer" href="https://wcc.sc.egov.usda.gov/reportGenerator/view/customSingleStationReport/daily/',
+                                  snotel$site_id,':',snotel$state,':SNTL/-7,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value,TMAX::value,TMIN::value,TAVG::value">Current Daily SNOTEL Table (last 7 Days)</a><br>',
+                                  '<a  target="_blank" rel="noopener noreferrer" href="https://wcc.sc.egov.usda.gov/reportGenerator/view/customSingleStationReport/hourly/',
+                                  snotel$site_id,':',snotel$state,':SNTL/',Sys.Date(),',',Sys.Date(),'/WTEQ::value,SNWD::value,PREC::value,TOBS::value?sortBy=0:1">Current Hourly SNOTEL Table (Today)</a>'),
                    popupOptions = popupOptions(maxWidth ="auto", closeOnClick = TRUE),
                    radius = 10, stroke = TRUE, fillOpacity = 0.9,
                    color = "black", fillColor = pal(snotel$swe_anom), group = "SNOTEL (SWE)", options = popupOptions(maxWidth = 650) )%>%
@@ -123,7 +127,11 @@ standardized_swe_map = base_map() %>%
   leaflet::addMapPane("USDM", zIndex = 400) %>%
   addCircleMarkers(snotel$longitude, snotel$latitude, snotel$sit_id, 
                    popup = paste0("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_",
-                                  snotel$site_id,".png' height='400' width='512' loading='lazy'/>"),
+                                  snotel$site_id,".png' height='400' width='512' loading='lazy'/>", 
+                                  '<a target="_blank" rel="noopener noreferrer" href="https://wcc.sc.egov.usda.gov/reportGenerator/view/customSingleStationReport/daily/',
+                                  snotel$site_id,':',snotel$state,':SNTL/-7,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value,TMAX::value,TMIN::value,TAVG::value">Current Daily SNOTEL Table (last 7 Days)</a><br>',
+                                  '<a target="_blank" rel="noopener noreferrer" href="https://wcc.sc.egov.usda.gov/reportGenerator/view/customSingleStationReport/hourly/',
+                                  snotel$site_id,':',snotel$state,':SNTL/',Sys.Date(),',',Sys.Date(),'/WTEQ::value,SNWD::value,PREC::value,TOBS::value?sortBy=0:1">Current Hourly SNOTEL Table (Today)</a>'),
                    radius = 10, stroke = TRUE, fillOpacity = 0.9,
                    color = "black", fillColor = pal(snotel$swe_anom), group = "SNOTEL (SWE)", popupOptions = popupOptions(maxWidth ="auto", closeOnClick = TRUE))%>%
   addPolygons(data = counties, group = "Counties", fillColor = "transparent", weight = 0.5, color = "black", opacity = 1, label = ~COUNTY, labelOptions = labelOptions(textsize = '14px'))%>%
@@ -202,7 +210,11 @@ swe_map_mobile = base_map_mobile() %>%
   addControl(title, position = "bottomright", className="map-title")%>%
   addCircleMarkers(snotel$longitude, snotel$latitude, snotel$sit_id, 
                    popup = paste0("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_",
-                                  snotel$site_id,".png' height='250' width='321' loading='lazy'/>"),
+                                  snotel$site_id,".png' height='250' width='321' loading='lazy'/>", 
+                                  '<a href="https://wcc.sc.egov.usda.gov/reportGenerator/view/customSingleStationReport/daily/',
+                                  snotel$site_id,':',snotel$state,':SNTL/-7,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value,TMAX::value,TMIN::value,TAVG::value">Current Daily SNOTEL Table (last 7 Days)</a><br>',
+                                  '<a href="https://wcc.sc.egov.usda.gov/reportGenerator/view/customSingleStationReport/hourly/',
+                                  snotel$site_id,':',snotel$state,':SNTL/',Sys.Date(),',',Sys.Date(),'/WTEQ::value,SNWD::value,PREC::value,TOBS::value?sortBy=0:1">Current Hourly SNOTEL Table (Today)</a>'),
                    radius = 10, stroke = TRUE, fillOpacity = 0.9,
                    color = "black", fillColor = pal(snotel$swe_anom), group = "SNOTEL (SWE)", options = popupOptions(maxWidth = 650))%>%
   addRasterImage(current_1, colors = pal_r, opacity = 0.8, group = "24hr Change", project = TRUE)%>%

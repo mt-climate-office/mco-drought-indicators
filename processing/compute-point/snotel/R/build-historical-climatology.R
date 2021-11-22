@@ -17,7 +17,13 @@ sites = snotel_info()
 
 filtered_sites = sites %>%
   filter(state %in% c('MT', 'ID', 'OR', 'WA', 'WY', 'ND', 'SD'),
-         start <= as.Date('1991-10-01'))
+         start <= as.Date('2000-10-01'))
+
+start_year_id = filtered_sites %>%
+  mutate(year = lubridate::year(start),
+         year = ifelse(year < 1991, 1991, year))
+
+readr::write_csv(start_year_id, '/home/zhoylman/mco-drought-indicators-data/snotel/climatology/site_meta.csv')
 
 tictoc::tic()
 data = snotel_download(site_id = filtered_sites$site_id, internal = TRUE) %>%
@@ -49,4 +55,4 @@ climatology = data %>%
             precip_max = max(precipitation_cumulative, na.rm = T)) %>%
   ungroup() 
 
-write_csv(climatology, '/home/zhoylman/mco-drought-indicators-data/snotel/climatology/site_climatology.csv')
+readr::write_csv(climatology, '/home/zhoylman/mco-drought-indicators-data/snotel/climatology/site_climatology.csv')

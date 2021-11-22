@@ -6,8 +6,10 @@ library(doParallel)
 library(lubridate)
 library(stringr)
 library(ggplot2)
+library(magrittr)
 
 sites_with_climatology = read_csv('/home/zhoylman/mco-drought-indicators-data/snotel/climatology/site_climatology.csv')
+site_meta = read_csv('/home/zhoylman/mco-drought-indicators-data/snotel/climatology/site_meta.csv')
 
 sites = snotel_info() %>%
   filter(site_id %in% unique(sites_with_climatology$site_id))
@@ -38,7 +40,7 @@ get_snotel_water_year = function(site_id, state, network){
   } else {
     base_year = Sys.Date() %>% lubridate::year()
   }
-
+  
   base_url <- paste0(
     "https://wcc.sc.egov.usda.gov/reportGenerator/view_csv/customSingleStationReport,metric/daily/",
     site_id[1], ":",
@@ -80,40 +82,44 @@ print('finished snotel download')
 
 plot_snotel = function(current_data, climatology_data, site_id_, base_year){
   #tryCatch({
-    data_select = current_data %>%
-      filter(site_id == site_id_)
-    
-    climatology_data_select = climatology_data  %>%
-      filter(site_id == site_id_) %>%
-      mutate(WY_date = ISOdate(ifelse(month %in% c(10:12), base_year, base_year+1), month, day) %>%
-               as.Date())
-    
-    site_meta = sites %>%
-      filter(site_id == site_id_)
-      
-    plot = ggplot()+
-      ggtitle(paste0(str_to_title(site_meta$site_name), " (", as.Date(max(data_select$Date)), ")"))+
-      geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q95, ymax = swe_max, fill = "95th - Max"), alpha = 0.25)+
-      geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q75, ymax = swe_q95, fill = "75th - 95th"), alpha = 0.25)+
-      geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q25, ymax = swe_q75, fill = "25th - 75th"), alpha = 0.25)+
-      geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q05, ymax = swe_q25, fill = "5th - 25th"), alpha = 0.25)+
-      geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_min, ymax = swe_q05, fill = "Min - 5th"), alpha = 0.25)+
-      geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_min), color = 'darkred', size = 0.75)+
-      geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_max), color = 'darkblue', size = 0.75)+
-      geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_q50, color = "Median"), size = 0.75)+
-      geom_line(data = data_select, aes(x = Date, y = `Snow Water Equivalent (mm) Start of Day Values`, color = "Current"), size = 2)+
-      scale_color_manual(name = "",values = c(
-        'Median' = 'forestgreen',
-        'Current' = 'black')) +
-      scale_fill_manual(name = 'Percentiles\n(1991 - 2020)', values = c("darkblue","cyan","green","orange", 'darkred'),
-                        breaks = c("95th - Max", "75th - 95th", "25th - 75th", "5th - 25th", "Min - 5th")) +
-      ylab("Snow Water Equivalent (mm)")+
-      xlab("Date")+
-      theme_bw(base_size = 20)+
-      theme(plot.title = element_text(hjust = 0.5),
-            legend.title.align=0.5)
+  data_select = current_data %>%
+    filter(site_id == site_id_)
   
-    return(plot)
+  climatology_start_year = site_meta %>%
+    filter(site_id == site_id_) %$%
+    year
+  
+  climatology_data_select = climatology_data  %>%
+    filter(site_id == site_id_) %>%
+    mutate(WY_date = ISOdate(ifelse(month %in% c(10:12), base_year, base_year+1), month, day) %>%
+             as.Date())
+  
+  site_meta = sites %>%
+    filter(site_id == site_id_)
+  
+  plot = ggplot()+
+    ggtitle(paste0(str_to_title(site_meta$site_name), " (", as.Date(max(data_select$Date)), ")"))+
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q95, ymax = swe_max, fill = "95th - Max"), alpha = 0.25)+
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q75, ymax = swe_q95, fill = "75th - 95th"), alpha = 0.25)+
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q25, ymax = swe_q75, fill = "25th - 75th"), alpha = 0.25)+
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q05, ymax = swe_q25, fill = "5th - 25th"), alpha = 0.25)+
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_min, ymax = swe_q05, fill = "Min - 5th"), alpha = 0.25)+
+    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_min), color = 'darkred', size = 0.75)+
+    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_max), color = 'darkblue', size = 0.75)+
+    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_q50, color = "Median"), size = 0.75)+
+    geom_line(data = data_select, aes(x = Date, y = `Snow Water Equivalent (mm) Start of Day Values`, color = "Current"), size = 2)+
+    scale_color_manual(name = "",values = c(
+      'Median' = 'forestgreen',
+      'Current' = 'black')) +
+    scale_fill_manual(name = paste0('Percentiles\n(',climatology_start_year,' - 2020)'), values = c("darkblue","cyan","green","orange", 'darkred'),
+                      breaks = c("95th - Max", "75th - 95th", "25th - 75th", "5th - 25th", "Min - 5th")) +
+    ylab("Snow Water Equivalent (mm)")+
+    xlab("Date")+
+    theme_bw(base_size = 20)+
+    theme(plot.title = element_text(hjust = 0.5),
+          legend.title.align=0.5)
+  
+  return(plot)
   # },
   # error = function(e){
   #   plot = ggplot()+
@@ -210,13 +216,14 @@ print('starting plotting')
 
 for(i in 1:length(sites_of_interest)){
   filename = paste0(write.dir,"snotel_plot_", sites_of_interest[i],".png")
-  temp_plot = plot_snotel(current, sites_with_climatology, sites_of_interest[i], base_year)
   tryCatch({
+    temp_plot = plot_snotel(current, sites_with_climatology, sites_of_interest[i], base_year)
     ggsave(filename, plot = temp_plot, units = c("in"), width = 9, height = 7, dpi = 150)
   },
   error = function(e){
     ggsave(filename, plot = error_plot, units = c("in"), width = 9, height = 7, dpi = 150)
   })
+  print(i)
 }
 
 print('finished plotting')

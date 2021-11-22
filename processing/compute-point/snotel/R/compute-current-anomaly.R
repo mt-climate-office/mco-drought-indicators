@@ -46,11 +46,17 @@ registerDoParallel(cl)
 
 current = foreach(i = 1:length(sites$site_id), .packages = c('lubridate', 'dplyr', 'RCurl', 'readr')) %dopar% {
   tryCatch({
-    get_snotel_most_recent(sites$site_id[i], sites$state[i], sites$network[i])
+    temp = get_snotel_most_recent(sites$site_id[i], sites$state[i], sites$network[i])
+    if(length(temp$site_id) == 0){
+      temp = tibble(site_id = sites$site_id[i], water_year_yday = as.numeric(NA), Date = Sys.Date(),
+                    `Snow Water Equivalent (mm) Start of Day Values` = as.numeric(NA),
+                    `Precipitation Accumulation (mm) Start of Day Values` = as.numeric(NA))
+    } 
+    temp
   }, error = function(e){
-    tibble(site_id = NA, water_year_yday = NA, Date = NA,
-           `Snow Water Equivalent (mm) Start of Day Values` = NA,
-           `Precipitation Accumulation (mm) Start of Day Values` = NA)
+    tibble(site_id = sites$site_id[i], water_year_yday = as.numeric(NA), Date = Sys.Date(),
+           `Snow Water Equivalent (mm) Start of Day Values` = as.numeric(NA),
+           `Precipitation Accumulation (mm) Start of Day Values` = as.numeric(NA))
   })
 } %>%
   bind_rows() %>%
