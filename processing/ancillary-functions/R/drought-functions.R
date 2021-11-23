@@ -113,6 +113,53 @@ spei_fun = function(x) {
     })
 }
 
+glo_fit_spei = function(x, export_opts = 'SPEI', return_latest = T) {
+  #load the package needed for these computations
+  library(lmomco)
+  #first try gamma
+  tryCatch(
+    {
+      x = as.numeric(x)
+      #Unbiased Sample Probability-Weighted Moments (following Beguer ́ıa et al 2014)
+      pwm = pwm.ub(x)
+      #Probability-Weighted Moments to L-moments
+      lmoments_x = pwm2lmom(pwm)
+      #fit generalized logistic
+      fit.parglo = parglo(lmoments_x)
+      #compute probabilistic cdf 
+      fit.cdf = cdfglo(x, fit.parglo)
+      #compute spi
+      spei = qnorm(fit.cdf, mean = 0, sd = 1)
+      if(return_latest == T){
+        if(export_opts == 'CDF'){
+          return(fit.cdf[length(fit.cdf)]) 
+        }
+        if(export_opts == 'params'){
+          return(fit.parglo) 
+        }
+        if(export_opts == 'SPEI'){
+          return(spei[length(spei)]) 
+        }
+      }
+      if(return_latest == F){
+        if(export_opts == 'CDF'){
+          return(fit.cdf) 
+        }
+        if(export_opts == 'params'){
+          return(fit.parglo) 
+        }
+        if(export_opts == 'SPEI'){
+          return(spei) 
+        }
+      }
+      
+    },
+    #else return NA
+    error=function(cond) {
+      return(NA)
+    })
+}
+
 
 eddi_fun = function(x) {
   #define coeffitients
