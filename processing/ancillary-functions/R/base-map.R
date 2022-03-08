@@ -22,6 +22,12 @@ gesturePlugin = htmlDependency("Leaflet.GestureHandling", "1.1.8",
                                script = "leaflet-gesture-handling.min.js"
 )
 
+screenshotPlugin = htmlDependency("leaflet-simple-map-screenshoter", "0.4.5",
+                               src = c(file = paste0(git.dir, "processing/manual-dependencies/leaflet-simple-map-screenshoter-master/dist/")),
+                               script = "leaflet-simple-map-screenshoter.js"
+)
+
+
 for(i in 1:length(current_usdm$DM)){
   current_usdm$DM1[i] = paste(current_usdm$DM[i], 
                               usdm_description[i], sep = " ")}
@@ -50,12 +56,13 @@ registerPlugin <- function(map, plugin) {
 base_map = function(x){
   leaflet::leaflet(options = leaflet::tileOptions(minZoom = 4, preferCanvas = T)) %>%
     registerPlugin(gesturePlugin) %>%
+    registerPlugin(screenshotPlugin) %>%
     leaflet::addMapPane("USDM", zIndex = 410) %>%
     leaflet::addProviderTiles("Stamen.Toner") %>%
     leaflet::addTiles("https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a") %>%
     leaflet::addProviderTiles("Stamen.TonerLines") %>%
     leaflet::addProviderTiles("Stamen.TonerLabels") %>%
-    addProviderTiles("OpenStreetMap.BlackAndWhite", group = "Streets") %>%
+    addProviderTiles("OpenStreetMap.DE", group = "Streets") %>%
     leaflet::setMaxBounds( lng1 = -140
                            , lat1 = 60
                            , lng2 = -80
@@ -85,12 +92,7 @@ base_map = function(x){
                                    circleMarkerOptions = FALSE,
                                    editOptions = FALSE,
                                    singleFeature = FALSE
-    )%>%
-    onRender("function(el, x) {
-      this.removeControl(this.zoomControl);
-      this.gestureHandling.enable();
-      this.dragging.enable();
-    }") 
+    )
 }
 
 #define base map information as a function used for all mobile leaflet maps

@@ -22,8 +22,17 @@ tribal = st_read(paste0(git.dir, 'processing/base-data/processed/UMRB_tribal_lan
 timescales = c(15,30,60,90,180,365,'water_year', 'year_to_date')
 
 # define leaflet inputs
-pal = colorNumeric(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66"), -2.5:2.5, na.color = "transparent")
-pal_reverse = colorNumeric(rev(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66")), -2.5:2.5, na.color = "transparent")
+# continuous color ramp
+# pal = colorNumeric(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66"), -2.5:2.5, na.color = "transparent")
+# pal_reverse = colorNumeric(rev(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66")), -2.5:2.5, na.color = "transparent")
+
+# catagorical
+pal = colorBin(colorRamp(c("#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83'), interpolate = "linear"), 
+                    domain = -2.5:2.5, bins = c(-Inf, -2, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, Inf), na.color = "transparent")
+
+pal_reverse = colorBin(colorRamp(rev(c("#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83')), interpolate = "linear"), 
+                       domain = -2.5:2.5, bins = c(-Inf, -2, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, Inf), na.color = "transparent")
+
 
 timescale_names = c("15 Day","30 Day", "60 Day", "90 Day", "180 Day", "365 Day", "Water Year", "Year to Date")
 
@@ -31,8 +40,8 @@ for(v in 1:length(variable)){
   #import data
   files = list.files(paste0(export.dir,lower_variable[v]), full.names = T) %>%
     as_tibble() %>%
-    filter(stringr::str_detect(value, paste(timescales, sep = '', collapse = '|'))) 
-  
+    filter(stringr::str_detect(value, paste(timescales, sep = '', collapse = '|_'))) 
+    
   #reorder filtered vector
   data = files$value[sapply(timescales, function(x) { grep(x, files$value)})] %>%
     as_tibble() %>%

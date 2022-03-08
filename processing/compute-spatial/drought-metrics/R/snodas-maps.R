@@ -133,6 +133,11 @@ print('check 4')
 standardized_swe_raster = standardized_input[[1]]
 values(standardized_swe_raster) = current_standardized_swe
 
+#remove locations with 0 SWE -- 
+mask_ = standardized_input[[nlayers(standardized_input)]]
+values(mask_) = ifelse(values(mask_) > 0, 1, NA)
+standardized_swe_raster = standardized_swe_raster * mask_
+
 #import drought metric template for resampling to 4km
 template = raster(paste0(export.dir, 'spi/current_spi_30.tif'))
 
@@ -173,7 +178,6 @@ registerDoParallel(cl)
 tictoc::tic()
 #length(names)
 foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2', 'progress'))%dopar%{
-  
   roi = watersheds %>% filter(HUC8 == names[i])
   
   swe = data.frame(files = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/swe/', full.names = T)) %>%
@@ -196,6 +200,14 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
   mean_swe = median(swe, na.rm = T)
   last = swe[[nlyr(swe)]]
   
+  percent_of_ave = (((values(last) %>% sum(., na.rm = T)) /
+                       (values(mean_swe) %>% sum(., na.rm = T)))*100) %>%
+    round(.,  0)
+  
+  if(percent_of_ave > 300){
+    percent_of_ave = '> 300'
+  }
+  
   dem = get_elev_raster(roi, z = 9) %>%
     rast %>%
     crop(., roi %>% vect) %>%
@@ -210,7 +222,7 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
     tidyr::drop_na() %>%
     mutate(quantile = .bincode(dem, quantile(dem, seq(0.01,1,by = 0.01))),
            lin.bins = .bincode(dem, seq(min(dem, na.rm = T)-1, max(dem, na.rm = T)+1, length.out = 50))) %>%
-    tidyr::pivot_longer(names_to = 'name', cols = c(`Median Climatology (2004 - 2021)`, `2021`)) %>%
+    tidyr::pivot_longer(names_to = 'name', cols = c(`Median Climatology (2004 - 2022)`, `2022`)) %>%
     group_by(lin.bins, name) %>%
     summarise(n = length(value),
               sum = sum(value, na.rm = T)) %>%
@@ -237,6 +249,13 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
                          mean_dem = c(max(.$mean_dem, na.rm = T)+2, max(.$mean_dem, na.rm = T)+2, min(.$mean_dem, na.rm = T)-2, min(.$mean_dem, na.rm = T)-2))) %>%
     arrange(lin.bins)
   
+  #compute # of average at all elevations
+  percent_of_normal_elev = data %>%
+    tidyr::pivot_wider(names_from = c('name.x'), values_from = sum) %>%
+    mutate(`Percent of Average` = (`2022`/`Median Climatology (2004 - 2022)`)*100,
+           `Percent of Average` = ifelse(`Percent of Average` > 300, 300, `Percent of Average`))
+    
+  
   center_of_mass = data %>%
     dplyr::group_by(name.x) %>%
     summarize(com = weighted.mean(mean_dem, sum))
@@ -259,25 +278,40 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
   
   plot = ggplot()+
     geom_polygon(data = climatology, aes(y = mean_dem, x = sum, color = name.x, fill = name.x), alpha = 0.6) +
-    geom_polygon(data = climatology, aes(y = mean_dem, x = -sum, color = name.x, fill = name.x), alpha = 0.6) +
+    #geom_polygon(data = climatology, aes(y = mean_dem, x = -sum, color = name.x, fill = name.x), alpha = 0.6) +
     geom_polygon(data = current, aes(y = mean_dem, x = sum, color = name.x, fill = name.x), alpha = 0.3) +
-    geom_polygon(data = current, aes(y = mean_dem, x = -sum, color = name.x, fill = name.x), alpha = 0.3) +
+    #geom_polygon(data = current, aes(y = mean_dem, x = -sum, color = name.x, fill = name.x), alpha = 0.3) +
     geom_point(data = center_of_mass, aes(y = com, x = 0, fill = name.x), color = 'black', shape = 23, size = 4)+
-    theme_bw(base_size = 16)+
+    theme_bw(base_size = 14)+
     theme(legend.position = 'bottom')+
     scale_x_continuous(breaks=axis_tics,
                        labels= scales::comma(abs(axis_tics)))+
     labs(x = 'Cumulative Snow Water Equivalent (m³)', y = 'Elevation (ft)')+
-    scale_fill_manual(values = c('blue', 'darkgrey'), name = 'Produced by the Montana Climate Office\n Contact: zachary.hoylman@umontana.edu')+
-    guides(fill = guide_legend(title.position = "bottom"))+
+    scale_fill_manual(values = c('blue', 'darkgrey'))+
+    guides(fill = guide_legend(title.position = "left", title = NULL))+
     scale_color_manual(values = c('blue', 'darkgrey'), guide = F)+
-    ggtitle(paste0(paste0('Hypsome-SWE for ', roi$NAME, ' (HUC8: ', roi$HUC8, ')\n',max(time))))+
+    #ggtitle(paste0(paste0('Hypsome-SWE for ', roi$NAME, ' (HUC8: ', roi$HUC8, ')\n',max(time), ' (', percent_of_ave, '% of Normal)')))+
     theme(plot.title = element_text(hjust = 0.5))+
     theme(plot.margin=unit(c(1,1,1,1),"cm"))+
     theme(legend.title.align=0.5) 
   
-  ggsave(plot, file = paste0('/home/zhoylman/mco-drought-indicators-data/snodas/plots/hypsome-swe-', roi$HUC8, '.png'), width = 8, height = 8, units = 'in')
-  rm(plot, current, climatology, data, dem, swe, mean_swe, last, roi)
+  title = cowplot::ggdraw() + cowplot::draw_label(paste0(paste0('Hypsome-SWE for ', roi$NAME, ' (HUC8: ', roi$HUC8, ')\n',max(time), ' (', percent_of_ave, '% of Normal)')), fontface='bold')
+  
+  plot_percent = ggplot(data = percent_of_normal_elev, aes(x = `Percent of Average`, y = mean_dem))+
+    geom_path()+
+    geom_vline(xintercept = 100, linetype = 'dashed')+
+    theme_bw(base_size = 14)+
+    labs(x = 'Percent of Average SWE', y = NULL)+
+    theme(plot.margin=unit(c(1,1,2.6,0),"cm"),
+          axis.title.y=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank())+
+    scale_x_continuous(breaks = c(0,100,200,300), labels = c("0%", '100%', '200%', ">300%"), limits = c(0,300))
+  
+  final = cowplot::plot_grid(title, cowplot::plot_grid(plot, plot_percent, align = 'h', rel_widths = c(1,0.5)), ncol = 1, rel_heights = c(0.1,1))
+  
+  ggsave(final, file = paste0('/home/zhoylman/mco-drought-indicators-data/snodas/plots/hypsome-swe-', roi$HUC8, '.png'), width = 8, height = 8, units = 'in')
+  rm(plot, current, climatology, percent_of_normal_elev, data, dem, swe, mean_swe, last, roi)
   gc()
 }
 tictoc::toc()

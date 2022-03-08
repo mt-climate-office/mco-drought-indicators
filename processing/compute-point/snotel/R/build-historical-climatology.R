@@ -35,7 +35,7 @@ climatology = data %>%
   mutate(day = day(date),
          month = month(date),
          year = year(date)) %>%
-  slice(c(which(day != 29 & month != 2))) %>%
+  slice(-c(which(day == 29 & month == 2))) %>%
   filter(year >= 1991 & year <= 2020) %>%
   mutate(water_year_yday = yday.waterYear(date %>% as.Date())) %>%
   group_by(site_id, water_year_yday, month, day) %>%

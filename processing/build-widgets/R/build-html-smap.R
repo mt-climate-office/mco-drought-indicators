@@ -10,7 +10,7 @@ source(paste0(git.dir, '/processing/ancillary-functions/R/widget-functions.R'))
 source(paste0(git.dir, '/processing/ancillary-functions/R/base-map.R'))
 
 #define variable names to process
-variable = c('SMAP Subsurface<br>Soil Moisture')
+variable = c('SMAP Subsurface Soil Moisture')
 lower_variable = c('smap')
 
 #import counties

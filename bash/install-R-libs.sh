@@ -43,3 +43,5 @@ sudo su - -c "R -q -e \"install.packages('snotelr', repos='http://cran.rstudio.c
 sudo su - -c "R -q -e \"install.packages('terra', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -q -e \"install.packages('elevatr', repos='http://cran.rstudio.com/')\""
 sudo su - -c "R -q -e \"install.packages('plyr', repos='http://cran.rstudio.com/')\""
+sudo su - -c "R -q -e \"install.packages('mapview', repos='http://cran.rstudio.com/')\""
+sudo su - -c "R -q -e \"install.packages('leaflet.opacity', repos='http://cran.rstudio.com/')\""

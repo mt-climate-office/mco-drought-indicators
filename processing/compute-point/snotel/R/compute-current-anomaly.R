@@ -7,7 +7,7 @@ library(lubridate)
 
 sites_with_climatology = read_csv('/home/zhoylman/mco-drought-indicators-data/snotel/climatology/site_climatology.csv')
 
-sites = snotel_info() %>%
+sites = read_csv('/home/zhoylman/mco-drought-indicators-data/snotel/climatology/site_meta.csv') %>%
   filter(site_id %in% unique(sites_with_climatology$site_id))
 
 get_snotel_most_recent = function(site_id, state, network){

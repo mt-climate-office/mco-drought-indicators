@@ -23,10 +23,10 @@ timescales = c(15,30,60,90,180,365,'water_year', 'year_to_date')
 
 # define leaflet inputs
 pal_bins = colorBin(colorRamp(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66"), interpolate = "spline"), 
-                     domain = 0:100, bins = seq(0,100,10), na.color = "transparent")
+                     domain = 0:100, bins = c(0,2,5,10,20,30,70,80,90,95,98,100), na.color = "transparent")
 
 pal_bins_reverse = colorBin(colorRamp(rev(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66")), interpolate = "spline"), 
-                    domain = 0:100, bins = seq(0,100,10), na.color = "transparent")
+                    domain = 0:100, bins = c(0,2,5,10,20,30,70,80,90,95,98,100), na.color = "transparent")
 
 timescale_names = c("15 Day","30 Day", "60 Day", "90 Day", "180 Day", "365 Day", "Water Year", "Year to Date")
 
@@ -106,10 +106,10 @@ for(v in 1:length(variable)){
   
   # make leaflet widgets
   if(variable[v] == 'Precipitation'){
-    m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal_bins, legend_values = seq(0, 100, by = 10))
+    m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal_bins, legend_values = c(0,2,5,10,20,30,70,80,90,95,98,100))
   }
   if(variable[v] == 'Temperature'){
-    m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal_bins_reverse, legend_values = seq(0, 100, by = 10))
+    m_raster = build_html_raster(revalued_data, timescale_names, variable[v], title, pal_bins_reverse, legend_values = c(0,2,5,10,20,30,70,80,90,95,98,100))
   }
   saveWidget(m_raster, paste0(export.dir, "widgets/m_raster_", lower_variable[v], ".html"), selfcontained = F, libdir = paste0(export.dir, "widgets/libs/"))
 }

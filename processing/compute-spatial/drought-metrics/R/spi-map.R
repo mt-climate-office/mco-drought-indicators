@@ -25,7 +25,7 @@ water_year = (length(time$day) - which(time$day == "10-01")[length(which(time$da
 year_to_date = (length(time$day) - which(time$day == "01-01")[length(which(time$day == "01-01"))])
 
 #designate time scale
-time_scale = c(15,30,40,60,90,180,365, water_year, year_to_date)
+time_scale = c(15,30,40,60,90,180,365,730, water_year, year_to_date)
 
 for(t in 1:length(time_scale)){
   #compute indexes for time breaks
@@ -88,23 +88,36 @@ for(t in 1:length(time_scale)){
   values(spi_map) = current_spi
   
   #define path for map export
+  current_time = substr(time$datetime[length(time$datetime)],1,10) %>% str_extract_all(., "[[:digit:]]+") %>% bind() %>% str_flatten()
+  
   path_file = paste0(export.dir, "spi/current_spi_",
                     as.character(time_scale[t]),".tif")
+  
+  path_file_archive = paste0('/home/zhoylman/mco-drought-indicators-archive/', 
+                             "spi/spi_", current_time, '_',
+                             as.character(time_scale[t]),"_timescale.tif")
   
   # wateryear and year to date file name
   if(t > (length(time_scale)-2)){
     if(t == (length(time_scale)-1)){
       path_file = paste0(export.dir, "spi/current_spi_",
                         "water_year",".tif")
+      path_file_archive = paste0('/home/zhoylman/mco-drought-indicators-archive/', 
+                                 "spi/spi_", current_time, '_',
+                                 "water_year","_timescale.tif")
     }
     if(t == (length(time_scale))){
       path_file = paste0(export.dir, "spi/current_spi_",
                         "year_to_date",".tif")
+      path_file_archive = paste0('/home/zhoylman/mco-drought-indicators-archive/', 
+                                 "spi/spi_", current_time, '_',
+                                 "year_to_date","_timescale.tif")
     }
   }
   
   #write GeoTiff
   writeRaster(spi_map, path_file, format = "GTiff", overwrite = T)
+  writeRaster(spi_map, path_file_archive, format = "GTiff", overwrite = T)
 }
 
 #write time out

@@ -17,4 +17,6 @@ library(htmltools)
 library(htmlwidgets)
 library(XML)
 library(snotelr)
+library(mapview)
+library(leaflet.opacity)
 
