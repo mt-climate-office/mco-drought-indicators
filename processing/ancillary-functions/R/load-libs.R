@@ -19,4 +19,4 @@ library(XML)
 library(snotelr)
 library(mapview)
 library(leaflet.opacity)
-
+library(snow)

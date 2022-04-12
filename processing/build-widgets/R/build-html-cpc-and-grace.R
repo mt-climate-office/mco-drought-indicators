@@ -20,10 +20,11 @@ tribal = st_read(paste0(git.dir, 'processing/base-data/processed/UMRB_tribal_lan
 
 # define leaflet inputs
 pal_bins = colorBin(colorRamp(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66"), interpolate = "spline"), 
-                    domain = 0:100, bins = seq(0,100,10), na.color = "transparent")
+                    domain = 0:100, bins = c(0,2,5,10,20,30,70,80,90,95,98,100), na.color = "transparent")
 
 pal_bins_reverse = colorBin(colorRamp(rev(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66")), interpolate = "spline"), 
-                            domain = 0:100, bins = seq(0,100,10), na.color = "transparent")
+                            domain = 0:100, bins = c(0,2,5,10,20,30,70,80,90,95,98,100), na.color = "transparent")
+
 
 for(v in 1:length(variable)){
   #import data
@@ -97,10 +98,10 @@ for(v in 1:length(variable)){
   
   # make leaflet widgets
   if(variable[v] == "Soil Moisture"){
-    m_raster = build_html_raster(revalued_data, 'Soil Moisture (CPC)', variable[v], title, pal_bins, legend_values = seq(0,100, by = 10))
+    m_raster = build_html_raster(revalued_data, 'Soil Moisture (CPC)', variable[v], title, pal_bins, legend_values = c(0,2,5,10,20,30,70,80,90,95,98,100))
   }
   if(variable[v] == "Shallow Groundwater"){
-    m_raster = build_html_raster(revalued_data, 'Shallow Groundwater', variable[v], title, pal_bins, legend_values = seq(0,100, by = 10))
+    m_raster = build_html_raster(revalued_data, 'Shallow Groundwater', variable[v], title, pal_bins, legend_values = c(0,2,5,10,20,30,70,80,90,95,98,100))
   }
   saveWidget(m_raster, paste0(export.dir, "widgets/m_raster_", lower_variable[v], ".html"), selfcontained = F, libdir = paste0(export.dir, "widgets/libs/"))
 }

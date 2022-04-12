@@ -16,6 +16,24 @@ UMRB = readOGR(paste0(git.dir, "/processing/base-data/processed/outline_umrb.shp
 #clip precip grids to the extent of UMRB, to reduce dataset and bring grids into memory
 raster_precip_spatial_clip = crop(raster_precip, extent(UMRB))
 
+########### patch ###########
+# clipper = function(x){
+#   crop(x, extent(UMRB))
+# }
+# pr_patch = list.files('/home/zhoylman/temp/pr_patch_year2date', full.names = T) %>%
+#   lapply(., raster) %>%
+#   lapply(., clipper)
+# 
+# pr_patch_time = substr(list.files('/home/zhoylman/temp/pr_patch_year2date', full.names = F), 1, 10) %>% as.Date()
+# 
+# gridmet_time = data.frame(datetime = as.Date(as.numeric(substring(names(raster_precip),2)), origin="1900-01-01"))
+# patch_index = which(gridmet_time$datetime %in% pr_patch_time)
+# 
+# for(i in 1:length(pr_patch)){
+#   raster_precip_spatial_clip[[patch_index[i]]] = pr_patch[[i]]
+# }
+########### patch ###########
+
 #define time
 time = data.frame(datetime = as.Date(as.numeric(substring(names(raster_precip_spatial_clip),2)), origin="1900-01-01"))
 time$day = strftime(time$datetime,"%m-%d")

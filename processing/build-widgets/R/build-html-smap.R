@@ -106,7 +106,7 @@ for(v in 1:length(variable)){
     tidyr::pivot_wider(names_from = name, values_from = anom) 
   
   # make leaflet widgets
-  if(variable[v] == "SMAP Subsurface<br>Soil Moisture"){
+  if(variable[v] == c('SMAP Subsurface Soil Moisture')){
     m_raster = build_html_raster(revalued_data, 'SMAP Subsurface Soil Moisture Anomaly', variable[v], title, pal, legend_values = -2.5:2.5) %>%
       addCircleMarkers(mesonet$Longitude, mesonet$Latitude,
                        radius = 10, stroke = TRUE, fillOpacity = 0.9,

@@ -9,6 +9,7 @@ source(paste0(git.dir,"/processing/ancillary-functions/R/drought-functions.R"))
 #import the remote data
 raster_precip = brick("[FillMismatch]http://thredds.northwestknowledge.net:8080/thredds/dodsC/agg_met_pr_1979_CurrentYear_CONUS.nc", var= "precipitation_amount")
 proj4string(raster_precip) = "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+
 raster_pet = brick("[FillMismatch]http://thredds.northwestknowledge.net:8080/thredds/dodsC/agg_met_pet_1979_CurrentYear_CONUS.nc", var = "daily_mean_reference_evapotranspiration_grass")
 proj4string(raster_pet) = "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
@@ -17,6 +18,25 @@ UMRB = readOGR(paste0(git.dir, "/processing/base-data/processed/outline_umrb.shp
 
 #clip precip and PET grids to the extent of UMRB, to reduce dataset and bring grids into memory
 raster_precip_spatial_clip = crop(raster_precip, extent(UMRB))
+
+########### patch ###########
+# clipper = function(x){
+#   crop(x, extent(UMRB))
+# }
+# pr_patch = list.files('/home/zhoylman/temp/pr_patch_year2date', full.names = T) %>%
+#   lapply(., raster) %>%
+#   lapply(., clipper)
+# 
+# pr_patch_time = substr(list.files('/home/zhoylman/temp/pr_patch_year2date', full.names = F), 1, 10) %>% as.Date()
+# 
+# gridmet_time = data.frame(datetime = as.Date(as.numeric(substring(names(raster_precip),2)), origin="1900-01-01"))
+# patch_index = which(gridmet_time$datetime %in% pr_patch_time)
+# 
+# for(i in 1:length(pr_patch)){
+#   raster_precip_spatial_clip[[patch_index[i]]] = pr_patch[[i]]
+# }
+########### patch ###########
+
 raster_pet_spatial_clip = crop(raster_pet, extent(UMRB))
 
 #define time

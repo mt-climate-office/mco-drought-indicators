@@ -2,22 +2,29 @@ library(dplyr)
 library(RCurl)
 library(lubridate)
 library(readr)
+library(magrittr)
 
 `%notin%` = Negate(`%in%`)
 
 source('/home/zhoylman/mco-drought-indicators/processing/ancillary-functions/R/drought-functions.R')
 
+stations = getURL("https://mesonet.climate.umt.edu/api/stations?type=csv&clean=true") %>%
+  read_csv() %>%
+  mutate(start_year = substr(`Start date`, 9, 12) %>% as.numeric()) %>%
+  filter(start_year <= 2018) %>%
+  dplyr::select(`Station ID`, Longitude, Latitude, `Station name`) %>%
+  rename(station_key = `Station ID`)
+
+
 data = list.files('/home/zhoylman/mesonet-download-data', full.names = T) %>%
+  as_tibble() %>%
+  filter(grepl(paste0(c(stations$station_key), collapse = '|'), value)) %$%
+  value %>%
   lapply(., read_csv) %>%
   data.table::rbindlist() %>%
   as_tibble()
 
 gc()
-
-stations = getURL("https://mesonet.climate.umt.edu/api/stations?type=csv&clean=true") %>%
-  read_csv() %>%
-  dplyr::select(`Station ID`, Longitude, Latitude, `Station name`) %>%
-  rename(station_key = `Station ID`)
 
 #compute days of interest (and adjust for day changes over a year or under)
 today = Sys.Date()

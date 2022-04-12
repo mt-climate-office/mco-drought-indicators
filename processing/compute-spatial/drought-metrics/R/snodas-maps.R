@@ -197,6 +197,15 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
     lapply(., terra::resample, swe[[length(swe)]], method="bilinear") %>%
     rast
   
+  # summer = function(x){
+  #   return((((values(x) %>% sum(., na.rm = T)) /
+  #       (values(last) %>% sum(., na.rm = T)))*100))
+  # }
+  # years = 2004:2022
+  # for(i in 1:nlyr(swe)){
+  #   print(paste0(years[i], ' = ' , summer(swe[[i]]), ' % of 2022'))
+  # }
+  
   mean_swe = median(swe, na.rm = T)
   last = swe[[nlyr(swe)]]
   
