@@ -62,7 +62,8 @@ values(current_depth) = ifelse(values(current_depth) == 0, NA, values(current_de
 values(current_swe) = ifelse(values(current_swe) > quantile(values(current_swe), 0.999, na.rm = T),
                                quantile(values(current_swe), 0.999, na.rm = T),
                                values(current_swe))/25.4
-values(current_swe) = as.integer(values(current_swe))
+#values(current_swe) = as.integer(values(current_swe))
+current_swe = current_swe * (current_swe > 0)
 values(current_swe) = ifelse(values(current_swe) == 0, NA, values(current_swe))
 
 #define input shp files
@@ -81,7 +82,7 @@ snotel = snotel_info() %>%
 states =  st_read(paste0(git.dir, "processing/base-data/raw/states.shp"))
 
 #Standardized swe import grid
-snodas_standardized_swe = raster(paste0(export.dir, 'snodas/processed/standardized_swe/current_snodas_swe_standardized_4km.tif'))
+snodas_standardized_swe = raster(paste0(export.dir, 'snodas/processed/standardized_swe/current_snodas_swe_standardized.tif'))
 
 snodas_standardized_swe[snodas_standardized_swe >= 2.5] = 2.49
 snodas_standardized_swe[snodas_standardized_swe <= -2.5] = -2.49
@@ -91,10 +92,10 @@ pal <- colorNumeric(c("red", "yellow", "green", "blue", "purple"), domain = c(mi
 pal_standard <- colorNumeric(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66"), -2.5:2.5, na.color = "transparent")
 pal_standard_r <- colorNumeric(rev(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66")), -2.5:2.5, na.color = "transparent")
 
-pal_swe_raw = colorNumeric(c("cyan", "lightblue", "blue", "darkblue", "purple"), domain = c(min(values(current_swe), na.rm = T),max(values(current_swe), na.rm = T)+1), na.color = "transparent")
-pal_swe_raw_rev = colorNumeric(rev(c("cyan", "lightblue", "blue", "darkblue", "purple")), domain = c(min(values(current_swe), na.rm = T),max(values(current_swe), na.rm = T)+1), na.color = "grey")
-pal_depth_raw = colorNumeric(c("cyan", "lightblue", "blue", "darkblue", "purple"), domain = c(min(values(current_depth), na.rm = T),max(values(current_depth), na.rm = T)+1), na.color = "transparent")
-pal_depth_raw_rev = colorNumeric(rev(c("cyan", "lightblue", "blue", "darkblue", "purple")), domain = c(min(values(current_depth), na.rm = T),max(values(current_depth), na.rm = T)+1), na.color = "grey")
+pal_swe_raw = colorNumeric(c("cyan", "lightblue", "blue", "darkblue", "purple"), domain = c(min(values(current_swe), na.rm = T)-1,max(values(current_swe), na.rm = T)+1), na.color = "transparent")
+pal_swe_raw_rev = colorNumeric(rev(c("cyan", "lightblue", "blue", "darkblue", "purple")), domain = c(min(values(current_swe), na.rm = T)-1,max(values(current_swe), na.rm = T)+1), na.color = "grey")
+pal_depth_raw = colorNumeric(c("cyan", "lightblue", "blue", "darkblue", "purple"), domain = c(min(values(current_depth), na.rm = T)-1,max(values(current_depth), na.rm = T)+1), na.color = "transparent")
+pal_depth_raw_rev = colorNumeric(rev(c("cyan", "lightblue", "blue", "darkblue", "purple")), domain = c(min(values(current_depth), na.rm = T)-1,max(values(current_depth), na.rm = T)+1), na.color = "grey")
 
 #time id
 snotel_time = snotel$Date %>% max()
@@ -214,6 +215,8 @@ standardized_swe_map = base_map() %>%
 
 saveWidget(standardized_swe_map, paste0(export.dir, "widgets/m_raster_standardized_swe.html"), selfcontained = F, libdir = paste0(export.dir, "widgets/libs/"))
 
+print('check -- ')
+
 #standardized swe
 standardized_swe_map_merged = base_map() %>%
   leaflet::addMapPane("SNOTEL (SWE)", zIndex = 420) %>%
@@ -258,13 +261,13 @@ standardized_swe_map_merged = base_map() %>%
             group = "StandardizedSWE",
             className = "info legend StandardizedSWE",
             labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))%>%
-  addLegend(pal = pal_depth_raw_rev, values = min(values(current_depth), na.rm = T):max(values(current_depth), na.rm = T)+1,
+  addLegend(pal = pal_depth_raw_rev, values = (min(values(current_depth), na.rm = T)-1):(max(values(current_depth), na.rm = T)+1),
             title = paste0("Current SNODAS<br> Snow Depth (in)<br>", current_depth_time),
             position = "bottomleft",
             group = "CurrentDepth",
             className = "info legend CurrentDepth",
             labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))%>%
-  addLegend(pal = pal_swe_raw_rev, values = min(values(current_swe), na.rm = T):max(values(current_swe), na.rm = T)+1,
+  addLegend(pal = pal_swe_raw_rev, values = (min(values(current_swe), na.rm = T)-1):(max(values(current_swe), na.rm = T)+1),
             title = paste0("Current SNODAS<br> SWE Depth (in)<br>", current_swe_time),
             position = "bottomleft",
             group = "CurrentSWE",

@@ -86,12 +86,14 @@ print('cleaned snow depth change workspace')
 #################### STANDARDIZED SWE ####################
 ##########################################################
 
-
+template = today
 
 process_raster_standardize = function(file){
   raster_temp = raster(file) %>%
     crop(., extent(UMRB)) %>%
-    mask(., UMRB)
+    mask(., UMRB) %>%
+    #raster dimentions change through time. 
+    raster::resample(., template, method = 'ngb')
   return(raster_temp)
 }
 
@@ -114,7 +116,7 @@ for(i in 1:nlayers(standardized_input)){
 }
 
 #replace 0 values with very low value gamma cant take 0
-swe_vec[swe_vec == 0] = 0.001
+swe_vec[swe_vec == 0] = 0.1
 
 library(doParallel)
 cl = makeCluster(detectCores()-1)
