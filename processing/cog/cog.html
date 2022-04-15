@@ -148,6 +148,7 @@
 	    legend.addTo(map);
 
       //add vector data
+      
       var tribal_lands = $.ajax({
           url:"https://raw.githubusercontent.com/mt-climate-office/mco-drought-indicators/master/processing/base-data/processed/UMRB_tribal_lands_simple.geojson",
           dataType: "json",
@@ -157,9 +158,46 @@
           }
         })
         $.when(tribal_lands).done(function() {
-          var tribal_lands_json = L.geoJSON(tribal_lands.responseJSON).addTo(map);
+          var tribal_lands_json = L.geoJSON(tribal_lands.responseJSON)
+          layerControl.addOverlay(tribal_lands_json, 'Tribal Lands');
         });
 
+        /*
+        const response = await fetch('mco-drought-indicators/processing/base-data/processed/counties_test.fgb');
+            for await (let feature of flatgeobuf.deserialize(response.body, undefined, handleHeaderMeta)) {
+                // Leaflet styling
+                const defaultStyle = { 
+                    color: 'blue', 
+                    weight: 2, 
+                    fillOpacity: 0.2,
+                };
+
+                // Add the feature to the map
+                L.geoJSON(feature, { 
+                    style: defaultStyle 
+                }).on({
+                    // highlight on hover
+                    'mouseover': function(e) {
+                        const layer = e.target;
+                        layer.setStyle({
+                            color: 'blue',
+                            weight: 4,
+                            fillOpacity: 0.7,
+                        });
+                        layer.bringToFront();
+                    },
+                    // remove highlight when hover stops
+                    'mouseout': function(e) {
+                        const layer = e.target;
+                        layer.setStyle(defaultStyle);
+                    }
+                })
+                // show some per-feature properties when clicking on the feature
+                .bindPopup(`<h1>${feature.properties["NAME"]} ${feature.properties["LSAD"]}, ${feature.properties["STATE"]}</h1>`)
+                .addTo(map);
+            }
+
+            */
 
     </script>
   </body>
