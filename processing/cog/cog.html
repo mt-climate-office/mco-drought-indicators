@@ -52,153 +52,122 @@
   
   <body>
     <div id="map"></div>
-    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/chroma-js"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-
+    <script src="https://unpkg.com/flatgeobuf@3.22.0/dist/flatgeobuf-geojson.min.js"></script>
 
     <script>
-      // initalize leaflet map
-      var variable = 'SPI'
-      var map = L.map('map');
-      var layerControl = L.control.layers(null, null, {position: 'topleft'}).addTo(map)
-      // add OpenStreetMap basemap
-      L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a', {
-          attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(map);
+      document.addEventListener("DOMContentLoaded", async () => { 
+            // initalize leaflet map
+            var variable = 'SPI'
+            const map = L.map('map', {preferCanvas: true, zoomDelta: 2});
+            var layerControl = L.control.layers(null, null, {position: 'topleft'}).addTo(map)
+            
+            // add OpenStreetMap basemap
+            L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
 
-      function addCOG(url, name_) {
-        var layer_name = name_
-	      fetch(url)
-        .then(response => response.arrayBuffer())
-        .then(arrayBuffer => {
-          parseGeoraster(arrayBuffer).then(georaster => {
-            const min = georaster.mins[0];
-            const max = georaster.maxs[0];
-            const range = georaster.ranges[0];
+            // define cog load function
+            function addCOG(url, name_) {
+              var layer_name = name_
+              fetch(url)
+              .then(response => response.arrayBuffer())
+              .then(arrayBuffer => {
+                parseGeoraster(arrayBuffer).then(georaster => {
+                  const min = georaster.mins[0];
+                  const max = georaster.maxs[0];
+                  const range = georaster.ranges[0];
 
-            //add chroma scale that matches the USDM
-            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes([-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999]); 
+                  //add chroma scale that matches the USDM
+                  var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes([-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999]); 
 
-            // define 
-            var layer = new GeoRasterLayer({
-                georaster: georaster,
-                opacity: 0.9,
-                updateWhenZooming: false,
-                pixelValuesToColorFn: function(pixelValues) {
-                  var pixelValue = pixelValues[0]; // there's just one band in this raster
+                  // define 
+                  var layer = new GeoRasterLayer({
+                      georaster: georaster,
+                      opacity: 0.9,
+                      updateWhenZooming: false,
+                      pixelValuesToColorFn: function(pixelValues) {
+                        var pixelValue = pixelValues[0]; // there's just one band in this raster
 
-                  // if there's zero wind, don't return a color
-                  if (pixelValue === min) return null;
+                        // if there's zero wind, don't return a color
+                        if (pixelValue === min) return null;
 
-                  var color = scale(pixelValue).hex();
+                        var color = scale(pixelValue).hex();
 
-                  return color;
-                },
-                resolution: 126
-            });
+                        return color;
+                      },
+                      resolution: 126
+                  });
 
-	          layerControl.addBaseLayer(layer, layer_name)
+                  layerControl.addBaseLayer(layer, layer_name)
 
-            map.fitBounds(layer.getBounds());
-          });
-        });
-      }
-      
-      console.log('begin')
-      // import COGs from remote server
-      addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_15.tif", 
-      "15 Day SPI")
-      addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_30.tif", 
-      "30 Day SPI")
-      addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_60.tif", 
-      "60 Day SPI")
-      addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_90.tif", 
-      "90 Day SPI")
-      addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_180.tif", 
-      "180 Day SPI")
-      addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_365.tif", 
-      "365 Day SPI")
-      console.log('complete')
-      
-      //add legend using above CSS and more JS
-      /*Legend specific*/
-      var legend = L.control({ position: "bottomleft" });
-
-      legend.onAdd = function(map) {
-        var div = L.DomUtil.create("div", "legend");
-        div.innerHTML += "<h4>"+variable+"</h4>";
-        div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
-        div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
-        div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
-        div.innerHTML += '<i style="background: #FCD37F"></i><span>-1.3 - -0.8 (D1)</span><br>';
-        div.innerHTML += '<i style="background: #FFFF00"></i><span>-0.8 - -0.5 (D0)</span><br>';
-        div.innerHTML += '<i style="background: #FFFFFF"></i><span>-0.5 - 0.5</span><br>';
-        div.innerHTML += '<i style="background: #82FCF9"></i><span>0.5 - 0.8</span><br>';
-        div.innerHTML += '<i style="background: #32E1FA"></i><span>0.8 - 1.3</span><br>';
-        div.innerHTML += '<i style="background: #325CFE"></i><span>1.3 - 1.6</span><br>';
-        div.innerHTML += '<i style="background: #4030E3"></i><span>1.6 - 2</span><br>';
-        div.innerHTML += '<i style="background: #303B83"></i><span>>2</span><br>';
-
-        return div;
-      };
-
-	    legend.addTo(map);
-
-      //add vector data
-      
-      var tribal_lands = $.ajax({
-          url:"https://raw.githubusercontent.com/mt-climate-office/mco-drought-indicators/master/processing/base-data/processed/UMRB_tribal_lands_simple.geojson",
-          dataType: "json",
-          success: console.log("County data successfully loaded."),
-          error: function (xhr) {
-            alert(xhr.statusText)
-          }
-        })
-        $.when(tribal_lands).done(function() {
-          var tribal_lands_json = L.geoJSON(tribal_lands.responseJSON)
-          layerControl.addOverlay(tribal_lands_json, 'Tribal Lands');
-        });
-
-        /*
-        const response = await fetch('mco-drought-indicators/processing/base-data/processed/counties_test.fgb');
-            for await (let feature of flatgeobuf.deserialize(response.body, undefined, handleHeaderMeta)) {
-                // Leaflet styling
-                const defaultStyle = { 
-                    color: 'blue', 
-                    weight: 2, 
-                    fillOpacity: 0.2,
-                };
-
-                // Add the feature to the map
-                L.geoJSON(feature, { 
-                    style: defaultStyle 
-                }).on({
-                    // highlight on hover
-                    'mouseover': function(e) {
-                        const layer = e.target;
-                        layer.setStyle({
-                            color: 'blue',
-                            weight: 4,
-                            fillOpacity: 0.7,
-                        });
-                        layer.bringToFront();
-                    },
-                    // remove highlight when hover stops
-                    'mouseout': function(e) {
-                        const layer = e.target;
-                        layer.setStyle(defaultStyle);
-                    }
-                })
-                // show some per-feature properties when clicking on the feature
-                .bindPopup(`<h1>${feature.properties["NAME"]} ${feature.properties["LSAD"]}, ${feature.properties["STATE"]}</h1>`)
-                .addTo(map);
+                  map.fitBounds(layer.getBounds());
+                });
+              });
             }
+            
+            // import and add COGs to map from remote server
+            addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_15.tif", 
+            "15 Day SPI")
+            addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_30.tif", 
+            "30 Day SPI")
+            addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_60.tif", 
+            "60 Day SPI")
+            addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_90.tif", 
+            "90 Day SPI")
+            addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_180.tif", 
+            "180 Day SPI")
+            addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_365.tif", 
+            "365 Day SPI")
+            
+            //add legend using above CSS and more JS
+            var legend = L.control({ position: "bottomleft" });
+            legend.onAdd = function(map) {
+              var div = L.DomUtil.create("div", "legend");
+              div.innerHTML += "<h4>"+variable+"</h4>";
+              div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
+              div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
+              div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
+              div.innerHTML += '<i style="background: #FCD37F"></i><span>-1.3 - -0.8 (D1)</span><br>';
+              div.innerHTML += '<i style="background: #FFFF00"></i><span>-0.8 - -0.5 (D0)</span><br>';
+              div.innerHTML += '<i style="background: #FFFFFF"></i><span>-0.5 - 0.5</span><br>';
+              div.innerHTML += '<i style="background: #82FCF9"></i><span>0.5 - 0.8</span><br>';
+              div.innerHTML += '<i style="background: #32E1FA"></i><span>0.8 - 1.3</span><br>';
+              div.innerHTML += '<i style="background: #325CFE"></i><span>1.3 - 1.6</span><br>';
+              div.innerHTML += '<i style="background: #4030E3"></i><span>1.6 - 2</span><br>';
+              div.innerHTML += '<i style="background: #303B83"></i><span>>2</span><br>';
+              return div;
+            };
+            legend.addTo(map);
+            
+            //add vector data using flatgeobuf
+            var countyGroup = [];        
+            const response = await fetch('https://data.climate.umt.edu/test/counties_test.fgb')
+              for await (const f of flatgeobuf.deserialize(response.body))
+                countyGroup.push(L.geoJSON(f));
+                var countyGroupLayer = L.layerGroup(countyGroup);
+              layerControl.addOverlay(countyGroupLayer , "Counties"); 
 
-            */
-
+            //Using traditional geojson
+            var tribal_lands = $.ajax({
+                url:"https://raw.githubusercontent.com/mt-climate-office/mco-drought-indicators/master/processing/base-data/processed/UMRB_tribal_lands_simple.geojson",
+                dataType: "json",
+                success: console.log("County data successfully loaded."),
+                error: function (xhr) {
+                  alert(xhr.statusText)
+                }
+              })
+              $.when(tribal_lands).done(function() {
+                var tribal_lands_json = L.geoJSON(tribal_lands.responseJSON)
+                layerControl.addOverlay(tribal_lands_json, 'Tribal Lands');
+              });
+              
+        });
     </script>
   </body>
 </html>
