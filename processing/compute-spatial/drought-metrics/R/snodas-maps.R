@@ -91,9 +91,9 @@ template = today
 process_raster_standardize = function(file){
   raster_temp = raster(file) %>%
     crop(., extent(UMRB)) %>%
-    mask(., UMRB) %>%
+    mask(., UMRB) #%>%
     #raster dimentions change through time. 
-    raster::resample(., template, method = 'ngb')
+    #raster::resample(., template, method = 'ngb')
   return(raster_temp)
 }
 
@@ -104,6 +104,7 @@ standardized_input = list.files(paste0(snodas.dir, '/processed/swe'), full.names
   as.list() %$%
   value %>%
   lapply(., process_raster_standardize) %>%
+  #lapply(., resample, y = template, method = 'ngb') %>%
   brick()
 
 print('check 3')
