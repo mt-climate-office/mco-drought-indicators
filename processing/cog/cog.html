@@ -59,13 +59,27 @@
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://unpkg.com/flatgeobuf@3.22.0/dist/flatgeobuf-geojson.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">
+    <script src="https://unpkg.com/leaflet-gesture-handling"></script>
+    <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
+
 
     <script>
       document.addEventListener("DOMContentLoaded", async () => { 
             // initalize leaflet map
             var variable = 'SPI'
-            const map = L.map('map', {preferCanvas: true, zoomDelta: 2});
-            var layerControl = L.control.layers(null, null, {position: 'topleft'}).addTo(map)
+            const map = L.map('map', {preferCanvas: true, gestureHandling: true});
+            var layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true}).addTo(map)
+
+            // parse time file
+            var time;
+            time = await Papa.parse('https://data.climate.umt.edu/drought-indicators/spi/time.csv', {
+              download: true, 
+              complete: function(results) {
+                var time = results.data["1"][1];
+                callback(time)
+              }
+            });
             
             // add OpenStreetMap basemap
             L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a', {
@@ -73,7 +87,7 @@
             }).addTo(map);
 
             // define cog load function
-            function addCOG(url, name_) {
+            function addCOG(url, name_, display = false) {
               var layer_name = name_
               fetch(url)
               .then(response => response.arrayBuffer())
@@ -86,26 +100,25 @@
                   //add chroma scale that matches the USDM
                   var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes([-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999]); 
 
-                  // define 
+                  // define COG georaster
                   var layer = new GeoRasterLayer({
                       georaster: georaster,
                       opacity: 0.9,
                       updateWhenZooming: false,
                       pixelValuesToColorFn: function(pixelValues) {
                         var pixelValue = pixelValues[0]; // there's just one band in this raster
-
                         // if there's zero wind, don't return a color
                         if (pixelValue === min) return null;
-
                         var color = scale(pixelValue).hex();
-
                         return color;
                       },
-                      resolution: 126
+                      resolution: 256
                   });
-
                   layerControl.addBaseLayer(layer, layer_name)
-
+                  //display layer if ture
+                  if(display == true){
+                    layer.addTo(map)
+                  }
                   map.fitBounds(layer.getBounds());
                 });
               });
@@ -113,23 +126,24 @@
             
             // import and add COGs to map from remote server
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_15.tif", 
-            "15 Day SPI")
+              "15 Day SPI")
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_30.tif", 
-            "30 Day SPI")
+              "30 Day SPI", display = true)
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_60.tif", 
-            "60 Day SPI")
+              "60 Day SPI")
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_90.tif", 
-            "90 Day SPI")
+              "90 Day SPI")
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_180.tif", 
-            "180 Day SPI")
+              "180 Day SPI")
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_365.tif", 
-            "365 Day SPI")
-            
+              "365 Day SPI")
+
+
             //add legend using above CSS and more JS
             var legend = L.control({ position: "bottomleft" });
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"</h4>";
+              div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
               div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
               div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
               div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
@@ -144,17 +158,36 @@
               return div;
             };
             legend.addTo(map);
+
             
             //add vector data using flatgeobuf
-            var countyGroup = [];        
-            const response = await fetch('https://data.climate.umt.edu/drought-indicators/fgb/counties.fgb')
+            async function addFGB(fgb_url, fgb_name, weight, display = false, popup_property){
+              var tempGroup = [];        
+              var popup_property_ = popup_property
+              const response = await fetch(fgb_url)
               for await (const f of flatgeobuf.deserialize(response.body))
-                countyGroup.push(L.geoJSON(f));
-                var countyGroupLayer = L.layerGroup(countyGroup);
-              layerControl.addOverlay(countyGroupLayer , "Counties (fgb)"); 
+                //console.log(f.properties.NAME)
+                if(popup_property_ == null){
+                  tempGroup.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight}));
+                } else {
+                  tempGroup.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight}).bindTooltip(f.properties[popup_property_]));
+                }
+              var tempGroupLayer = L.featureGroup(tempGroup);
+              layerControl.addOverlay(tempGroupLayer , fgb_name); 
 
-            //define function to add geojson vectors
-
+              if(display == true){
+                tempGroupLayer.addTo(map)
+              }
+            };
+            
+            // add FGBs to map
+            addFGB('https://data.climate.umt.edu/drought-indicators/fgb/states.fgb', fgb_name = 'States', weight = 3, display = true, popup_property = null);
+            addFGB('https://data.climate.umt.edu/drought-indicators/fgb/watersheds.fgb', fgb_name = 'Watersheds', weight = 1, display = false, popup_property = 'NAME');
+            addFGB('https://data.climate.umt.edu/drought-indicators/fgb/counties.fgb', fgb_name = 'Counties', weight = 1, display = false, popup_property = 'COUNTY');
+            addFGB('https://data.climate.umt.edu/drought-indicators/fgb/tribal.fgb', fgb_name = 'Tribal Lands', weight = 1, display = false, popup_property = 'NAME');
+            
+            //define function to add geojson vectors (depricated)
+            /*
             var tribal_lands = $.ajax({
                 url:"https://raw.githubusercontent.com/mt-climate-office/mco-drought-indicators/master/processing/base-data/processed/UMRB_tribal_lands_simple.geojson",
                 dataType: "json",
@@ -167,7 +200,7 @@
                 var tribal_lands_json = L.geoJSON(tribal_lands.responseJSON)
                 layerControl.addOverlay(tribal_lands_json, 'Tribal Lands');
               });
-              
+              */
         });
     </script>
   </body>
