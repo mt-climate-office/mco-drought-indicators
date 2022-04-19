@@ -109,14 +109,16 @@ Row {.tabset .tabset-fade data-height=800}
 
 Collaborators: NOAA National Mesonet Program, Department of Interior Bureau of Land Management, Montana Department of Agriculture, University of Montana - W.A. Franke College of Forestry and Conservation, Montana State University, MSU Extension, Montana Institute on Ecosystems, Montana Agricultural Experiment Stations, Crow Agency, Montana Department of Natural Resources and Conservation, Stillwater County, private landowners, ranchers, farmers and businesses.
 
-Standardized Snow Water Equivalent (SNODAS) {data-navmenu="Snowpack" data-icon="fa-list" data-orientation=rows}
+Standardized Snow Water Equivalent (SNODAS) & Hypsome-SWE {data-navmenu="Snowpack" data-icon="fa-list" data-orientation=rows}
 ========================================================
-### **Standardized Snow Water Equivalent (SWE) from SNODAS**
+### **Standardized Snow Water Equivalent (SWE) from SNODAS & Hypsome-SWE**
 
 <br>
 
 #### **Overview:**
 This data set contains estimates of standardized snow pack anomalies based on the depth of snow water equivalent (SWE), from the NOAA National Weather Service's National Operational Hydrologic Remote Sensing Center (NOHRSC) SNOw Data Assimilation System (SNODAS). SNODAS is a modeling and data assimilation system developed by NOHRSC to provide the best possible estimates of snow cover and associated parameters to support hydrologic modeling and analysis. Standardization is conducted using a similar framework to computation of the standardized precipitation index (SPI). Negative (red) values represent lesser than average SWE while positive (blue) values represent greater than average SWE. Standardization is based on data from 2004-present and computed daily. 
+
+Hypsome-SWE represents a method to evaluate the distribution of snow water equivalent (SWE) across watersheds. Hypsome-SWE is loosely based on the concept of hypsometry, the area-elevation relationship of a basin. However, instead of evaluating the area-elevation relationship, here we evaluate the cumulative SWE (m3)-elevation relationship. More specifically, in this module we compare the median hypsome-SWE curve for a day of interest (for example January 2nd) using the SNODAS period of record (2004-present) to the current day's (for example January 2nd of this year) SWE distribution. This allows for a rapid assessment of the distribution of SWE within a basin with respect to elevation and allows for an easy comparison to the expected distribution given the SNODAS period of record. 
 
 
 <br>
@@ -169,7 +171,7 @@ Precipitation is a strong driver of drought. In most cases, drought begins with 
 
 <br>
 
-##### Tabs above the map allow you to aggregate the data by political or hydrologic boundaries.
+
 
 ###
 
@@ -198,25 +200,25 @@ For each timescale we calculate the accumulated precipitation for each year acro
   + Does not account for the capacity of the landscape to store or release moisture (e.g. soil moisture, groundwater and streamflow)
   <br>
   
-Accumulated Precipitation (SNOTEL) {data-navmenu="Precipitation" data-icon="fa-list" data-orientation=rows}
-========================================================
+<!-- Accumulated Precipitation (SNOTEL) {data-navmenu="Precipitation" data-icon="fa-list" data-orientation=rows} -->
+<!-- ======================================================== -->
 
-### **Snow Telemetry (SNOTEL)**
+<!-- ### **Snow Telemetry (SNOTEL)** -->
 
-<br>
+<!-- <br> -->
 
-#### **Overview:**
-SNOTEL is an automated system of snowpack and related environmental sensors (including precipitation). SNOTEL is operated by the Natural Resources Conservation Service (NRCS) of the United States Department of Agriculture in the Western United States. Plots in this module show total liquid precipitation (rain +snow water equivalent) measured to date compared to historical averages. 
+<!-- #### **Overview:** -->
+<!-- SNOTEL is an automated system of snowpack and related environmental sensors (including precipitation). SNOTEL is operated by the Natural Resources Conservation Service (NRCS) of the United States Department of Agriculture in the Western United States. Plots in this module show total liquid precipitation (rain +snow water equivalent) measured to date compared to historical averages.  -->
 
-<br>
+<!-- <br> -->
 
-Row {.tabset .tabset-fade data-height=800}
--------------------------------------
+<!-- Row {.tabset .tabset-fade data-height=800} -->
+<!-- ------------------------------------- -->
 
-### **Accumulated Precipitation**
+<!-- ### **Accumulated Precipitation** -->
 
-<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/precip_snotel.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
-  
+<!-- <iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/precip_snotel.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe> -->
+
 Temperature Percentiles {data-navmenu="Temperature" data-icon="fa-list" data-orientation=rows}
 ========================================================
 ### **Temperature Percentiles**
@@ -240,7 +242,7 @@ Temperature is a strong mediator of drought. In most cases, precipitation defici
 
 <br>
 
-##### Tabs above the map allow you to aggregate the data by political or hydrologic boundaries.
+
 
 ###
 
@@ -269,6 +271,28 @@ For each timescale we calculate the mean maximum temperature for each year acros
   + Does not account for the capacity of the landscape to store or release moisture (e.g. soil moisture, groundwater and streamflow)
   <br>
   
+
+SMAP and Mesonet Soil Moisture Anomaly {data-navmenu="Soil Moisture" data-icon="fa-list" data-orientation=rows}
+========================================================
+### **SMAP and Mesonet Soil Moisture Anomaly**
+#### **National Aeronautics and Space Administration & The Montana Climate Office**
+
+<br>
+
+#### **Overview:**
+
+Soil moisture is a strong indicator of drought. In this module we present Soil Moisture Active Passive (SMAP) Level 3 soil moisture anomalies calculated using the NASA-USDA Enhanced SMAP Global soil moisture dataset. In addition to SMAP, we present soil moisture anomalies for the MT mesonet  where adequate record lengths are available. Both products use a similar method to compute anomalies; a moving window approachcentered around the day of interest. For more information, please visit https://developers.google.com/earth-engine/datasets/catalog/NASA_USDA_HSL_SMAP10KM_soil_moisture. 
+
+<br>  
+
+###
+
+Row {.tabset .tabset-fade data-height=750}
+-------------------------------------
+
+### **Gridded Data**
+
+<iframe width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src="https://data.climate.umt.edu/drought-indicators/widgets/m_raster_smap.html" webkitallowfullscreen="webkitallowfullscreen" loading="lazy"></iframe>
 
 Soil Moisture Percentiles (Modeled) {data-navmenu="Soil Moisture" data-icon="fa-list" data-orientation=rows}
 ========================================================
@@ -315,7 +339,7 @@ The Normalized Difference Vegetation Index (NDVI) is a commonly used indicator o
 
 <br>
 
-##### Tabs above the map allow you to aggregate the data by political or hydrologic boundaries.
+
 
 ###
 
@@ -349,7 +373,7 @@ The Normalized Difference Vegetation Index (NDVI) is a commonly used indicator o
 
 <br>
 
-##### Tabs above the map allow you to aggregate the data by political or hydrologic boundaries.
+
 
 ###
 
@@ -368,7 +392,7 @@ Standardized Precipitation Index (SPI) {data-navmenu="Drought Metrics" data-icon
 
 #### **Overview:**
 
-The SPI is a common metric which quantifies precipitation anomalies at various timescales. SPI is often used to estimate a range of hydrological processes that respond to precipitation from short to long periods of time. For example, SPI is related to soil moisture anomalies when calculated over short time scales (days to weeks) but is more related to groundwater and reservoir storage over longer timescales (months to years). The values of SPI can be interpreted as a number of standard deviations away from the average cumulative precipitation depth for a given time period. The SPI has unique statistical qualities in that it is directly related to precipitation probability and it can be used to represent both dry (negative values; represented here with warmer colors) and wet (positive values; represented here with cooler colors) conditions. Data can be found at: https://data.climate.umt.edu/drought-indicators/spi/
+The SPI is a common metric which quantifies precipitation anomalies at various timescales. SPI is often used to estimate a range of hydrological processes that respond to precipitation from short to long periods of time. For example, SPI is related to soil moisture anomalies when calculated over short time scales (days to weeks) but is more related to groundwater and reservoir storage over longer timescales (months to years). The values of SPI can be interpreted as a number of standard deviations away from the average cumulative precipitation depth for a given time period. The SPI has unique statistical qualities in that it is directly related to precipitation probability and it can be used to represent both dry (negative values; represented here with warmer colors) and wet (positive values; represented here with cooler colors) conditions. Data can be found at: https://data.climate.umt.edu/drought-indicators/spi/ SPI Maps with a USDM color scheme can be found at: https://data.climate.umt.edu/drought-indicators/figures/usdm-color-scheme/
 
 <br>
 
@@ -383,7 +407,7 @@ The SPI is a common metric which quantifies precipitation anomalies at various t
 
 <br>
 
-##### Tabs above the map allow you to aggregate the data by political or hydrologic boundaries.
+
 
 ###
 
@@ -444,7 +468,7 @@ Standardized Precipitation Evapotranspiration Index (SPEI) {data-navmenu="Drough
 <br>
 
 #### **Overview:**
-SPEI takes into account both precipitation and potential evapotranspiration to describe the wetness or dryness of a time period. SPEI can be calculated at various timescales to represent different drought timescales and its impacts on hydrological conditions ranging from short to long timescales. SPEI incorporates the important effect of atmospheric demand on drought. Data can be found at: https://data.climate.umt.edu/drought-indicators/spei/
+SPEI takes into account both precipitation and potential evapotranspiration to describe the wetness or dryness of a time period. SPEI can be calculated at various timescales to represent different drought timescales and its impacts on hydrological conditions ranging from short to long timescales. SPEI incorporates the important effect of atmospheric demand on drought. Data can be found at: https://data.climate.umt.edu/drought-indicators/spei/ SPEI Maps with a USDM color scheme can be found at: https://data.climate.umt.edu/drought-indicators/figures/usdm-color-scheme/
 
 <br>
 
@@ -460,7 +484,7 @@ SPEI takes into account both precipitation and potential evapotranspiration to d
 
 <br>
 
-##### Tabs above the map allow you to aggregate the data by political or hydrologic boundaries.
+
 
 ###
 
@@ -523,7 +547,7 @@ EDDI calculates the rank of accumulated PET for a given region. EDDI does not st
 
 <br>
 
-##### Tabs above the map allow you to aggregate the data by political or hydrologic boundaries.
+
 
 ###
 
