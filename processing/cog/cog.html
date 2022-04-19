@@ -147,13 +147,14 @@
             
             //add vector data using flatgeobuf
             var countyGroup = [];        
-            const response = await fetch('https://data.climate.umt.edu/test/counties_test.fgb')
+            const response = await fetch('https://data.climate.umt.edu/drought-indicators/fgb/counties.fgb')
               for await (const f of flatgeobuf.deserialize(response.body))
                 countyGroup.push(L.geoJSON(f));
                 var countyGroupLayer = L.layerGroup(countyGroup);
-              layerControl.addOverlay(countyGroupLayer , "Counties"); 
+              layerControl.addOverlay(countyGroupLayer , "Counties (fgb)"); 
 
-            //Using traditional geojson
+            //define function to add geojson vectors
+
             var tribal_lands = $.ajax({
                 url:"https://raw.githubusercontent.com/mt-climate-office/mco-drought-indicators/master/processing/base-data/processed/UMRB_tribal_lands_simple.geojson",
                 dataType: "json",
