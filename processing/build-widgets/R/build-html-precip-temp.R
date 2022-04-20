@@ -35,7 +35,7 @@ for(v in 1:length(variable)){
   files = list.files(paste0(export.dir,lower_variable[v]), full.names = T) %>%
     as_tibble() %>%
     filter(stringr::str_detect(value, paste(timescales, sep = '', collapse = '|')),
-           stringr::str_detect(value, 'percentile')) 
+           stringr::str_detect(value, 'current_percentile')) 
   
   #reorder filtered vector
   data = files$value[sapply(timescales, function(x) { grep(x, files$value)})] %>%
