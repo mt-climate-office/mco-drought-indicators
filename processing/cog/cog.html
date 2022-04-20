@@ -13,13 +13,13 @@
       }
       /*Legend specific*/
       .legend {
-        padding: 6px 8px;
+        padding: 6px 4px;
         font: 14px Arial, Helvetica, sans-serif;
         background: white;
         background: rgba(255, 255, 255, 0.8);
         /*box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);*/
         /*border-radius: 5px;*/
-        line-height: 24px;
+        line-height: 18px;
         color: #555;
       }
       .legend h4 {
@@ -70,17 +70,21 @@
             var variable = 'SPI'
             const map = L.map('map', {preferCanvas: true, gestureHandling: true});
             var layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true}).addTo(map)
-
-            // parse time file
-            var time;
-            time = await Papa.parse('https://data.climate.umt.edu/drought-indicators/spi/time.csv', {
-              download: true, 
-              complete: function(results) {
-                var time = results.data["1"][1];
-                callback(time)
-              }
-            });
             
+            // define function to parse time file
+            function loadFile(filePath) {
+              var result = null;
+              var xmlhttp = new XMLHttpRequest();
+              xmlhttp.open("GET", filePath, false);
+              xmlhttp.send();
+              if (xmlhttp.status==200) {
+                result = xmlhttp.responseText;
+              }
+              return result;
+            }
+            //define time
+            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt')
+
             // add OpenStreetMap basemap
             L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a', {
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -126,17 +130,23 @@
             
             // import and add COGs to map from remote server
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_15.tif", 
-              "15 Day SPI")
+              "(a) 15 Day SPI")
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_30.tif", 
-              "30 Day SPI", display = true)
+              "(b) 30 Day SPI", display = true)
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_60.tif", 
-              "60 Day SPI")
+              "(c) 60 Day SPI")
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_90.tif", 
-              "90 Day SPI")
+              "(d) 90 Day SPI")
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_180.tif", 
-              "180 Day SPI")
+              "(e) 180 Day SPI")
             addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_365.tif", 
-              "365 Day SPI")
+              "(f) 1 Year SPI")
+            addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_730.tif", 
+              "(g) 2 Year SPI")
+            addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_water_year.tif", 
+              "(h) Water Year")
+            addCOG("https://data.climate.umt.edu/drought-indicators/spi/current_spi_year_to_date.tif", 
+              "(i) Year to Date")
 
 
             //add legend using above CSS and more JS
