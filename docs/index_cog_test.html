@@ -24,22 +24,12 @@ window.FlexDashboardComponents = [];
 <script id="flexdashboard-navbar" type="application/json">
 [{"title":"MCO GitHub","href":"https://github.com/mt-climate-office","align":"right"}]
 </script>
-<script src="libs/header-attrs-2.9/header-attrs.js"></script>
 <script src="libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
 <script src="libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="libs/bootstrap-3.3.5/shim/respond.min.js"></script>
-<style>h1 {font-size: 34px;}
-       h1.title {font-size: 38px;}
-       h2 {font-size: 30px;}
-       h3 {font-size: 24px;}
-       h4 {font-size: 18px;}
-       h5 {font-size: 16px;}
-       h6 {font-size: 12px;}
-       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
-       pre:not([class]) { background-color: white }</style>
 <script src="libs/stickytableheaders-0.1.19/jquery.stickytableheaders.min.js"></script>
 <link href="libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
@@ -822,8 +812,7 @@ var FlexDashboard = (function () {
       defaultFigWidthMobile: 360,
       defaultFigHeightMobile: 461,
       isMobile: false,
-      isPortrait: false,
-      resize_reload: true
+      isPortrait: false
     });
   };
 
@@ -876,9 +865,9 @@ var FlexDashboard = (function () {
         globalSidebar.addClass('level3');
         var h1 = globalSidebar.children('h1');
         var h3 = $('<h3></h3>');
-        h3.append(h1.contents());
+        h3.html(h1.html());
         h3.insertBefore(h1);
-        h1.detach();
+        h1.remove();
 
         // move it into the first page
         var page = dashboardContainer.find('.section.level1').first();
@@ -943,29 +932,16 @@ var FlexDashboard = (function () {
     initPrismHighlighting();
 
     // record mobile and orientation state then register a handler
-    // to refresh if resize_reload is set to true and it changes
+    // to refresh if it changes
     _options.isMobile = isMobilePhone();
     _options.isPortrait = isPortrait();
-    if (_options.resize_reload) {
-      $(window).on('resize', function() {
-        if (_options.isMobile !== isMobilePhone() ||
-            _options.isPortrait !== isPortrait()) {
-          window.location.reload();
-        }
-      });
-    } else {
-      // if in desktop mode and resizing to mobile, make sure the heights are 100%
-      // This enforces what `fillpage.css` does for "wider" pages.
-      // Since we are not reloading once the page becomes small, we need to force the height to 100%
-      // This is a new situation introduced when `_options.resize_reload` is `false`
-      if (! _options.isMobile) {
-        // only add if `fillpage.css` was added in the first place
-        if (_options.fillPage) {
-          // fillpage.css
-          $("html,body,#dashboard").css("height", "100%");
-        }
+    $(window).on('resize', function() {
+      if (_options.isMobile !== isMobilePhone() ||
+          _options.isPortrait !== isPortrait()) {
+        window.location.reload();
       }
-    }
+    });
+
     // trigger layoutcomplete event
     dashboardContainer.trigger('flexdashboard:layoutcomplete');
   }
@@ -1077,10 +1053,10 @@ var FlexDashboard = (function () {
     if (active)
       wrapper.addClass('active');
 
-    // get a reference to the h1, discover its inner contens, then detach it
+    // get a reference to the h1, discover it's id and title, then remove it
     var h1 = wrapper.find('h1').first();
-    var title = h1.contents();
-    h1.detach();
+    var title = h1.html();
+    h1.remove();
 
     // create a navbar item
     var li = $('<li></li>');
@@ -1110,14 +1086,7 @@ var FlexDashboard = (function () {
 
       // get the name of the icon set and icon
       var dashPos = icon.indexOf("-");
-      var iconSet = null;
-      var iconSplit = icon.split(" ");
-      if (iconSplit.length > 1) {
-        iconSet = iconSplit[0];
-        icon = iconSplit.slice(1).join(" ");
-      } else {
-        iconSet = icon.substring(0, dashPos);
-      }
+      var iconSet = icon.substring(0, dashPos);
       var iconName = icon.substring(dashPos + 1);
 
       // create the icon
@@ -1218,9 +1187,9 @@ var FlexDashboard = (function () {
       sidebar.wrapInner('<div class="section level3"></div>');
       var h2 = sidebar.find('h2');
       var h3 = $('<h3></h3>');
-      h3.append(h2.contents());
+      h3.html(h2.html());
       h3.insertBefore(h2);
-      h2.detach();
+      h2.remove();
 
       // wipeout h2 elements then enclose them in a single h2
       var level2 = page.find('div.section.level2');
@@ -1362,8 +1331,8 @@ var FlexDashboard = (function () {
       // extract the title from the h3
       var li = $('<li></li>');
       var h3 = frame.children('h3');
-      li.append(h3.contents());
-      h3.detach();
+      li.html(h3.html());
+      h3.remove();
       ul.append(li);
 
       // extract commentary
@@ -1759,7 +1728,7 @@ var FlexDashboard = (function () {
 
     // add the title
     var chartTitle = $('<div class="chart-title"></div>');
-    chartTitle.append(title);
+    chartTitle.html(title);
     chart.prepend(chartTitle);
 
     // add the notes section
@@ -1815,11 +1784,10 @@ var FlexDashboard = (function () {
 
       // get the heading element within it and grab it's text
       var heading = tab.find('h' + tabLevel + ':first');
-      var headingDom = heading.contents();
+      var headingText = heading.html();
 
       // build and append the tab list item
-      var a = $('<a role="tab" data-toggle="tab"></a>');
-      a.append(headingDom);
+      var a = $('<a role="tab" data-toggle="tab">' + headingText + '</a>');
       a.attr('href', '#' + id);
       a.attr('aria-controls', id);
       var li = $('<li role="presentation"></li>');
@@ -1942,8 +1910,8 @@ var FlexDashboard = (function () {
     var h3 = container.children('h3').first();
     var title = '';
     if (!container.hasClass('no-title'))
-      title = h3.contents();
-    h3.detach();
+      title = h3.html();
+    h3.remove();
     return title;
   }
 
@@ -1954,11 +1922,11 @@ var FlexDashboard = (function () {
     var caption = chartContent.children('div.image-container')
                               .children('p.caption');
     if (blockquote.length) {
-      chartNotes.empty().append(blockquote.children('p:first-child').contents());
+      chartNotes.html(blockquote.children('p:first-child').html());
       blockquote.remove();
       return true;
     } else if (caption.length) {
-      chartNotes.empty().append(caption.contents());
+      chartNotes.html(caption.html());
       caption.remove();
       return true;
     } else {
@@ -2018,14 +1986,14 @@ var FlexDashboard = (function () {
   function handleLocationHash() {
 
     // restore tab/page from bookmark
-    var hash = window.decodeURIComponent(window.location.hash);
+    var hash = window.location.hash;
     if (hash.length > 0)
       $('ul.nav a[href="' + hash + '"]').tab('show');
     FlexDashboardUtils.manageActiveNavbarMenu();
 
     // navigate to a tab when the history changes
     window.addEventListener("popstate", function(e) {
-      var hash = window.decodeURIComponent(window.location.hash);
+      var hash = window.location.hash;
       var activeTab = $('ul.nav a[href="' + hash + '"]');
       if (activeTab.length) {
         activeTab.tab('show');
@@ -2488,7 +2456,7 @@ window.FlexDashboardComponents.push({
 
     // caption
     var caption = $('<p class="caption"></p>');
-    caption.append(chartTitle);
+    caption.html(chartTitle);
 
     // build inner div for value box and add it
     var inner = $('<div class="inner"></div>');
@@ -2501,15 +2469,9 @@ window.FlexDashboardComponents.push({
     valueBox.append(icon);
     function setIcon(chartIcon) {
       var iconLib = "";
-      var iconSplit = chartIcon.split(" ");
-      if (iconSplit.length > 1) {
-        iconLib = iconSplit[0];
-        chartIcon = iconSplit.slice(1).join(" ");
-      } else {
-        var components = chartIcon.split("-");
-        if (components.length > 1)
-          iconLib = components[0];
-      }
+      var components = chartIcon.split("-");
+      if (components.length > 1)
+        iconLib = components[0];
       icon.children('i').attr('class', iconLib + ' ' + chartIcon);
     }
     var chartIcon = valueBox.attr('data-icon');
@@ -2589,6 +2551,8 @@ window.FlexDashboardComponents.push({
     );
   }
 });
+
+
 </script>
 
 <div id="dashboard-container">
@@ -2620,6 +2584,7 @@ window.FlexDashboardComponents.push({
   font-size: 0em !important;
 }
 </style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" type="text/javascript"></script>
 <p><br></p>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
@@ -2652,13 +2617,13 @@ window.FlexDashboardComponents.push({
 <div id="select-a-drought-indicator-from-the-above-tabs-to-analyze-current-conditions." class="section level5">
 <h5><strong>Select a drought indicator from the above tabs to analyze current conditions.</strong></h5>
 <center>
-<p><img width="60%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" scrolling="no" src="misc_content/logos.png" loading="lazy"></img></p>
+<p><img width="60%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" scrolling="no" src="./misc_content/logos.png" loading="lazy"></img></p>
 <center>
 </div>
 </div>
 </div>
 <div id="standardized-precipitation-index-spi" class="section level1" data-navmenu="Drought Metrics" data-icon="fa-list" data-orientation="rows">
-<h1 data-navmenu="Drought Metrics" data-icon="fa-list" data-orientation="rows">Standardized Precipitation Index (SPI)</h1>
+<h1>Standardized Precipitation Index (SPI)</h1>
 <div id="standardized-precipitation-index-spi-1" class="section level3">
 <h3><strong>Standardized Precipitation Index (SPI)</strong></h3>
 <p><br></p>
@@ -2683,18 +2648,26 @@ window.FlexDashboardComponents.push({
 <h3></h3>
 </div>
 <div id="row" class="section level2 tabset tabset-fade" data-height="750">
-<h2 class="tabset tabset-fade" data-height="750">Row</h2>
+<h2>Row</h2>
 <div id="gridded-data" class="section level3">
 <h3><strong>Gridded Data</strong></h3>
-<object data="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%">
-<embed src="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%">
-</embed>
-Error: Embedded data could not be displayed.
-</object>
+<iframe id="spi" loading="lazy" width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src webkitallowfullscreen="webkitallowfullscreen">
+</iframe>
+<script>
+
+$(document).ready(function(){
+    $("iframe#spi").on("load", function(){
+        $("iframe#spi").contents().on("click", function(){
+              $('iframe#spi').attr('src', 'https://data.climate.umt.edu/drought-indicators/widgets/cog.html');
+        });
+    });
+});
+
+</script>
 </div>
 </div>
 <div id="row-1" class="section level2 tabset tabset-fade">
-<h2 class="tabset tabset-fade">Row</h2>
+<h2>Row</h2>
 <div id="derivation" class="section level3">
 <h3><strong>Derivation:</strong></h3>
 <p>The SPI quantifies precipitation as a standardized departure from a probability distribution function that models the raw precipitation data. The raw precipitation data are typically fitted to a gamma or a Pearson Type III distribution, and then transformed to a normal distribution (Keyantash and NCAR staff, 2018). Normalization of data is important because precipitation data is heavily right hand skewed. This is because smaller precipitation events are much more probable than large events. In our calculations we use a gamma distribution.</p>
@@ -2733,7 +2706,7 @@ Error: Embedded data could not be displayed.
 </div>
 </div>
 <div id="standardized-precipitation-evapotranspiration-index-spei" class="section level1" data-navmenu="Drought Metrics" data-icon="fa-list" data-orientation="rows">
-<h1 data-navmenu="Drought Metrics" data-icon="fa-list" data-orientation="rows">Standardized Precipitation Evapotranspiration Index (SPEI)</h1>
+<h1>Standardized Precipitation Evapotranspiration Index (SPEI)</h1>
 <div id="standardized-precipitation-evapotranspiration-index-spei-1" class="section level3">
 <h3><strong>Standardized Precipitation Evapotranspiration Index (SPEI)</strong></h3>
 <p><br></p>
@@ -2759,18 +2732,26 @@ Error: Embedded data could not be displayed.
 <h3></h3>
 </div>
 <div id="row-2" class="section level2 tabset tabset-fade" data-height="750">
-<h2 class="tabset tabset-fade" data-height="750">Row</h2>
+<h2>Row</h2>
 <div id="gridded-data-1" class="section level3">
 <h3><strong>Gridded Data</strong></h3>
-<object data="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%">
-<embed src="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%">
-</embed>
-Error: Embedded data could not be displayed.
-</object>
+<iframe id="spei" loading="lazy" width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src webkitallowfullscreen="webkitallowfullscreen">
+</iframe>
+<script>
+
+$(document).ready(function(){
+    $("iframe#spei").on("load", function(){
+        $("iframe#spei").contents().on("click", function(){
+              $('iframe#spei').attr('src', 'https://data.climate.umt.edu/drought-indicators/widgets/cog.html');
+        });
+    });
+});
+
+</script>
 </div>
 </div>
 <div id="row-3" class="section level2 tabset tabset-fade">
-<h2 class="tabset tabset-fade">Row</h2>
+<h2>Row</h2>
 <div id="derivation-1" class="section level3">
 <h3><strong>Derivation:</strong></h3>
 <p>SPEI is an extension of the SPI in the sense that it uses a normalized probability distribution approximation of raw values to calculate deviation from normals. Similar to SPI, SPEI values are reported in units of standard deviation or z-score (Vicente-Serrano and NCAR staff, 2015). Although, the raw values for this metric are P-PET.</p>
@@ -2805,7 +2786,7 @@ Error: Embedded data could not be displayed.
 </div>
 </div>
 <div id="evaporative-demand-drought-index-eddi" class="section level1" data-navmenu="Drought Metrics" data-icon="fa-list" data-orientation="rows">
-<h1 data-navmenu="Drought Metrics" data-icon="fa-list" data-orientation="rows">Evaporative Demand Drought Index (EDDI)</h1>
+<h1>Evaporative Demand Drought Index (EDDI)</h1>
 <div id="evaporative-demand-drought-index-eddi-1" class="section level3">
 <h3><strong>Evaporative Demand Drought Index (EDDI)</strong></h3>
 <p><br></p>
@@ -2830,14 +2811,22 @@ Error: Embedded data could not be displayed.
 <h3></h3>
 </div>
 <div id="row-4" class="section level2 tabset tabset-fade" data-height="750">
-<h2 class="tabset tabset-fade" data-height="750">Row</h2>
+<h2>Row</h2>
 <div id="gridded-data-2" class="section level3">
 <h3><strong>Gridded Data</strong></h3>
-<object data="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%">
-<embed src="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%">
-</embed>
-Error: Embedded data could not be displayed.
-</object>
+<iframe id="eddi" loading="lazy" width="100%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" mozallowfullscreen="mozallowfullscreen" scrolling="no" src webkitallowfullscreen="webkitallowfullscreen">
+</iframe>
+<script>
+
+$(document).ready(function(){
+    $("iframe#eddi").on("load", function(){
+        $("iframe#eddi").contents().on("click", function(){
+              $('iframe#eddi').attr('src', 'https://data.climate.umt.edu/drought-indicators/widgets/cog.html');
+        });
+    });
+});
+
+</script>
 </div>
 </div>
 </div>
@@ -2883,8 +2872,7 @@ $(document).ready(function () {
     defaultFigWidth: 576,
     defaultFigHeight: 460,
     defaultFigWidthMobile: 360,
-    defaultFigHeightMobile: 460,
-    resize_reload: true
+    defaultFigHeightMobile: 460
   });
 });
 </script>
