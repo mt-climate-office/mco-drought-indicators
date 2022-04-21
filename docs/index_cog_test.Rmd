@@ -1,0 +1,272 @@
+---
+title: "UMRB Drought Indicators Dashboard"
+self_contained: false
+output: 
+  flexdashboard::flex_dashboard:
+    self_contained: false
+    lib_dir: "./libs"
+    theme: readable
+    navbar:
+      - { title: "MCO GitHub", href: "https://github.com/mt-climate-office", align: right }
+    css: styles.css
+    vertical_layout: scroll
+    includes:
+      after_body: footer.html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-149859729-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-149859729-1');
+</script>
+</head> 
+
+<style type="text/css">
+
+.chart-title {  /* chart_title  */
+   font-size: 35px;
+   font-family: Ariel;
+
+}
+
+.navbar {
+  font-size: 0.9em !important;
+}
+
+.navbar-brand {
+  font-size: 0em !important;
+}
+</style>
+
+
+
+
+
+<br>
+
+Introduction
+========================================================
+
+<br>
+
+#### **Welcome to the Upper Missouri River Basin (UMRB) drought indicators dashboard.**
+
+<br>
+
+
+This website provides access to drought indices that are used by the Montana Governor's Drought and Water Supply Advisory Committee (Monitoring Sub-Committee). All datasets are calculated daily and can be aggregated by watershed and county boundaries. Much of the underlying data in this dashboard is from the gridMET dataset, for more information see http://doi.org/10.1002/joc.3413. In this document we focus on: 
+
+<br>
+
+  + 1. Providing current drought information using the most current peer reviewed science
+  + 2. A description of the theoretical basis for a metric 
+  + 3. Data required for calculation of each index
+  + 4. Discuss the relative strengths and weaknesses of a metric 
+  + 5. Validating a metric using on the ground observations (soil moisture, streamflow and groundwater; ongoing)
+
+<br>
+
+This work is supported by a National Oceanic and Atmospheric Administration’s (NOAA) National Integrated Drought Information System (NIDIS) Drought Early Warning System (DEWS). More information on NIDIS and the DEWS program can be found at https://www.drought.gov/drought/what-nidis. 
+
+<br>
+
+##### **Select a drought indicator from the above tabs to analyze current conditions.**
+
+<center>
+
+<img width="60%" height="100%" allowfullscreen="allowfullscreen" allowvr="yes" frameborder="0" scrolling="no" src="./misc_content/logos.png" loading="lazy"></img>
+
+<center>
+
+Standardized Precipitation Index (SPI) {data-navmenu="Drought Metrics" data-icon="fa-list" data-orientation=rows}
+========================================================
+### **Standardized Precipitation Index (SPI)**
+
+<br>
+
+#### **Overview:**
+
+The SPI is a common metric which quantifies precipitation anomalies at various timescales. SPI is often used to estimate a range of hydrological processes that respond to precipitation from short to long periods of time. For example, SPI is related to soil moisture anomalies when calculated over short time scales (days to weeks) but is more related to groundwater and reservoir storage over longer timescales (months to years). The values of SPI can be interpreted as a number of standard deviations away from the average cumulative precipitation depth for a given time period. The SPI has unique statistical qualities in that it is directly related to precipitation probability and it can be used to represent both dry (negative values; represented here with warmer colors) and wet (positive values; represented here with cooler colors) conditions. Data can be found at: https://data.climate.umt.edu/drought-indicators/spi/ SPI Maps with a USDM color scheme can be found at: https://data.climate.umt.edu/drought-indicators/figures/usdm-color-scheme/
+
+<br>
+
+#### **Data Requirements:**
+
+  + Precipitation 
+
+<br>  
+
+
+##### Select a timescale from the left panel on the map. You can also toggle overlays, such as the current US Drought Monitor (USDM) drought designations, weather (from the National Weather Service) and state boundaries.
+
+<br>
+
+
+
+###
+
+Row {.tabset .tabset-fade data-height=750}
+-------------------------------------
+
+### **Gridded Data**
+
+
+<object data="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%">
+    <embed src="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%"> </embed>
+    Error: Embedded data could not be displayed.
+</object>
+
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+
+### **Derivation:**
+The SPI quantifies precipitation as a standardized departure from a probability distribution function that models the raw precipitation data. The raw precipitation data are typically fitted to a gamma or a Pearson Type III distribution, and then transformed to a normal distribution (Keyantash and NCAR staff, 2018). Normalization of data is important because precipitation data is heavily right hand skewed. This is because smaller precipitation events are much more probable than large events. In our calculations we use a gamma distribution.
+
+**Key Strengths:**
+
+  + Easy to calculate; uses only precipitation data
+  + Can be used to estimate effects of wet or dry time periods on hydrologic processes (e.g. soil moisture, groundwater, etc) using different time scales
+  + Comparable across regions due to normalization of data
+  + Can account for changes in climatology because the probability distributions are updated through time
+  
+**Key Weaknesses:** 
+
+  + Sensitive to biases in precipitation records over time
+  + Doesn't account for atmospheric demand of moisture, this limits identification of flash drought due to high temperature and large vapor pressure deficits
+  + Does not account for the capacity of the landscape to store or release water (e.g. soil moisture, groundwater and streamflow)
+  <br>
+  
+
+### **Historical Validation:** 
+There has been extensive validation of the SPI across the globe. In general, results have shown that the SPI provides similar results to different standardized precipitation indices. 
+
+https://www.sciencedirect.com/science/article/pii/S0168192318303708
+
+https://link.springer.com/article/10.1007/s10584-005-5358-9
+
+https://www.hydrol-earth-syst-sci.net/17/2359/2013/hess-17-2359-2013.html
+
+https://journals.ametsoc.org/doi/abs/10.1175/JHM-D-13-0190.1
+
+https://journals.ametsoc.org/doi/abs/10.1175/JAMC-D-10-05015.1
+
+### **UMRB Validation:**
+Validation in progress
+
+### **UMRB Recommendation:**
+UMRB specific recommendations will be appended to this document as validation is completed
+
+Much of the background information regarding this metric was contributed by NCAR/UCAR Climate Data Guide
+
+
+Standardized Precipitation Evapotranspiration Index (SPEI) {data-navmenu="Drought Metrics" data-icon="fa-list" data-orientation=rows}
+========================================================
+### **Standardized Precipitation Evapotranspiration Index (SPEI)**
+
+<br>
+
+#### **Overview:**
+SPEI takes into account both precipitation and potential evapotranspiration to describe the wetness or dryness of a time period. SPEI can be calculated at various timescales to represent different drought timescales and its impacts on hydrological conditions ranging from short to long timescales. SPEI incorporates the important effect of atmospheric demand on drought. Data can be found at: https://data.climate.umt.edu/drought-indicators/spei/ SPEI Maps with a USDM color scheme can be found at: https://data.climate.umt.edu/drought-indicators/figures/usdm-color-scheme/
+
+<br>
+
+#### **Data Requirements:**
+
+  + Precipitation 
+  + Potential Evapotranspiration (PET)
+
+<br>
+
+
+##### Select a timescale from the left panel on the map. You can also toggle overlays, such as the current US Drought Monitor (USDM) drought designations, weather (from the National Weather Service) and state boundaries.
+
+<br>
+
+
+
+###
+
+Row {.tabset .tabset-fade data-height=750}
+-------------------------------------
+### **Gridded Data**
+
+<object data="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%">
+    <embed src="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%"> </embed>
+    Error: Embedded data could not be displayed.
+</object>
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+### **Derivation:**
+SPEI is an extension of the SPI in the sense that it uses a normalized probability distribution approximation of raw values to calculate deviation from normals. Similar to SPI, SPEI values are reported in units of standard deviation or z-score (Vicente-Serrano and NCAR staff, 2015). Although, the raw values for this metric are P-PET. 
+
+**Key Strengths:**
+
+  + Combines information about water availability (precipitation) and atmospheric demand for moisture (potential evapotranspiration)
+  + Relatively simple to calculate and only requires climatological data and statistical models
+  + Does not incorporate assumptions about the behavior of the underlying system
+  + Can be calculated where only T and P exist (if using Thornthwaite based PET)
+  + Can be calculated with more sophisticated PET algorithms if data is available 
+
+**Key Weaknesses:** 
+
+  + Sensitive to differences in PET calculations 
+  + Requires climatology of data to have accurate statistical reference distributions
+  + Sensitive to probability distribution used to normalize data distribution
+  
+### **Historical Validation:**
+The SPEI has been used in many studies to understand the effects of drought on hydrologic resource availability, including reservoir, stream discharge and groundwater. In general, SPEI calculated at longer timescales (>12 months) has shown greater correlation with water levels in lakes and reservoirs (McEvoy et al., 2012). 
+
+### **UMRB Validation:**
+Validation in progress
+
+### **UMRB Recommendation:**
+UMRB specific recommendations will be appended to this document as validation is completed
+
+Much of the background information regarding this metric was adapted from the NCAR/UCAR Climate Data Guide (here)
+
+
+Evaporative Demand Drought Index (EDDI) {data-navmenu="Drought Metrics" data-icon="fa-list" data-orientation=rows}
+========================================================
+### **Evaporative Demand Drought Index (EDDI)**
+
+<br>
+
+#### **Overview:**
+EDDI calculates the rank of accumulated PET for a given region. EDDI does not standardize data based off of theoretical (parameterized) probability distributions (such as SPI and SPEI). Instead, EDDI uses a non-parametric approach to compute empirical probabilities using inverse normal approximation. This method calculates EDDI by ranking the data from smallest to largest and accounting for the number of observations. Therefore, maximum and minimum values of EDDI are constrained by the number of years on record (which determines the number of observations). Practically, this causes EDDI to show the relative ranking of year, with respect to the period of record. Data can be found at: https://data.climate.umt.edu/drought-indicators/eddi/
+
+<br>
+
+#### **Data Requirements:**
+
+  + Potential Evapotranspiration (PET)
+
+<br>
+
+
+##### Select a timescale from the left panel on the map. You can also toggle overlays, such as the current US Drought Monitor (USDM) drought designations, weather (from the National Weather Service) and state boundaries.
+
+<br>
+
+
+
+###
+
+Row {.tabset .tabset-fade data-height=750}
+-------------------------------------
+### **Gridded Data**
+
+<object data="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%">
+    <embed src="https://data.climate.umt.edu/drought-indicators/widgets/cog.html" width="100%" height="100%"> </embed>
+    Error: Embedded data could not be displayed.
+</object>
