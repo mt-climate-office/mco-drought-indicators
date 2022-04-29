@@ -121,7 +121,7 @@
         var layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false})
         var baseLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map)
 
-        // define cog load function
+        // define cog load function 
         function addCOG(url, name_, display = false) {
           var layer_name = name_
           fetch(url)
