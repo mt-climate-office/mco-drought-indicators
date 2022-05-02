@@ -10,7 +10,7 @@ source(paste0(git.dir, '/processing/ancillary-functions/R/widget-functions.R'))
 source(paste0(git.dir, '/processing/ancillary-functions/R/base-map.R'))
 
 #define variable names to process
-variable = c('SMAP Subsurface Soil Moisture')
+variable = c('SMAP Subsurface<br>Soil Moisture')
 lower_variable = c('smap')
 
 #import counties
@@ -18,8 +18,18 @@ counties = st_read(paste0(git.dir, 'processing/base-data/processed/county_umrb.s
 watersheds = st_read(paste0(git.dir, 'processing/base-data/processed/watersheds_umrb.shp'))
 tribal = st_read(paste0(git.dir, 'processing/base-data/processed/UMRB_tribal_lands_simple.geojson'))
 
-pal = colorNumeric(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66"), -2.5:2.5, na.color = "transparent")
-pal_reverse = colorNumeric(rev(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66")), -2.5:2.5, na.color = "transparent")
+# pal = colorNumeric(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66"), -2.5:2.5, na.color = "transparent")
+# pal_reverse = colorNumeric(rev(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66")), -2.5:2.5, na.color = "transparent")
+
+# catagorical
+pal = colorBin(colorRamp(c("#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83'), interpolate = "linear"), 
+               domain = -2.5:2.5, bins = c(-Inf, -2, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, Inf), na.color = "transparent")
+
+pal_reverse = colorBin(colorRamp(rev(c("#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83')), interpolate = "linear"), 
+                       domain = -2.5:2.5, bins = c(-Inf, -2, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, Inf), na.color = "transparent")
+
+
+
 for(v in 1:length(variable)){
   #import data
   files = list.files(paste0(export.dir, 'smap/data'), full.names = T) %>%
@@ -106,8 +116,8 @@ for(v in 1:length(variable)){
     tidyr::pivot_wider(names_from = name, values_from = anom) 
   
   # make leaflet widgets
-  if(variable[v] == c('SMAP Subsurface Soil Moisture')){
-    m_raster = build_html_raster(revalued_data, 'SMAP Subsurface Soil Moisture Anomaly', variable[v], title, pal, legend_values = -2.5:2.5) %>%
+  if(variable[v] == c('SMAP Subsurface<br>Soil Moisture')){
+    m_raster = build_html_raster(revalued_data, 'SMAP Subsurface<br>Soil Moisture Anomaly', variable[v], title, pal, legend_values = -2.5:2.5) %>%
       addCircleMarkers(mesonet$Longitude, mesonet$Latitude,
                        radius = 10, stroke = TRUE, fillOpacity = 0.9,
                        color = "black", fillColor = pal(mesonet$soilwc08), group = "MT Mesonet 8in Anomaly") %>%
@@ -119,7 +129,7 @@ for(v in 1:length(variable)){
       # leaflet::addLegend("topright", group = "MT Mesonet 20in Anomaly", pal = pal, values = -2.5:2.5,title = paste0("MT Mesonet<br>Soil Moisture<br>Anomaly<br>",
       #                                                                                                               mesonet$datetime[1] %>% as.Date())) %>%
       addLayersControl(position = "topleft",
-                       baseGroups = c('SMAP Subsurface Soil Moisture Anomaly'),
+                       baseGroups = c('SMAP Subsurface<br>Soil Moisture Anomaly'),
                        overlayGroups = c("MT Mesonet 8in Anomaly", "USDM", "States", "Weather", "Streets", "Counties", 'Watersheds', 'Tribal Lands'),
                        options = layersControlOptions(collapsed = FALSE)) %>%
       leaflet::hideGroup(c("Watersheds", "Counties", "Streets", 'Tribal Lands', "MT Mesonet 8in Anomaly", "MT Mesonet 20in Anomaly"))
