@@ -161,6 +161,11 @@ writeRaster(standardized_swe_raster_resampled, paste0(export.dir, 'snodas/proces
 #write out time meta
 write.csv(data.frame(time = standardized_dates$date[1]), paste0(export.dir, 'snodas/processed/standardized_swe/time.csv'))
 
+#write simple txt
+fileConn<-file(paste0(export.dir, "snodas/processed/standardized_swe/time.txt"))
+writeLines(standardized_dates$date[1] %>% as.character(), fileConn)
+close(fileConn)
+
 rm(standardized_swe_raster, current_standardized_swe, swe_vec, standardized_input)
 gc()
 gc()

@@ -33,7 +33,27 @@ usdm = dlshape(shploc = "https://droughtmonitor.unl.edu/data/shapefiles_m/USDM_c
 
 #Export
 path_file_usdm = paste0(export.dir, "usdm/current_usdm.shp")
+path_file_usdm_geojson = paste0(export.dir, "usdm/current_usdm.geojson")
+
 #rgdal::writeOGR(obj=usdm[[1]], dsn=path_file_usdm, layer = "current_usdm", driver="ESRI Shapefile", overwrite_layer = T)
 sf::st_write(usdm[[1]], dsn=path_file_usdm, layer = "current_usdm", delete_dsn = T)
+
+#add colors for flat geo buff
+usdm_fgb = usdm[[1]] %>%
+  mutate(fillColor = ifelse(DM == 0, '#FFFF00', 
+                            ifelse(DM == 1, "#D2B48C", 
+                                   ifelse(DM == 2, "#FFA500", 
+                                          ifelse(DM == 3, "#FF0000", 
+                                                 ifelse(DM == 4, "#811616", "#FFFFFF"))))))
+
+sf::st_write(usdm_fgb, dsn=path_file_usdm_geojson, layer = "current_usdm", delete_dsn = T)
+
 #write time
 write.csv(usdm[[2]], paste0(export.dir, "usdm/usdm_time.csv"))
+
+time = usdm[[2]] %>% as.Date(., format = "%Y%m%d") %>% as.character()
+
+#write simple txt
+fileConn<-file(paste0(export.dir, "usdm/time.txt"))
+writeLines(time, fileConn)
+close(fileConn)

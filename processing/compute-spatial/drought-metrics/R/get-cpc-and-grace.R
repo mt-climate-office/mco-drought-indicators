@@ -61,3 +61,8 @@ time = readLines('https://nasagrace.unl.edu/data/current/sfsm_perc_0125deg_US_cu
 #write time out
 out.time = data.frame(time = time -1)
 write.csv(out.time, paste0(export.dir, "grace/time.csv"))
+
+#write simple txt
+fileConn<-file(paste0(export.dir, "grace/time.txt"))
+writeLines((time -1) %>% as.character(), fileConn)
+close(fileConn)

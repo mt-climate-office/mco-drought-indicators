@@ -32,3 +32,8 @@ system(paste0('rm ', export.dir,'smap/temp/*'))
 #write time out
 out.time = data.frame(time = time)
 write.csv(out.time, paste0(export.dir, "smap/data/time.csv"))
+
+#write simple txt
+fileConn<-file(paste0(export.dir, "smap/data/time.txt"))
+writeLines(time %>% as.character(), fileConn)
+close(fileConn)

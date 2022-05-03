@@ -146,6 +146,13 @@ for(t in 1:length(time_scale)){
 out.time = data.frame(time = substr(time$datetime[length(time$datetime)],1,10))
 write.csv(out.time, paste0(export.dir, "precipitation/time.csv"))
 
+time = substr(time$datetime[length(time$datetime)],1,10)
+
+#write simple txt
+fileConn<-file(paste0(export.dir, "precipitation/time.txt"))
+writeLines(time, fileConn)
+close(fileConn)
+
 ############################################
 ############ Days Without P ################
 ############################################

@@ -8,4 +8,9 @@ Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought
 Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-ndvi.R >/home/zhoylman/mco-drought-indicators-data/logs/build-html-ndvi 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-smap.R >/home/zhoylman/mco-drought-indicators-data/logs/build-html-smap 2>&1
 
+#rescale data to 16 bit int.
+Rscript /home/zhoylman/mco-drought-indicators/processing/cog/R/16bit-rescaling.R
 
+
+#convert to cog
+bash /home/zhoylman/mco-drought-indicators/bash/convert-to-cog.sh

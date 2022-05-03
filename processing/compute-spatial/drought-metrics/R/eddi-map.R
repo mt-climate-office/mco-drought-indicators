@@ -104,3 +104,10 @@ for(t in 1:length(time_scale)){
 #write time out
 out.time = data.frame(time = substr(time$datetime[length(time$datetime)],1,10))
 write.csv(out.time, paste0(export.dir, "eddi/time.csv"))
+
+time = substr(time$datetime[length(time$datetime)],1,10)
+
+#write simple txt
+fileConn<-file(paste0(export.dir, "eddi/time.txt"))
+writeLines(time, fileConn)
+close(fileConn)
