@@ -268,6 +268,7 @@
             if(fgb_name === 'Hypsome-SWE'){
               //define tempGroupLayer feature group to add to layer control
               var hypsomeSWE = L.featureGroup(tempGroup);
+              hypsomeSWE._leaflet_id = 'Hypsome-SWE'
               //define to sessionStorage
               sessionStorage.hypsomeSWE = hypsomeSWE;
               //add group to the fgb laer control 
@@ -664,8 +665,7 @@
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_snodas_swe_standardized_4km.tif", 
               "(a) Standardized SWE", display = true, breaks = breaks, scale = scale)
             //add hypsome-swe to the map
-            console.log(snowLayers.getLayers());
-            map.addLayer(snowLayers.getLayers()[0]);
+            map.addLayer(snowLayers._layers['Hypsome-SWE']);
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
