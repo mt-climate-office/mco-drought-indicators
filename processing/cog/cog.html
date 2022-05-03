@@ -82,6 +82,9 @@
           attributionControl: false
         }).setView(new L.LatLng(45, -110), 6);
         
+        map.createPane('SNOTEL');
+        map.getPane('SNOTEL').style.zIndex = 650;
+
         //set min zoom
         map.options.minZoom = 5;
       
@@ -98,6 +101,7 @@
 
         //define legend control
         var legend = L.control({ position: "bottomleft" });
+        var USDMlegend = L.control({ position: "bottomright" });
 
         //define active layers layer group to populate as cogs are added
         var activeLayers = new L.LayerGroup();
@@ -203,6 +207,20 @@
           return result;
         }
 
+        // This will be run when L.geoJSON creates the point layer from the GeoJSON data.
+        function createCircleMarker( feature, latlng ){
+          // Change the values of these options to change the symbol's appearance
+          let options = {
+            radius: 8,
+            fillColor: feature.properties.fillColor,
+            color: "black",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+          }
+          return L.circleMarker( latlng, options );
+        }
+
         //define function to add flatgeobuf files
         async function addFGB(fgb_url, fgb_name, weight, display = false, popup_property){
           //define tempGroup 
@@ -228,6 +246,16 @@
                             maxWidth: "auto"
                           }));
             } 
+            else if (fgb_name === 'SNOTEL SWE') {
+              tempGroup.push(
+                L.geoJSON(f, {pointToLayer: createCircleMarker})
+                .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_"+
+                         f.properties.site_id+".png' height='400' width='450' loading='lazy'/>",
+                         {
+                            maxWidth: "auto"
+                          })
+              );
+            }
             else {
               //if there is a popop property to bind, do it.
               if(popup_property_ == null){
@@ -249,6 +277,14 @@
               if(display == true){
                 hypsomeSWE.addTo(map)
               }
+            } else if (fgb_name === 'SNOTEL SWE'){
+              //define tempGroupLayer feature group to add to layer control
+              var snotelSWE = L.featureGroup(tempGroup);
+              //define to sessionStorage
+              sessionStorage.snotelSWE = snotelSWE;
+              //add group to the fgb layer control 
+              snowFGBLayerControl.addOverlay(snotelSWE , fgb_name); 
+              snowLayers.addLayer(snotelSWE)
             } else {
               //define tempGroupLayer feature group to add to layer control
             var tempGroupLayer = L.featureGroup(tempGroup);
@@ -293,6 +329,22 @@
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_usdm.fgb', fgb_name = 'USDM', weight = 1, display = false, popup_property = 'DM');
         //add hypsome-swe (only added to snow control)
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/watersheds.fgb', fgb_name = 'Hypsome-SWE', weight = 1, display = false, popup_property = 'NAME');
+        //add SNOTEL SWE (only added to snow control)
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_snotel.fgb', fgb_name = 'SNOTEL SWE', weight = 1, display = false, popup_property = 'NAME');
+
+        //build USDM legend
+        USDMlegend.onAdd = function(map) {
+              var div = L.DomUtil.create("div", "legend");
+              div.innerHTML += "<h4>U.S. Drought Monitor<br>(USDM)<br>"+loadFile('https://data.climate.umt.edu/drought-indicators/fgb/usdm_time.txt')+"</h4>";
+              div.innerHTML += '<i style="background: #FFFF00"></i><span>D0 (Abnormally Dry)</span><br>';
+              div.innerHTML += '<i style="background: #FCD37F"></i><span>D1 (Moderate Drought)</span><br>';
+              div.innerHTML += '<i style="background: #FFAA00"></i><span>D2 (Severe Drought)</span><br>';
+              div.innerHTML += '<i style="background: #E60000"></i><span>D3 (Extreme Drought)</span><br>';
+              div.innerHTML += '<i style="background: #730000"></i><span>D4 (Exceptional Drought)</span><br>';
+              return div;
+            };
+        //add to map
+        USDMlegend.addTo(map);
 
         //function to call when selector is choosen
         $('select').change(function() {
@@ -372,7 +424,7 @@
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt')
+            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spei/time.txt')
             //define breaks
             var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
             //add chroma scale that matches the USDM
@@ -432,7 +484,7 @@
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt')
+            var time = loadFile('https://data.climate.umt.edu/drought-indicators/eddi/time.txt')
             //define breaks
             var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
             //add chroma scale that matches the USDM
@@ -491,7 +543,7 @@
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt')
+            var time = loadFile('https://data.climate.umt.edu/drought-indicators/precipitation/time.txt')
             //define breaks
             var breaks = [-999, 2, 5, 10, 20, 30, 70, 80, 90, 95, 98, 999].map(function(x) { return x * scaler; });
             //add chroma scale that matches the USDM
@@ -548,7 +600,7 @@
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt')
+            var time = loadFile('https://data.climate.umt.edu/drought-indicators/temperature/time.txt')
             //define breaks
             var breaks = [-999, 2, 5, 10, 20, 30, 70, 80, 90, 95, 98, 999].map(function(x) { return x * scaler; });
             //add chroma scale that matches the USDM
@@ -608,15 +660,17 @@
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt')
+            var time = loadFile('https://data.climate.umt.edu/drought-indicators/snodas/time.txt')
             // import and add COGs to map from remote server
             //define breaks
             var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
             //add chroma scale that matches the USDM
             var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
             // add COGS
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_snodas_swe_standardized.tif", 
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_snodas_swe_standardized_4km.tif", 
               "(a) Standardized SWE", display = true, breaks = breaks, scale = scale)
+            //add hypsome-swe to the map
+              map.addLayer(snowLayers.getLayers()[0]);
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
@@ -652,7 +706,7 @@
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt')
+            var time = loadFile('https://data.climate.umt.edu/drought-indicators/smap/time.txt')
             var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
             //add chroma scale that matches the USDM
             var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
@@ -694,7 +748,7 @@
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt')
+            var time = loadFile('https://data.climate.umt.edu/drought-indicators/grace/time.txt')
             //define breaks
             var breaks = [-999, 2, 5, 10, 20, 30, 70, 80, 90, 95, 98, 999].map(function(x) { return x * scaler; });
             //add chroma scale that matches the USDM
@@ -737,7 +791,7 @@
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt')
+            var time = loadFile('https://data.climate.umt.edu/drought-indicators/ndvi/anom/time.txt')
             // import and add COGs to map from remote server
             //define breaks
             var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
