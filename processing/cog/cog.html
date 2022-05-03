@@ -382,12 +382,10 @@
               "(e) 180 Day SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
               "(f) 1 Year SPI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
-              "(g) 2 Year SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
-              "(h) Water Year", display = false, breaks = breaks, scale = scale)
+              "(h) Water Year SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
-              "(i) Year to Date", display = false, breaks = breaks, scale = scale)
+              "(i) Year to Date SPI", display = false, breaks = breaks, scale = scale)
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
@@ -431,23 +429,21 @@
             var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
             // add COGS
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_15.tif", 
-              "(a) 15 Day SPI", display = false, breaks = breaks, scale = scale)
+              "(a) 15 Day SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_30.tif", 
-              "(b) 30 Day SPI", display = true, breaks = breaks, scale = scale)
+              "(b) 30 Day SPEI", display = true, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_60.tif", 
-              "(c) 60 Day SPI", display = false, breaks = breaks, scale = scale)
+              "(c) 60 Day SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_90.tif", 
-              "(d) 90 Day SPI", display = false, breaks = breaks, scale = scale)
+              "(d) 90 Day SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_180.tif", 
-              "(e) 180 Day SPI", display = false, breaks = breaks, scale = scale)
+              "(e) 180 Day SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
-              "(f) 1 Year SPI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
-              "(g) 2 Year SPI", display = false, breaks = breaks, scale = scale)
+              "(f) 1 Year SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
-              "(h) Water Year", display = false, breaks = breaks, scale = scale)
+              "(h) Water Year SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
-              "(i) Year to Date", display = false, breaks = breaks, scale = scale)
+              "(i) Year to Date SPEI", display = false, breaks = breaks, scale = scale)
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
@@ -491,23 +487,21 @@
             var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83'].reverse()).classes(breaks); 
             // add COGS
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_15.tif", 
-              "(a) 15 Day SPI", display = false, breaks = breaks, scale = scale)
+              "(a) 15 Day EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_30.tif", 
-              "(b) 30 Day SPI", display = true, breaks = breaks, scale = scale)
+              "(b) 30 Day EDDI", display = true, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_60.tif", 
-              "(c) 60 Day SPI", display = false, breaks = breaks, scale = scale)
+              "(c) 60 Day EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_90.tif", 
-              "(d) 90 Day SPI", display = false, breaks = breaks, scale = scale)
+              "(d) 90 Day EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_180.tif", 
-              "(e) 180 Day SPI", display = false, breaks = breaks, scale = scale)
+              "(e) 180 Day EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
-              "(f) 1 Year SPI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
-              "(g) 2 Year SPI", display = false, breaks = breaks, scale = scale)
+              "(f) 1 Year EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
-              "(h) Water Year", display = false, breaks = breaks, scale = scale)
+              "(h) Water Year EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
-              "(i) Year to Date", display = false, breaks = breaks, scale = scale)
+              "(i) Year to Date EDDI", display = false, breaks = breaks, scale = scale)
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
@@ -670,7 +664,8 @@
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_snodas_swe_standardized_4km.tif", 
               "(a) Standardized SWE", display = true, breaks = breaks, scale = scale)
             //add hypsome-swe to the map
-              map.addLayer(snowLayers.getLayers()[0]);
+            console.log(snowLayers.getLayers());
+            map.addLayer(snowLayers.getLayers()[0]);
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
@@ -801,9 +796,9 @@
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/ndvi_anom_7.tif", 
               "(a) 7 Day NDVI Anomaly", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/ndvi_anom_15.tif", 
-              "(b) 15 Day NDVI Anomaly", display = false, breaks = breaks, scale = scale)
+              "(b) 15 Day NDVI Anomaly", display = true, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/ndvi_anom_30.tif", 
-              "(c) 30 Day NDVI Anomaly", display = true, breaks = breaks, scale = scale)
+              "(c) 30 Day NDVI Anomaly", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/ndvi_anom_60.tif", 
               "(d) 60 Day NDVI Anomaly", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/ndvi_anom_90.tif", 
