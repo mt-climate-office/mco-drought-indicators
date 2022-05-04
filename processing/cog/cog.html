@@ -79,7 +79,9 @@
         const map = L.map('map', {
           preferCanvas: true, 
           gestureHandling: true, 
-          attributionControl: false
+          attributionControl: false,
+          inertia: false,
+          noMoveStart: true
         }).setView(new L.LatLng(45, -110), 6);
         
         map.createPane('SNOTEL');
