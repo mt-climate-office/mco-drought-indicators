@@ -5,13 +5,60 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"/>
     <style>
       #map {
-        bottom: 0;
-        left: 0;
+        bottom: 0px;
+        left: 20px;
         position: absolute;
-        right: 0;
-        top: 0;
+        right: 20px;
+        top: 130px;
+        border: 3px solid #0e2263;
       }
-      /*Legend specific*/
+
+      .button {
+        background-color: linear-gradient(to top, #ffffff 0%, #818181 200%);
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: -10px 2px;
+        cursor: pointer;
+        float: right;
+      }
+
+      .gitButton {
+        background-color: #dfdbdb;
+        color: black;
+        border-radius: 5px;
+      } 
+
+      footer {
+        text-align: center;
+        padding: 3px;
+        background-color: rgba(255, 255, 255, 0.199);
+        color: rgb(0, 0, 0);
+      }
+
+      .parent{
+        height:150px;
+        text-align:center;
+        display:table;
+        width:100%;
+        margin-top: 950px;
+      }
+
+      .parent .child{
+        display:table-cell;
+        vertical-align:middle;
+        width:100%;
+        height:100%;
+      }
+
+      .h1 {
+        top-margin: 400;
+      }
+
       .legend {
         padding: 6px 4px;
         font: 14px Arial, Helvetica, sans-serif;
@@ -55,9 +102,14 @@
         background-size: 18px;
         background-color: rgba(255, 255, 255, 1);
       }
+
     </style>
   </head>
-  
+  <div class="header">
+    <h1><center>UMRB Drought Indicators Dashboard</center> 
+      <a href="https://github.com/mt-climate-office" class="button gitButton">MCO GitHub</a>
+    </h1>
+  </div>
   <body>
     <div id="map"></div>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -244,7 +296,7 @@
               tempGroup.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight})
               .bindTooltip(f.properties[popup_property_])
               .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/hypsome-swe-"+
-                         f.properties.HUC8+".png' height='500' width='500' loading='lazy'/>",
+                         f.properties.HUC8+".png' height='500px' width='500px' loading='lazy'/>",
                          {
                             maxWidth: "auto"
                           }));
@@ -793,7 +845,7 @@
             // import and add COGs to map from remote server
             //define breaks
             var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
-            //add chroma scale that matches the USDM
+            //add chroma scale that matches the USDM<div class="div-wrapper">
             var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
             // add COGS
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/ndvi_anom_7.tif", 
@@ -831,5 +883,20 @@
         });
       });
     </script>
+    <div class="parent">
+      <div class="child">
+        <img src="./misc_content/logos.png" height="200px" align="bottom"/>
+      </div>
+    </div>
+    <footer>
+      <p style="text-align: center;">Produced by the <a href="https://climate.umt.edu/">Montana Climate Office</a></p>
+      <p style="text-align: center;"><span style="color: #808080;"><em>Montana Forest & Conservation Experiment Station</em></span></p>
+      <p style="text-align: center;"><span style="color: #808080;"><em>University of Montana</em></span></p>
+      <p style="text-align: center;"><span style="color: #808080;"><em>32 Campus Drive</em></span></p>
+      <p style="text-align: center;"><span style="color: #808080;"><em>Missoula, MT 59812</em></span></p>
+      <p style="text-align: center;"><span style="color: #808080;"><em>Phone: (406) 243-6793</em></span></p>
+      <p style="text-align: center;"><span style="color: #808080;"><em>state.climatologist@umontana.edu</em></span></p>
+
+    </footer>
   </body>
 </html>
