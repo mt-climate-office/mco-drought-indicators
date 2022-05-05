@@ -89,7 +89,6 @@
         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
         'Lucida Sans', Arial, sans-serif;
       }
-
     </style>
   </head>
   <body>
@@ -316,14 +315,15 @@
               .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/hypsome-swe-"+
                          f.properties.HUC8+".png' height='500px' width='500px' loading='lazy'/>",
                          {
-                            maxWidth: "auto"
+                            maxWidth: "auto",
+                            popupAnchor: [0,0]
                           }));
             } 
             else if (fgb_name === 'SNOTEL SWE') {
               tempGroup.push(
                 L.geoJSON(f, {pointToLayer: createCircleMarker})
                 .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_"+
-                         f.properties.site_id+".png' height='400' width='450' loading='lazy'/>",
+                         f.properties.site_id+".png' height='400' width='500' loading='lazy'/>",
                          {
                             maxWidth: "auto"
                           })
