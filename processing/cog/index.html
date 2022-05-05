@@ -296,7 +296,8 @@
         //define function to add flatgeobuf files
         async function addFGB(fgb_url, fgb_name, weight, display = false, popup_property){
           //define tempGroup 
-          var tempGroup = [];    
+          var tempGroup = [];   
+          var tempGroupHypsomeSWE = []; 
           //redefine popup property    
           var popup_property_ = popup_property
           //async wait for flatgeobuf fetch
@@ -309,8 +310,10 @@
                 L.geoJSON(f, {color: 'black', fillOpacity: 0.5, weight: weight, fillColor: f.properties.fillColor})
               );
             } 
-            else if (fgb_name === 'Hypsome-SWE'){
-              tempGroup.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight})
+            //both hypsomeSWE and watersheds use Watershed FGB, no need to load twice
+            else if (fgb_name === 'Watersheds'){
+              //first HypsomeSWE
+              tempGroupHypsomeSWE.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight})
               .bindTooltip(f.properties[popup_property_])
               .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/hypsome-swe-"+
                          f.properties.HUC8+".png' height='500px' width='500px' loading='lazy'/>",
@@ -318,6 +321,13 @@
                             maxWidth: "auto",
                             popupAnchor: [0,0]
                           }));
+              //Now just regular watersheds without the popup
+              //if there is a popop property to bind, do it.
+              if(popup_property_ == null){
+                tempGroup.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight}));
+              } else {
+                tempGroup.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight}).bindTooltip(f.properties[popup_property_]));
+              }     
             } 
             else if (fgb_name === 'SNOTEL SWE') {
               tempGroup.push(
@@ -338,19 +348,23 @@
               }
             }
             //if adding hypsome-swe, we need to name it differently for cleanUp fun
-            if(fgb_name === 'Hypsome-SWE'){
+            if(fgb_name === 'Watersheds'){
               //define tempGroupLayer feature group to add to layer control
-              var hypsomeSWE = L.featureGroup(tempGroup);
+              var hypsomeSWE = L.featureGroup(tempGroupHypsomeSWE);
               hypsomeSWE._leaflet_id = 'Hypsome-SWE'
               //define to sessionStorage
               sessionStorage.hypsomeSWE = hypsomeSWE;
               //add group to the fgb laer control 
-              snowFGBLayerControl.addOverlay(hypsomeSWE , fgb_name); 
+              snowFGBLayerControl.addOverlay(hypsomeSWE , 'Hypsome-SWE'); 
               snowLayers.addLayer(hypsomeSWE)
               //display if display param == true on initial load
               if(display == true){
                 hypsomeSWE.addTo(map)
               }
+              //define tempGroupLayer feature group to add to layer control
+              var tempGroupLayer = L.featureGroup(tempGroup);
+              //add group to the fgb laer control 
+              fgbLayerControl.addOverlay(tempGroupLayer , fgb_name); 
             } else if (fgb_name === 'SNOTEL SWE'){
               //define tempGroupLayer feature group to add to layer control
               var snotelSWE = L.featureGroup(tempGroup);
@@ -361,15 +375,15 @@
               snowLayers.addLayer(snotelSWE)
             } else {
               //define tempGroupLayer feature group to add to layer control
-            var tempGroupLayer = L.featureGroup(tempGroup);
-            //add group to the fgb laer control 
-            fgbLayerControl.addOverlay(tempGroupLayer , fgb_name); 
-            //add it to the snow control too for later (only used when snow selector is active)
-            snowFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
-            //display if display param == true on initial load
-              if(display == true){
-                tempGroupLayer.addTo(map)
-              }
+              var tempGroupLayer = L.featureGroup(tempGroup);
+              //add group to the fgb laer control 
+              fgbLayerControl.addOverlay(tempGroupLayer , fgb_name); 
+              //add it to the snow control too for later (only used when snow selector is active)
+              snowFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
+              //display if display param == true on initial load
+                if(display == true){
+                  tempGroupLayer.addTo(map)
+                }
             }
         };
         
@@ -397,12 +411,11 @@
 
         // add FGBs to map (before selector change!!)
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/states.fgb', fgb_name = 'States', weight = 3, display = true, popup_property = null);
+        //add watersheds and hypsome-swe (only added to snow control) from same fgb to reduce network payload
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/watersheds.fgb', fgb_name = 'Watersheds', weight = 1, display = false, popup_property = 'NAME');
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/counties.fgb', fgb_name = 'Counties', weight = 1, display = false, popup_property = 'COUNTY');
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/tribal.fgb', fgb_name = 'Tribal Lands', weight = 1, display = false, popup_property = 'NAME');
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_usdm.fgb', fgb_name = 'USDM', weight = 1, display = false, popup_property = 'DM');
-        //add hypsome-swe (only added to snow control)
-        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/watersheds.fgb', fgb_name = 'Hypsome-SWE', weight = 1, display = false, popup_property = 'NAME');
         //add SNOTEL SWE (only added to snow control)
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_snotel.fgb', fgb_name = 'SNOTEL SWE', weight = 1, display = false, popup_property = 'NAME');
 
