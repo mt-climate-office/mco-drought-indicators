@@ -1,51 +1,36 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <!-- Import Bootstrap Scripts and CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"/>
+    <!-- Define Custom CSS styling -->
     <style>
       #map {
         bottom: 0px;
-        left: 20px;
-        position: absolute;
-        right: 20px;
-        top: 130px;
-        border: 3px solid #0e2263;
+        left: 0px;
+        position: relative;
+        right: 0px;
+        top: 40px;
+        height: 800px;
+        width: 98%;
+        border: 3px solid #000000;
+        margin-left:auto;
+        margin-right:auto;
       }
-
-      .button {
-        background-color: linear-gradient(to top, #ffffff 0%, #818181 200%);
-        border: none;
-        color: white;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: -10px 2px;
-        cursor: pointer;
-        float: right;
-      }
-
-      .gitButton {
-        background-color: #dfdbdb;
-        color: black;
-        border-radius: 5px;
-      } 
 
       footer {
         text-align: center;
-        padding: 3px;
         background-color: rgba(255, 255, 255, 0.199);
         color: rgb(0, 0, 0);
       }
 
       .parent{
-        height:150px;
+        height:200px;
         text-align:center;
         display:table;
         width:100%;
-        margin-top: 950px;
+        margin-top: 20px;
       }
 
       .parent .child{
@@ -53,10 +38,6 @@
         vertical-align:middle;
         width:100%;
         height:100%;
-      }
-
-      .h1 {
-        top-margin: 400;
       }
 
       .legend {
@@ -103,15 +84,48 @@
         background-color: rgba(255, 255, 255, 1);
       }
 
+      .navbar-brand{
+        margin-left: 20px;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
+        'Lucida Sans', Arial, sans-serif;
+      }
+
     </style>
   </head>
-  <div class="header">
-    <h1><center>UMRB Drought Indicators Dashboard</center> 
-      <a href="https://github.com/mt-climate-office" class="button gitButton">MCO GitHub</a>
-    </h1>
-  </div>
   <body>
-    <div id="map"></div>
+    <!-- Build Nav Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="">UMRB Drought Indicators Dashboard</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse " id="navbarNavDropdown">
+        <ul class="navbar-nav navbar-right">
+          <li class="nav-item">
+            <a class="nav-link" href="https://mco.cfc.umt.edu/mesonet_data/">MT Mesonet</a>
+          </li>
+          <!-- Add documentation soon -->
+          <!-- 
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Documentation
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="#">Standardized Precipitation Index (SPI)</a>
+              <a class="dropdown-item" href="#">Standardized Precipitation Evapotranspiration Index (SPEI)</a>
+              <a class="dropdown-item" href="#">Evaporative Demand Drought Index (EDDI)</a>
+            </div>
+          </li>
+          -->
+          </ul>
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link ml-auto" href="https://github.com/mt-climate-office">MCO GitHub</a>
+            </li>
+        </ul>
+      </div>
+    </nav>
+    <!-- import remote scripts -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/georaster"></script>
@@ -122,7 +136,11 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">
     <script src="https://unpkg.com/leaflet-gesture-handling"></script>
     <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <div id="map"></div>
     <script>
+      //Map script! 
       document.addEventListener("DOMContentLoaded", async () => { 
         //define scaler for data
         var scaler = 10;
@@ -141,7 +159,7 @@
         map.getPane('SNOTEL').style.zIndex = 650;
 
         //set min zoom
-        map.options.minZoom = 5;
+        map.options.minZoom = 5.5;
       
         //add MCO attribution
         map.addControl(L.control.attribution({
@@ -399,8 +417,18 @@
               div.innerHTML += '<i style="background: #730000"></i><span>D4 (Exceptional Drought)</span><br>';
               return div;
             };
-        //add to map
-        USDMlegend.addTo(map);
+
+        //add event handler to toggle USDM legend when displayed
+        map.on('overlayadd', function(eventLayer){
+            if (eventLayer.name === 'USDM'){
+              map.addControl(USDMlegend);
+            } 
+        })
+        map.on('overlayremove', function(eventLayer){
+            if (eventLayer.name === 'USDM'){
+                map.removeControl(USDMlegend);
+            } 
+        })
 
         //function to call when selector is choosen
         $('select').change(function() {
@@ -883,11 +911,14 @@
         });
       });
     </script>
+    <!-- Add footer image of logos -->
     <div class="parent">
       <div class="child">
         <img src="./misc_content/logos.png" height="200px" align="bottom"/>
       </div>
     </div>
+    <hr>
+    <!-- Footer -->
     <footer>
       <p style="text-align: center;">Produced by the <a href="https://climate.umt.edu/">Montana Climate Office</a></p>
       <p style="text-align: center;"><span style="color: #808080;"><em>Montana Forest & Conservation Experiment Station</em></span></p>
@@ -896,7 +927,6 @@
       <p style="text-align: center;"><span style="color: #808080;"><em>Missoula, MT 59812</em></span></p>
       <p style="text-align: center;"><span style="color: #808080;"><em>Phone: (406) 243-6793</em></span></p>
       <p style="text-align: center;"><span style="color: #808080;"><em>state.climatologist@umontana.edu</em></span></p>
-
     </footer>
   </body>
 </html>
