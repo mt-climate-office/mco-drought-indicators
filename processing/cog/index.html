@@ -110,7 +110,7 @@
       <div class="collapse navbar-collapse " id="navbarNavDropdown">
         <ul class="navbar-nav navbar-right">
           <li class="nav-item">
-            <a class="nav-link" href="https://mco.cfc.umt.edu/mesonet_data/">MT Mesonet</a>
+            <a class="nav-link" href="https://fcfc-mesonet-staging.cfc.umt.edu/dash/">MT Mesonet</a>
           </li>
           <!-- Add documentation soon -->
           <!-- 
@@ -161,14 +161,14 @@
           inertia: false,
           noMoveStart: true,
           animate: false
-        }).setView(new L.LatLng(45, -110), 6);
+        }).setView(new L.LatLng(45, -111), 6);
         
         map.createPane('SNOTEL');
         map.getPane('SNOTEL').style.zIndex = 650;
 
         //set min zoom
         map.options.minZoom = 5.5;
-      
+         
         //add MCO attribution
         map.addControl(L.control.attribution({
             position: 'bottomright',
