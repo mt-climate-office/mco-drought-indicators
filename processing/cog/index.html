@@ -774,7 +774,7 @@
             //add chroma scale that matches the USDM
             var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
             // add COGS
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_snodas_swe_standardized_4km.tif", 
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_snodas_swe_standardized.tif", 
               "(a) Standardized SWE", display = true, breaks = breaks, scale = scale)
             //add hypsome-swe to the map
             map.addLayer(snowLayers._layers['Hypsome-SWE']);
