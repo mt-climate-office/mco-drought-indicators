@@ -158,6 +158,7 @@
       //Map script! 
       document.addEventListener("DOMContentLoaded", async () => { 
         //define scaler for data
+        
         var scaler = 10;
 
         // initalize leaflet map and set some prefs
@@ -174,7 +175,7 @@
         map.getPane('SNOTEL').style.zIndex = 650;
 
         //set min zoom
-        map.options.minZoom = 5.5;
+        map.options.minZoom = 5;
          
         //add MCO attribution
         map.addControl(L.control.attribution({
@@ -182,10 +183,17 @@
             prefix: '<a href="https://climate.umt.edu/" target="_blank">MCO</a>'
         }));
 
+        //add background
+        L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png').addTo(map);
+
         // add OpenStreetMap basemap
         L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=94vjatYf0fxNnMGBpIwo', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
+
+        //add stamen toner labels and lines
+        L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png').addTo(map);
+        L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}.png').addTo(map);
 
         //define legend control
         var legend = L.control({ position: "bottomleft" });
@@ -237,6 +245,11 @@
                     .text(item));
           }
         })
+
+        //after first selection is made, change dropdown value of "Choose a Varaible" to "Clear Map"
+        $('select').change(function(event) {
+          $('select').find('option').first().text("Clear Map");
+        }); 
 
         //define layer control for baselayers (will be removed with selector change)
         var layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false})
@@ -461,6 +474,10 @@
 
         //function to call when selector is choosen
         $('select').change(function() {
+          if(this.value === 'Choose a Variable'){
+            updateFgbControls()
+            cleanUp()
+          }
           if(this.value === 'SPI'){
             //update FGB controls 
             updateFgbControls()
