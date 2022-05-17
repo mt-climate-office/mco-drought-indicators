@@ -168,7 +168,11 @@
           attributionControl: false,
           inertia: false,
           noMoveStart: true,
-          animate: false
+          animate: false,
+          zoomAnimation: true,
+          zoomAnimationThreshold: 3,
+          fadeAnimation: true,
+          markerZoomAnimation:false
         }).setView(new L.LatLng(45, -111), 6);
         
         map.createPane('SNOTEL');
