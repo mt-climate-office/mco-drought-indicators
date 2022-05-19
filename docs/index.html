@@ -172,7 +172,9 @@
           zoomAnimation: true,
           zoomAnimationThreshold: 3,
           fadeAnimation: true,
-          markerZoomAnimation:false
+          markerZoomAnimation:false,
+          zoomDelta: 0.25,
+          zoomSnap: 0
         }).setView(new L.LatLng(45, -111), 6);
         
         map.createPane('SNOTEL');
@@ -188,7 +190,7 @@
         }));
 
         //add background
-        L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png').addTo(map);
+        //L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png').addTo(map);
 
         // add OpenStreetMap basemap
         L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=94vjatYf0fxNnMGBpIwo', {
