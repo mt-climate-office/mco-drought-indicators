@@ -6,7 +6,7 @@
 #CDF or SPI values when return_latest = T. when return_latest = F
 #the entire SPI or CDF vector is returned. Default is to return latest. 
 
-gamma_fit_spi = function(x, export_opts = 'SPI', return_latest = T) {
+gamma_fit_spi = function(x, export_opts = 'SPI', return_latest = T, climatology_length = 30) {
   #load the package needed for these computations
   library(lmomco)
   #first try gamma
@@ -18,6 +18,8 @@ gamma_fit_spi = function(x, export_opts = 'SPI', return_latest = T) {
         index = which(x == 0)
         x[index] = 0.01
       }
+      #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
+      x = tail(x, climatology_length)
       #Unbiased Sample Probability-Weighted Moments (following Beguer ́ıa et al 2014)
       pwm = pwm.ub(x)
       #Probability-Weighted Moments to L-moments
@@ -58,7 +60,7 @@ gamma_fit_spi = function(x, export_opts = 'SPI', return_latest = T) {
     })
 }
 
-spi_fun = function(x) {
+spi_fun = function(x, climatology_length = 30) {
   #load the package needed for these computations
   library(lmomco)
   #first try gamma
@@ -70,6 +72,8 @@ spi_fun = function(x) {
         index = which(x == 0)
         x[index] = 0.01
       }
+      #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
+      x = tail(x, climatology_length)
       #Unbiased Sample Probability-Weighted Moments (following Beguer ́ıa et al 2014)
       pwm = pwm.ub(x)
       #Probability-Weighted Moments to L-moments
@@ -88,13 +92,15 @@ spi_fun = function(x) {
     })
 }
 
-spei_fun = function(x) {
+spei_fun = function(x, climatology_length = 30) {
   #load the package needed for these computations
   library(lmomco)
   #first try log logistic
   tryCatch(
     {
       x = as.numeric(x)
+      #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
+      x = tail(x, climatology_length)
       #Unbiased Sample Probability-Weighted Moments (following Beguer ́ıa et al 2014)
       pwm = pwm.ub(x)
       #Probability-Weighted Moments to L-moments
@@ -113,13 +119,15 @@ spei_fun = function(x) {
     })
 }
 
-glo_fit_spei = function(x, export_opts = 'SPEI', return_latest = T) {
+glo_fit_spei = function(x, export_opts = 'SPEI', return_latest = T, climatology_length = 30) {
   #load the package needed for these computations
   library(lmomco)
   #first try gamma
   tryCatch(
     {
       x = as.numeric(x)
+      #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
+      x = tail(x, climatology_length)
       #Unbiased Sample Probability-Weighted Moments (following Beguer ́ıa et al 2014)
       pwm = pwm.ub(x)
       #Probability-Weighted Moments to L-moments
@@ -161,7 +169,7 @@ glo_fit_spei = function(x, export_opts = 'SPEI', return_latest = T) {
 }
 
 
-eddi_fun = function(x) {
+eddi_fun = function(x, climatology_length = 30) {
   #define coeffitients
   C0 = 2.515517
   C1 = 0.802853
@@ -172,6 +180,9 @@ eddi_fun = function(x) {
   
   # following Hobbins et al., 2016
   x = as.numeric(x)
+  
+  #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
+  x = tail(x, climatology_length)
   
   if(all(is.na(x))){
     return(NA)
@@ -208,21 +219,29 @@ eddi_fun = function(x) {
 }
 
 #percent of normal
-percent_of_normal = function(x){
+percent_of_normal = function(x, climatology_length = 30){
+  #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
+  x = tail(x, climatology_length)
+  
   x_mean = mean(x, na.rm = T)
   percent_of_normal = ((x[length(x)])/x_mean)*100
   return(percent_of_normal)
 }
 
 #deviation from normal
-deviation_from_normal = function(x){
+deviation_from_normal = function(x, climatology_length = 30){
+  #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
+  x = tail(x, climatology_length)
+  
   x_mean = mean(x, na.rm = T)
   deviation_from_normal = ((x[length(x)]) - x_mean)
   return(deviation_from_normal)
 }
 
-percentile_inverse = function(x){
+percentile_inverse = function(x, climatology_length = 30){
   tryCatch({
+    #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
+    x = tail(x, climatology_length)
     #bins are based on emperical quantile (percentiles) based on vector
     bins = quantile(x, seq(0,1,by = 0.01))
     #convert the first bin to -Inf to catch the min values as 1st percentile
