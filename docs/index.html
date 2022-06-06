@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>Drought Dashboard</title>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149859729-1"></script>
     <script>
@@ -12,6 +13,7 @@
     </script>
     <!-- Import Bootstrap Scripts and CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Define Custom CSS styling -->
     <style>
@@ -98,7 +100,24 @@
         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
         'Lucida Sans', Arial, sans-serif;
       }
+      
+      .select2 {
+        width:300px!important;
+        z-index: 99999 !important;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: 10px;
+        font-size:14px;
+      }
 
+      .select2-results__options{
+        font-size:12px !important;
+      }  
+
+      .leaflet-left {
+          padding-top: 40px;
+      }
+      
     </style>
   </head>
   <body>
@@ -147,12 +166,7 @@
     <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-      <button type="button" class="btn-close" aria-label="Close" data-dismiss="alert"></button>
-      <h4 class="alert-heading"><center>Welcome to the new UMRB Drought Dashboard!</center></h4>
-      <center>This version of the dashboard features an all-in-one mapping approach. 
-        Select a variable from the dropdown menu on the left side of the map to get started. </center>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <div id="map"></div>
     <script>
       //Map script! 
@@ -174,7 +188,8 @@
           fadeAnimation: true,
           markerZoomAnimation:false,
           zoomDelta: 0.25,
-          zoomSnap: 0
+          zoomSnap: 0,
+          zoomControl: false
         }).setView(new L.LatLng(45, -111), 6);
         
         map.createPane('SNOTEL');
@@ -182,7 +197,11 @@
 
         //set min zoom
         map.options.minZoom = 5;
-         
+
+        L.control.zoom({
+            position:'topright'
+        }).addTo(map);
+
         //add MCO attribution
         map.addControl(L.control.attribution({
             position: 'bottomright',
@@ -226,37 +245,82 @@
         // names the variables
         $('select').empty()
 
-        //define variables in dropdown
-        var variables = ['Choose a Variable','horizontal-line',
-                        'SPI', 'SPEI', 'EDDI', 'horizontal-line', 
-                        'Precipitation Percentiles','Temperature Percentiles', 'horizontal-line',
-                        'Snowpack', 'horizontal-line',
-                        'SMAP Soil Moisture', 'horizontal-line',
-                        'GRACE Groundwater', 'horizontal-line',
-                        'NDVI Anomaly','horizontal-line']
-
-        //populate selector
-        variables.forEach(function(item) {
-          if(item === 'horizontal-line'){
-            $('select')
-                .append($('<hr>', {
-                        class: 'divider'
-                    }));
+        // define selecter data
+        var selectData = [{
+          id:"",
+          text: ""
+        },
+        {
+          text:'Drought Metrics',
+          children: [{
+            id: 'SPI',
+            text: 'SPI (Standardized Precipitation Index)',
+          },
+          {
+            id: 'SPEI',
+            text: 'SPEI (Standardized Precipitation Evapotranspiration Index)'
+          },
+          {
+            id: 'EDDI',
+            text: 'EDDI (Evaporative Demand Drought Index)'
           }
-          else {
-            $('select')
-                .append($('<option>', {
-                        value: item
-                    })
-                    .text(item));
+        ]
+        },
+        {
+          text:'Meteorology',
+          children: [{
+            id: 'Precipitation Percentiles',
+            text: 'Precipitation Percentiles',
+          },
+          {
+            id: 'Temperature Percentiles',
+            text: 'Temperature Percentiles'
+          },
+        ]
+        },
+        {
+          text:'Snow',
+          children: [{
+            id: 'Snowpack',
+            text: 'Snow Water Equivalent and Hypsome-SWE',
           }
-        })
+        ]
+        },
+        {
+          text:'Soil Moisture',
+          children: [{
+            id: 'SMAP Soil Moisture',
+            text: 'SMAP Soil Moisture Active Passive [NASA]',
+          }
+        ]
+        },
+        {
+          text:'Groundwater',
+          children: [{
+            id: 'GRACE Groundwater',
+            text: 'GRACE Groundwater Percentile [NASA]',
+          }
+        ]
+        },
+        {
+          text:'Vegitation',
+          children: [{
+            id: 'NDVI Anomaly',
+            text: 'NDVI (Greeness) Anomaly [NASA]',
+          }
+        ]
+        }]
 
-        //after first selection is made, change dropdown value of "Choose a Varaible" to "Clear Map"
-        $('select').change(function(event) {
-          $('select').find('option').first().text("Clear Map");
-        }); 
+        $(document).ready(function() {
+          $('select').select2({placeholder: 'Choose a Variable', data: selectData});
+        });
+   
+        function setParent(el, newParent){
+            newParent.appendChild(el);
+        }
 
+        setParent(selector.getContainer(), document.getElementById('map'));
+      
         //define layer control for baselayers (will be removed with selector change)
         var layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false})
         
