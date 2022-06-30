@@ -136,11 +136,21 @@
           <!-- Add documentation soon -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Drought Impacts
+            </a>
+            <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
+              <h6 class="dropdown-header">MT Drought Impacts Reporter</h6> 
+              <a class="dropdown-item" href="http://nris.mt.gov/droughtsurvey">Make a Report</a>
+              <a class="dropdown-item" href="http://nris.mt.gov/droughtimpacts">See Current Reports</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Documentation
             </a>
             <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
               <h6 class="dropdown-header">Dashboard Documentation</h6> 
-              <a class="dropdown-item" href="#">Data and Metrics</a>
+              <a class="dropdown-item" href="#">Data and Metrics (Coming Soon!)</a>
               <div class="dropdown-divider"></div>
               <!-- <h6 class="dropdown-header">General</h6> -->
               <a class="dropdown-item" href="https://climate.umt.edu/" target="_blank">Montana Climate Office (About Us)</a>
@@ -195,6 +205,8 @@
         
         map.createPane('SNOTEL');
         map.getPane('SNOTEL').style.zIndex = 650;
+        map.createPane('labels');
+        map.getPane('labels').style.zIndex = 800;
 
         //set min zoom
         map.options.minZoom = 5;
@@ -213,12 +225,10 @@
         //L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png').addTo(map);
 
         // add OpenStreetMap basemap
-        L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=94vjatYf0fxNnMGBpIwo', {
-            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=94vjatYf0fxNnMGBpIwo').addTo(map);
 
         //add stamen toner labels and lines
-        L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png').addTo(map);
+        L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {pane: 'labels'}).addTo(map);
         L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}.png').addTo(map);
 
         //define legend control
