@@ -117,7 +117,8 @@
       .leaflet-left {
           padding-top: 40px;
       }
-      
+
+
     </style>
   </head>
   <body>
@@ -133,18 +134,18 @@
             <a class="nav-link" href="https://fcfc-mesonet.cfc.umt.edu/dash/">MT Mesonet</a>
           </li>
           <!-- Add documentation soon -->
-          <!-- 
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Documentation
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item" href="#">Standardized Precipitation Index (SPI)</a>
-              <a class="dropdown-item" href="#">Standardized Precipitation Evapotranspiration Index (SPEI)</a>
-              <a class="dropdown-item" href="#">Evaporative Demand Drought Index (EDDI)</a>
+            <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
+              <h6 class="dropdown-header">Dashboard Documentation</h6> 
+              <a class="dropdown-item" href="#">Data and Metrics</a>
+              <div class="dropdown-divider"></div>
+              <!-- <h6 class="dropdown-header">General</h6> -->
+              <a class="dropdown-item" href="https://climate.umt.edu/" target="_blank">Montana Climate Office (About Us)</a>
             </div>
           </li>
-          -->
           </ul>
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
             <li class="nav-item">
@@ -227,6 +228,7 @@
         //define active layers layer group to populate as cogs are added
         var activeLayers = new L.LayerGroup();
         var snowLayers = new L.LayerGroup();
+        var soilMoistureLayers = new L.LayerGroup();
 
         // define selector
         var selector = L.control({
@@ -327,6 +329,7 @@
         //define layer control for flatgeobufs (will not be removed with selector change)
         var fgbLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map)
         var snowFGBLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false});
+        var soilMoistureFGBLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false});
 
         // define COG load function 
         function addCOG(url, name_, display = false, breaks, scale) { 
@@ -393,10 +396,11 @@
         }
 
         //define function to add flatgeobuf files
-        async function addFGB(fgb_url, fgb_name, weight, display = false, popup_property){
+        async function addFGB(fgb_url, fgb_name, weight, display = false, popup_property, depth = null){
           //define tempGroup 
           var tempGroup = [];   
           var tempGroupHypsomeSWE = []; 
+          var tempGroupSoilMoisture = [];
           //redefine popup property    
           var popup_property_ = popup_property
           //async wait for flatgeobuf fetch
@@ -438,6 +442,16 @@
                           })
               );
             }
+            else if (fgb_name.includes('Mesonet Soil Moisture')) {
+              tempGroup.push(
+                L.geoJSON(f, {pointToLayer: createCircleMarker})
+                //.bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_"+
+                //         f.properties.site_id+".png' height='400' width='500' loading='lazy'/>",
+                //         {
+                //            maxWidth: "auto"
+                //          })
+              );
+            }
             else {
               //if there is a popop property to bind, do it.
               if(popup_property_ == null){
@@ -467,11 +481,28 @@
             } else if (fgb_name === 'SNOTEL SWE'){
               //define tempGroupLayer feature group to add to layer control
               var snotelSWE = L.featureGroup(tempGroup);
+              snotelSWE._leaflet_id = 'SNOTEL SWE'
               //define to sessionStorage
               sessionStorage.snotelSWE = snotelSWE;
               //add group to the fgb layer control 
               snowFGBLayerControl.addOverlay(snotelSWE , fgb_name); 
               snowLayers.addLayer(snotelSWE)
+              if(display == true){
+                snowLayers.addTo(map)
+              }
+            } 
+            else if (fgb_name.includes('Mesonet Soil Moisture')){
+              //define tempGroupLayer feature group to add to layer control
+              var mesonetVWC = L.featureGroup(tempGroup);
+              mesonetVWC._leaflet_id = 'Mesonet VWC'+depth
+              //define to sessionStorage
+              sessionStorage.mesonetVWC = mesonetVWC;
+              //add group to the fgb layer control 
+              soilMoistureFGBLayerControl.addBaseLayer(mesonetVWC , fgb_name); 
+              soilMoistureLayers.addLayer(mesonetVWC)
+              if(display == true){
+                mesonetVWC.addTo(map)
+              }
             } else {
               //define tempGroupLayer feature group to add to layer control
               var tempGroupLayer = L.featureGroup(tempGroup);
@@ -479,6 +510,8 @@
               fgbLayerControl.addOverlay(tempGroupLayer , fgb_name); 
               //add it to the snow control too for later (only used when snow selector is active)
               snowFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
+              //add it to the soil moisture control too for later (only used when soil moisture selector is active)
+              //soilMoistureFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
               //display if display param == true on initial load
                 if(display == true){
                   tempGroupLayer.addTo(map)
@@ -496,6 +529,8 @@
           activeLayers.eachLayer(function(layer) { map.removeLayer(layer);});
           //remove hypsomeswe from map if loaded
           snowLayers.eachLayer(function(layer) { map.removeLayer(layer);});
+          //remove soil moisture from map if loaded
+          soilMoistureLayers.eachLayer(function(layer) { map.removeLayer(layer);});
           //remove old layer control
           map.removeControl(layerControl);
           //remove old legend
@@ -505,6 +540,7 @@
         var updateFgbControls = function(){
           //remove old FGB control 
           map.removeControl(snowFGBLayerControl);
+          map.removeControl(soilMoistureFGBLayerControl);
           map.addControl(fgbLayerControl);
         }
 
@@ -517,6 +553,12 @@
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_usdm.fgb', fgb_name = 'USDM', weight = 1, display = false, popup_property = 'DM');
         //add SNOTEL SWE (only added to snow control)
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_snotel.fgb', fgb_name = 'SNOTEL SWE', weight = 1, display = false, popup_property = 'NAME');
+        //add soil Moisture Anomolies from Mesonet (only added to soil moisture control)
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_04in.fgb', fgb_name = '(a) MT Mesonet Soil Moisture (4in)', weight = 1, display = false, popup_property = 'NAME', depth = '4in');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_08in.fgb', fgb_name = '(b) MT Mesonet Soil Moisture (8in)', weight = 1, display = false, popup_property = 'NAME', depth = '8in');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_20in.fgb', fgb_name = '(c) MT Mesonet Soil Moisture (20in)', weight = 1, display = false, popup_property = 'NAME', depth = '20in');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_36in.fgb', fgb_name = '(d) MT Mesonet Soil Moisture (36in)', weight = 1, display = false, popup_property = 'NAME', depth = '36in');
+
 
         //build USDM legend
         USDMlegend.onAdd = function(map) {
@@ -840,7 +882,7 @@
           if(this.value === 'Snowpack'){
             //remove old FGB controls (special case, otherwise use updateFgbControls())
             map.removeControl(fgbLayerControl);
-            map.addControl(snowFGBLayerControl);
+            map.removeControl(soilMoistureFGBLayerControl);
             //add snow controls
             map.addControl(snowFGBLayerControl);
             //define variable of interest
@@ -865,6 +907,8 @@
               "(a) Standardized SWE", display = true, breaks = breaks, scale = scale)
             //add hypsome-swe to the map
             map.addLayer(snowLayers._layers['Hypsome-SWE']);
+            //add SNOTEL to map
+            map.addLayer(snowLayers._layers['SNOTEL SWE']);
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
@@ -887,8 +931,11 @@
             //fin
           }
           if(this.value === 'SMAP Soil Moisture'){
-            //update FGB controls 
-            updateFgbControls()
+            //remove old FGB controls (special case, otherwise use updateFgbControls())
+            map.removeControl(fgbLayerControl);
+            map.removeControl(snowFGBLayerControl);
+            map.addControl(fgbLayerControl);
+            map.addControl(soilMoistureFGBLayerControl);
             //define variable of interest
             var variable = 'SMAP<br>Soil Moisture'
             //remove active layers from map and legend
@@ -907,6 +954,7 @@
             // add COGS
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_smap_anom.tif", 
               "(a) SMAP Soil Moisture", display = true, breaks = breaks, scale = scale)
+            map.addLayer(soilMoistureLayers._layers['Mesonet VWC4in']);
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");

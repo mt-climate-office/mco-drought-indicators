@@ -1,0 +1,14 @@
+# Introduction {.unnumbered}
+
+Welcome to the Upper Missouri River Basin (UMRB) drought indicators dashboard documentation handbook.
+
+This handbook provides information for all datasets and analysis presented in the UMRB Drought Indicators Dashboard. In short, this handbook will provide information on:
+
+  + 1. Datasets used for drought assessment in the UMRB Drought Dashboard
+  + 2. Descriptions of each metric on the dashboard
+  + 3. Assumptions regarding dataset calculations and derivation
+  + 4. Validation efforts 
+
+This work is supported by a National Oceanic and Atmospheric Administration’s (NOAA) National Integrated Drought Information System (NIDIS) Drought Early Warning System (DEWS). More information on NIDIS and the DEWS program can be found at https://www.drought.gov/drought/what-nidis. 
+
+![](images/logos.png){fig-align="center"} 

@@ -1,0 +1,11 @@
+# Dashboard Fundimentals  
+
+The following section will describe the fundamental assumptions and core datasets used in the UMRB Drought Dashboard. 
+
+## Datasets  
+
+The UMRB drought dashboard utilizes data from many sources to describe the various forms of drought. In the following section we briefly describe the datasets used for daily analysis and provide the relevant links to access data or learn more about any individual product/dataset. 
+
+## Climatology Length
+
+Because drought is a relative phenomena, a key step required to characterize drought is to define the reference period from which today's conditions are compared. In the following section we describe the reference periods used in the drought dashboard along with the scientific justification for these assumptions.  
