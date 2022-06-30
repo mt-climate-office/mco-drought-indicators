@@ -208,6 +208,14 @@
         map.createPane('labels');
         map.getPane('labels').style.zIndex = 800;
 
+        //define layer control for baselayers (will be removed with selector change)
+        var layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false})
+        
+        //define layer control for flatgeobufs (will not be removed with selector change)
+        var fgbLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map)
+        var snowFGBLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false});
+        var soilMoistureFGBLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false});
+
         //set min zoom
         map.options.minZoom = 5;
 
@@ -228,8 +236,11 @@
         L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=94vjatYf0fxNnMGBpIwo').addTo(map);
 
         //add stamen toner labels and lines
-        L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {pane: 'labels'}).addTo(map);
+        var labels = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {pane: 'labels'}).addTo(map);
         L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}.png').addTo(map);
+
+        //add labels to the control layer
+        fgbLayerControl.addOverlay(labels, 'Map Labels')
 
         //define legend control
         var legend = L.control({ position: "bottomleft" });
@@ -333,14 +344,6 @@
 
         setParent(selector.getContainer(), document.getElementById('map'));
       
-        //define layer control for baselayers (will be removed with selector change)
-        var layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false})
-        
-        //define layer control for flatgeobufs (will not be removed with selector change)
-        var fgbLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map)
-        var snowFGBLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false});
-        var soilMoistureFGBLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false});
-
         // define COG load function 
         function addCOG(url, name_, display = false, breaks, scale) { 
           var layer_name = name_
