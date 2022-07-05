@@ -459,11 +459,11 @@
             else if (fgb_name.includes('Mesonet Soil Moisture')) {
               tempGroup.push(
                 L.geoJSON(f, {pointToLayer: createCircleMarker})
-                //.bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_"+
-                //         f.properties.site_id+".png' height='400' width='500' loading='lazy'/>",
-                //         {
-                //            maxWidth: "auto"
-                //          })
+                .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/"+
+                         f.properties.station_key+"_"+f.properties.name+"_current.png' height='500' width='500' loading='lazy'/>",
+                         {
+                            maxWidth: "auto"
+                          })
               );
             }
             else {
