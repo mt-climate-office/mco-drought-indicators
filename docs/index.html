@@ -1009,7 +1009,7 @@
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_smap_anom.tif", 
               "(a) SMAP Root-Zone Soil Moisture", display = true, breaks = breaks, scale = scale)
             map.addControl(soilMoistureFGBLayerControl);
-            //map.addLayer(soilMoistureLayers._layers['Mesonet VWC4in']);
+            map.addLayer(soilMoistureLayers._layers['Mesonet VWC20in']);
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
