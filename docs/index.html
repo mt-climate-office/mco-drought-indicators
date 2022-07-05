@@ -313,8 +313,8 @@
         {
           text:'Soil Moisture',
           children: [{
-            id: 'SMAP Soil Moisture',
-            text: 'SMAP Soil Moisture Active Passive [NASA]',
+            id: 'Soil Moisture',
+            text: 'Soil Moisture (Modelled and Observed)',
           }
         ]
         },
@@ -984,7 +984,7 @@
             legend.addTo(map);
             //fin
           }
-          if(this.value === 'SMAP Soil Moisture'){
+          if(this.value === 'Soil Moisture'){
             //remove old FGB controls (special case, otherwise use updateFgbControls())
             map.removeControl(fgbLayerControl);
             map.removeControl(snowFGBLayerControl);
