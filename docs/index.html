@@ -241,6 +241,7 @@
 
         //add labels to the control layer
         fgbLayerControl.addOverlay(labels, 'Map Labels')
+        snowFGBLayerControl.addOverlay(labels, 'Map Labels')
 
         //define legend control
         var legend = L.control({ position: "bottomleft" });
@@ -504,7 +505,7 @@
                 snowLayers.addTo(map)
               }
             } 
-            else if (fgb_name.includes('Mesonet Soil Moisture')){
+            else if (fgb_name.includes('Soil Moisture')){
               //define tempGroupLayer feature group to add to layer control
               var mesonetVWC = L.featureGroup(tempGroup);
               mesonetVWC._leaflet_id = 'Mesonet VWC'+depth
@@ -557,6 +558,47 @@
           map.addControl(fgbLayerControl);
         }
 
+
+        soilMoistureFGBLayerControl.addBaseLayer(L.featureGroup() , '(e) None'); 
+        //    FAIL!
+        /*
+        map.on({
+            overlayadd: function(e) {
+                if (e.name === '(a) MT Mesonet Soil Moisture (4in)'){
+                  console.log('4in');
+                  map.removeControl(soilMoistureFGBLayerControl);
+                  //map.removeLayer(soilMoistureLayers._layers['Mesonet VWC4in']);
+                  map.removeLayer(soilMoistureLayers._layers['Mesonet VWC8in']);
+                  map.removeLayer(soilMoistureLayers._layers['Mesonet VWC20in']);
+                  map.removeLayer(soilMoistureLayers._layers['Mesonet VWC36in']);
+                  map.addControl(soilMoistureFGBLayerControl);
+                  //map.addLayer(soilMoistureLayers._layers['Mesonet VWC4in']);
+                }
+                else if (e.name === '(b) MT Mesonet Soil Moisture (8in)'){
+                  console.log('8in');
+                  map.removeControl(soilMoistureFGBLayerControl);
+                  map.removeLayer(soilMoistureLayers._layers['Mesonet VWC4in']);
+                  //map.removeLayer(soilMoistureLayers._layers['Mesonet VWC8in']);
+                  map.removeLayer(soilMoistureLayers._layers['Mesonet VWC20in']);
+                  map.removeLayer(soilMoistureLayers._layers['Mesonet VWC36in']);
+                  map.addControl(soilMoistureFGBLayerControl);
+                  //map.addLayer(soilMoistureLayers._layers['Mesonet VWC8in']);
+                }
+                else if (e.name === '(c) MT Mesonet Soil Moisture (20in)'){
+                  console.log('20in');
+                  map.removeLayer(soilMoistureLayers._layers['Mesonet VWC4in']);
+                  map.removeLayer(soilMoistureLayers._layers['Mesonet VWC8in']);
+                  map.removeLayer(soilMoistureLayers._layers['Mesonet VWC20in']);
+                  map.removeLayer(soilMoistureLayers._layers['Mesonet VWC36in']);
+                  map.addLayer(soilMoistureLayers._layers['Mesonet VWC20in']);
+                }
+            }
+        });
+        */
+        
+        //map.addLayer(soilMoistureLayers._layers['Mesonet VWC4in']);
+        
+
         // add FGBs to map (before selector change!!)
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/states.fgb', fgb_name = 'States', weight = 3, display = true, popup_property = null);
         //add watersheds and hypsome-swe (only added to snow control) from same fgb to reduce network payload
@@ -571,7 +613,6 @@
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_08in.fgb', fgb_name = '(b) MT Mesonet Soil Moisture (8in)', weight = 1, display = false, popup_property = 'NAME', depth = '8in');
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_20in.fgb', fgb_name = '(c) MT Mesonet Soil Moisture (20in)', weight = 1, display = false, popup_property = 'NAME', depth = '20in');
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_36in.fgb', fgb_name = '(d) MT Mesonet Soil Moisture (36in)', weight = 1, display = false, popup_property = 'NAME', depth = '36in');
-
 
         //build USDM legend
         USDMlegend.onAdd = function(map) {
@@ -948,9 +989,9 @@
             map.removeControl(fgbLayerControl);
             map.removeControl(snowFGBLayerControl);
             map.addControl(fgbLayerControl);
-            map.addControl(soilMoistureFGBLayerControl);
+            
             //define variable of interest
-            var variable = 'SMAP<br>Soil Moisture'
+            var variable = 'SMAP Root-Zone<br>Soil Moisture'
             //remove active layers from map and legend
             cleanUp()
             //clear the active layers group to repopulate
@@ -966,8 +1007,9 @@
             var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
             // add COGS
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_smap_anom.tif", 
-              "(a) SMAP Soil Moisture", display = true, breaks = breaks, scale = scale)
-            map.addLayer(soilMoistureLayers._layers['Mesonet VWC4in']);
+              "(a) SMAP Root-Zone Soil Moisture", display = true, breaks = breaks, scale = scale)
+            map.addControl(soilMoistureFGBLayerControl);
+            //map.addLayer(soilMoistureLayers._layers['Mesonet VWC4in']);
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
