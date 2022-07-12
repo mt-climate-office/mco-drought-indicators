@@ -62,6 +62,17 @@
         color: #555;
       }
 
+      .pointLegend {
+        padding: 6px 4px;
+        font: 14px Arial, Helvetica, sans-serif;
+        background: white;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        line-height: 18px;
+        color: #555;
+      }
+
       select {
             -webkit-appearance: auto;
             -moz-appearance: auto;
@@ -73,7 +84,14 @@
       .legend h4 {
         text-align: center;
         font-size: 16px;
-        margin: 2px 12px 8px;
+        margin: 0px 0px 12px;
+        color: #777;
+      }
+
+      .pointLegend h4 {
+        text-align: center;
+        font-size: 16px;
+        margin: 0px 0px -6px;
         color: #777;
       }
 
@@ -90,7 +108,37 @@
         opacity: 0.7;
       }
 
+      .pointLegend i {
+        width: 18px;
+        height: 18px;
+        float: left;
+        margin: 0 8px 0 0;
+        opacity: 0.7;
+      }
+
       .legend i.icon {
+        background-size: 18px;
+        background-color: rgba(255, 255, 255, 1);
+      }
+
+      .circle {
+      float: left;
+      border: 1px solid #222;
+      border-radius: 50%;
+      }
+
+      .pointLegend .colorcircle {
+      border-radius: 50%;
+      width: 15px;
+      height: 15px;
+      margin-top: 0px;
+      }
+      .pointLegend .circlepadding {
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      }
+
+      .pointLegend i.icon {
         background-size: 18px;
         background-color: rgba(255, 255, 255, 1);
       }
@@ -450,7 +498,7 @@
               tempGroup.push(
                 L.geoJSON(f, {pointToLayer: createCircleMarker})
                 .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_"+
-                         f.properties.site_id+".png' height='400' width='500' loading='lazy'/>",
+                         f.properties.site_id+".png' height='300' width='400' loading='lazy'/>",
                          {
                             maxWidth: "auto"
                           })
@@ -460,7 +508,7 @@
               tempGroup.push(
                 L.geoJSON(f, {pointToLayer: createCircleMarker})
                 .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/"+
-                         f.properties.station_key+"_"+f.properties.name+"_current.png' height='500' width='500' loading='lazy'/>",
+                         f.properties.station_key+"_"+f.properties.name+"_current.png' height='350' width='350' loading='lazy'/>",
                          {
                             maxWidth: "auto"
                           })
@@ -549,6 +597,7 @@
           map.removeControl(layerControl);
           //remove old legend
           map.removeControl(legend);
+          map.removeControl(pointLegend);
         }
 
         var updateFgbControls = function(){
@@ -637,6 +686,69 @@
                 map.removeControl(USDMlegend);
             } 
         })
+
+/*
+        div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+              div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
+              div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
+              div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
+              div.innerHTML += '<i style="background: #FCD37F"></i><span>-1.3 - -0.8 (D1)</span><br>';
+              div.innerHTML += '<i style="background: #FFFF00"></i><span>-0.8 - -0.5 (D0)</span><br>';
+              div.innerHTML += '<i style="background: #FFFFFF"></i><span>-0.5 - 0.5</span><br>';
+              div.innerHTML += '<i style="background: #82FCF9"></i><span>0.5 - 0.8</span><br>';
+              div.innerHTML += '<i style="background: #32E1FA"></i><span>0.8 - 1.3</span><br>';
+              div.innerHTML += '<i style="background: #325CFE"></i><span>1.3 - 1.6</span><br>';
+              div.innerHTML += '<i style="background: #4030E3"></i><span>1.6 - 2</span><br>';
+              div.innerHTML += '<i style="background: #303B83"></i><span>>2</span><br>';
+        */
+        // legend for soil moisture points
+        function getColor(d) {
+            return d === '<-2 (D4)'  ? "#730000" :
+                  d === '-2 - -1.6 (D3)'  ? "#E60000" :
+                  d === '-1.6 - -1.3 (D2)' ? "#FFAA00" :
+                  d === '-1.3 - -0.8 (D1)' ? "#FCD37F" :
+                  d === '-0.8 - -0.5 (D0)' ? "#FFFF00" :
+                  d === '-0.5 - 0.5' ? "#FFFFFF" :
+                  d === '0.5 - 0.8' ? "#82FCF9" :
+                  d === '0.8 - 1.3' ? "#32E1FA" :
+                  d === '1.3 - 1.6' ? "#325CFE" :
+                  d === '1.6 - 2' ? "#4030E3" :
+                  d === '>2' ? "#303B83" :
+                                "#000000";
+        }
+        function style(feature) {
+            return {
+                weight: 1.5,
+                opacity: 1,
+                fillOpacity: 1,
+                radius: 6,
+                fillColor: getColor(feature.properties.TypeOfIssue),
+                color: "grey"
+
+            };
+        }
+
+        var pointLegend = L.control({position: 'topright'});
+        pointLegend.onAdd = function (map) {
+
+        var div = L.DomUtil.create('div', 'info pointLegend');
+        labels = ['<h4>Soil Moisture<br>Anomaly (Stations)</h4>'],
+        categories = ['<-2 (D4)','-2 - -1.6 (D3)','-1.6 - -1.3 (D2)','-1.3 - -0.8 (D1)',
+                      '-0.8 - -0.5 (D0)', '-0.5 - 0.5', '0.5 - 0.8', '0.8 - 1.3',
+                      '1.6 - 2', '>2', 'No Anomoly'];
+
+        for (var i = 0; i < categories.length; i++) {
+
+                div.innerHTML += 
+                labels.push(
+                    '<i class="circle" style="background:' + getColor(categories[i]) + '"></i> ' +
+                (categories[i] ? categories[i] : '+'));
+
+            }
+            div.innerHTML = labels.join('<br>');
+        return div;
+        };
+
 
         //function to call when selector is choosen
         $('select').change(function() {
@@ -994,6 +1106,8 @@
             var variable = 'SMAP Root-Zone<br>Soil Moisture'
             //remove active layers from map and legend
             cleanUp()
+            //add soil moisture legend
+            pointLegend.addTo(map);
             //clear the active layers group to repopulate
             activeLayers = new L.LayerGroup();
             //create new layer control and add it to the map
