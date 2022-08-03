@@ -226,7 +226,7 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/chroma-js"></script>
-    <script src="https://unpkg.com/georaster-layer-for-leaflet/dist/georaster-layer-for-leaflet.min.js"></script>
+    <script src="https://unpkg.com/georaster-layer-for-leaflet/dist/georaster-layer-for-leaflet.min.js"></script> 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://unpkg.com/flatgeobuf@3.22.0/dist/flatgeobuf-geojson.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">
@@ -757,6 +757,8 @@
               "(e) 180 Day SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
               "(f) 1 Year SPI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
+              "(f) 2 Year SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
               "(h) Water Year SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
@@ -815,6 +817,8 @@
               "(e) 180 Day SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
               "(f) 1 Year SPEI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
+              "(f) 2 Year SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
               "(h) Water Year SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
@@ -873,6 +877,8 @@
               "(e) 180 Day EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
               "(f) 1 Year EDDI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
+              "(f) 2 Year EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
               "(h) Water Year EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
