@@ -169,12 +169,19 @@
       #addSoilMoisturePoints {
         font-size:13px !important;
         position: absolute;
-        top: 120px;
+        top: 110px;
         right: 80px;
         padding: 10px;
         z-index: 400;
       }
 
+      .rangeslider {
+        position: absolute;
+        top: 150px;
+        right: 70px;
+        padding: 10px;
+        z-index: 800;
+      }
 
     </style>
   </head>
@@ -235,13 +242,18 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-tilelayer-geojson/1.0.2/TileLayer.GeoJSON.min.js"></script>
+    <div class="rangeslider">
+      <label id= "sliderLabel" for="slider">Downey Opacity</label>
+      <input id="opacitySlide" type="range" min="0" max="1" step="0.01" value="0.9">
+    </div>
     <div id="map"></div>
     <input type="button" id="addSoilMoisturePoints" value='Add Soil Moisture Stations' class="btnStyle span3" />
     <script>
       //Map script! 
       document.addEventListener("DOMContentLoaded", async () => { 
         //define scaler for data
-        
+      
         var scaler = 10;
 
         // initalize leaflet map and set some prefs
@@ -265,7 +277,7 @@
         map.getPane('SNOTEL').style.zIndex = 650;
         map.createPane('labels');
         map.getPane('labels').style.zIndex = 651;
- 
+      
         //define layer control for baselayers (will be removed with selector change)
         var layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false})
         
@@ -287,19 +299,20 @@
             prefix: '<a href="https://climate.umt.edu/" target="_blank">MCO</a>'
         }));
 
+
+        //L.geoJSON('https://tile.thunderforest.com/thunderforest.transport-v2.json?apikey=2a290c2900324a42bf8588e8687eb40d')
+        L.tileLayer('https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=2a290c2900324a42bf8588e8687eb40d').addTo(map);
+
         //add background - slows down loads...
         //L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png').addTo(map);
 
-        // add OpenStreetMap basemap
-        L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=94vjatYf0fxNnMGBpIwo').addTo(map);
-
         //add stamen toner labels and lines
-        var labels = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {pane: 'labels'}).addTo(map);
-        L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}.png').addTo(map);
+        //var labels = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {pane: 'labels'}).addTo(map);
+        //L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}.png').addTo(map);
 
         //add labels to the control layer
-        fgbLayerControl.addOverlay(labels, 'Map Labels')
-        snowFGBLayerControl.addOverlay(labels, 'Map Labels')
+        //fgbLayerControl.addOverlay(labels, 'Map Labels')
+        //snowFGBLayerControl.addOverlay(labels, 'Map Labels')
 
         //define legend control
         var legend = L.control({ position: "bottomleft" });
@@ -658,6 +671,21 @@
             } 
         })
 
+        var activeBase = null;
+
+        map.on('baselayerchange', function (e) {
+            activeBase = e.layer
+            $("#opacitySlide").val(0.9)
+        });
+
+        function updateOpacity(value) {
+          var rangeInput = document.getElementById("opacitySlide").value
+          activeBase.setOpacity(rangeInput)
+        }
+
+        document.getElementById("opacitySlide").addEventListener ("change", updateOpacity, false);
+
+
         // legend for soil moisture points
         function getColor(d) {
             return d === '<-2 (D4)'  ? "#730000" :
@@ -704,7 +732,7 @@
             }
             div.innerHTML = labels.join('<br>');
         return div;
-        };
+        }; 
 
         //function to add soil moisture data
         var addSoilMoisturePoints = function(){
