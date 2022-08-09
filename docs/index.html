@@ -167,21 +167,25 @@
       }
 
       #addSoilMoisturePoints {
-        font-size:13px !important;
+        font-size:16px !important;
         position: absolute;
         top: 110px;
-        right: 80px;
+        right: 360px;
         padding: 10px;
         z-index: 400;
       }
 
       .rangeslider {
         position: absolute;
-        top: 150px;
+        top: 110px;
         right: 70px;
         padding: 10px;
         z-index: 800;
+        border: 1px solid rgb(0, 0, 0);
+        color: rgb(0, 0, 0);
+        background-color: #EFEFEF;
       }
+
 
     </style>
   </head>
@@ -245,7 +249,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-tilelayer-geojson/1.0.2/TileLayer.GeoJSON.min.js"></script>
     <div class="rangeslider">
       <label id= "sliderLabel" for="slider">Downey Opacity</label>
-      <input id="opacitySlide" type="range" min="0" max="1" step="0.01" value="0.9">
+      <input id="opacitySlide" type="range" min="0" max="1" step="0.01" value="0.9" fill="white">
     </div>
     <div id="map"></div>
     <input type="button" id="addSoilMoisturePoints" value='Add Soil Moisture Stations' class="btnStyle span3" />
@@ -621,6 +625,7 @@
           //remove old legend
           map.removeControl(legend);
           map.removeControl(pointLegend);
+          $("#opacitySlide").val(0.9);
         }
 
         var updateFgbControls = function(){
@@ -671,16 +676,10 @@
             } 
         })
 
-        var activeBase = null;
-
-        map.on('baselayerchange', function (e) {
-            activeBase = e.layer
-            $("#opacitySlide").val(0.9)
-        });
-
         function updateOpacity(value) {
           var rangeInput = document.getElementById("opacitySlide").value
-          activeBase.setOpacity(rangeInput)
+          //activeBase.setOpacity(rangeInput)
+          activeLayers.eachLayer(function(layer) { layer.setOpacity(rangeInput)});
         }
 
         document.getElementById("opacitySlide").addEventListener ("change", updateOpacity, false);
