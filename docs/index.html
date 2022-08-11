@@ -193,16 +193,17 @@
       .rangesliderUSDM {
         font-size:16px !important;
         position: absolute;
-        top: 620px;
+        top: 625px;
         width: 195px;
         height: 60px;
-        right: 25px;
+        right: 30px;
         padding: 10px;
         z-index: 800;
         border: 1px solid rgb(0, 0, 0);
         color: rgb(0, 0, 0);
         background-color: #EFEFEF;
         text-align: center;
+        display:none;
       }
 
       .toGrey img {
@@ -283,10 +284,6 @@
       //Map script! 
       document.addEventListener("DOMContentLoaded", async () => { 
         //define scaler for data
-      
-        //hide USDM opacity slider by default
-        $(".rangesliderUSDM").hide()
-
         var scaler = 10;
 
         // initalize leaflet map and set some prefs
@@ -335,7 +332,7 @@
         map.attributionControl.addAttribution('<a href="https://openstreetmap.org/copyright" target="_blank">OSM contributors</a>');
 
         //base map
-        L.tileLayer.fallback('https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=2a290c2900324a42bf8588e8687eb40d', {className: 'toGrey'}).addTo(map)
+        //L.tileLayer.fallback('https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=2a290c2900324a42bf8588e8687eb40d', {className: 'toGrey'}).addTo(map)
         
         // outdated base map layers and vectors
          //$.getJSON("https://tile.thunderforest.com/thunderforest.transport-v2.json?apikey=2a290c2900324a42bf8588e8687eb40d",function(data){
