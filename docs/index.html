@@ -187,6 +187,22 @@
         border: 1px solid rgb(0, 0, 0);
         color: rgb(0, 0, 0);
         background-color: #EFEFEF;
+        text-align: center;
+      }
+
+      .rangesliderUSDM {
+        font-size:16px !important;
+        position: absolute;
+        top: 620px;
+        width: 195px;
+        height: 60px;
+        right: 25px;
+        padding: 10px;
+        z-index: 800;
+        border: 1px solid rgb(0, 0, 0);
+        color: rgb(0, 0, 0);
+        background-color: #EFEFEF;
+        text-align: center;
       }
 
       .toGrey img {
@@ -257,6 +273,10 @@
       <label id= "sliderLabel" for="slider">Map Transparency</label>
       <input id="opacitySlide" type="range" class="form-range" min="0" max="1" step="0.01" value="0.9" fill="white">
     </div>
+    <div class="rangesliderUSDM">
+      <label id= "sliderLabelUSDM" for="slider">USDM Transparency</label>
+      <input id="opacitySlideUSDM" type="range" class="form-range" min="0" max="1" step="0.01" value="0.9" fill="white">
+    </div>
     <div id="map"></div>
     <input type="button" id="addSoilMoisturePoints" value='Add Soil Moisture Stations' class="btnStyle span3" />
     <script>
@@ -264,6 +284,9 @@
       document.addEventListener("DOMContentLoaded", async () => { 
         //define scaler for data
       
+        //hide USDM opacity slider by default
+        $(".rangesliderUSDM").hide()
+
         var scaler = 10;
 
         // initalize leaflet map and set some prefs
@@ -303,32 +326,32 @@
             position:'topright'
         }).addTo(map);
 
-        //add MCO attribution
+        //add attribution
         map.addControl(L.control.attribution({
             position: 'bottomright',
             prefix: '<a href="https://climate.umt.edu/" target="_blank">MCO</a>'
         }));
+        map.attributionControl.addAttribution('<a href="https://thunderforest.com" target="_blank">Thunderforest</a>');
+        map.attributionControl.addAttribution('<a href="https://openstreetmap.org/copyright" target="_blank">OSM contributors</a>');
 
-        //$.getJSON("https://tile.thunderforest.com/thunderforest.transport-v2.json?apikey=2a290c2900324a42bf8588e8687eb40d",function(data){
+        //base map
+        L.tileLayer.fallback('https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=2a290c2900324a42bf8588e8687eb40d', {className: 'toGrey'}).addTo(map)
+        
+        // outdated base map layers and vectors
+         //$.getJSON("https://tile.thunderforest.com/thunderforest.transport-v2.json?apikey=2a290c2900324a42bf8588e8687eb40d",function(data){
         //   L.geoJson(data).addTo(newMap);
         //});
-
         //L.geoJSON('https://tile.thunderforest.com/thunderforest.transport-v2.json?apikey=2a290c2900324a42bf8588e8687eb40d').addTo(map);
         //L.tileLayer('https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=2a290c2900324a42bf8588e8687eb40d').addTo(map);
-
         //add background - slows down loads...
         //L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png').addTo(map);
-
         //add stamen toner labels and lines
         //var labels = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {pane: 'labels'}).addTo(map);
         //L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}.png').addTo(map);
-
-        L.tileLayer.fallback('https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=2a290c2900324a42bf8588e8687eb40d', {className: 'toGrey'}).addTo(map)
         //L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=94vjatYf0fxNnMGBpIwo').addTo(map);
         //add labels to the control layer
         //fgbLayerControl.addOverlay(labels, 'Map Labels')
         //snowFGBLayerControl.addOverlay(labels, 'Map Labels')
-
         
         //define legend control
         var legend = L.control({ position: "bottomleft" });
@@ -337,6 +360,7 @@
         //define active layers layer group to populate as cogs are added
         var activeLayers = new L.LayerGroup();
         var snowLayers = new L.LayerGroup();
+        var USDMLayer = new L.LayerGroup();
         var soilMoistureLayers = new L.LayerGroup();
 
         // define selector
@@ -513,6 +537,8 @@
               tempGroup.push(
                 L.geoJSON(f, {color: 'black', fillOpacity: 0.5, weight: weight, fillColor: f.properties.fillColor})
               );
+              var USDM = L.featureGroup(tempGroup);
+              USDMLayer.addLayer(USDM)
             } 
             //both hypsomeSWE and watersheds use Watershed FGB, no need to load twice
             else if (fgb_name === 'Watersheds'){
@@ -676,26 +702,36 @@
               return div;
             };
 
-        //add event handler to toggle USDM legend when displayed
+        //add event handler to toggle USDM legend and slider when displayed
         map.on('overlayadd', function(eventLayer){
             if (eventLayer.name === 'USDM'){
               map.addControl(USDMlegend);
+              $(".rangesliderUSDM").show()    
             } 
         })
         map.on('overlayremove', function(eventLayer){
             if (eventLayer.name === 'USDM'){
                 map.removeControl(USDMlegend);
+                $(".rangesliderUSDM").hide()
             } 
         })
-
+        //map opacity function
         function updateOpacity(value) {
           var rangeInput = document.getElementById("opacitySlide").value
           //activeBase.setOpacity(rangeInput)
           activeLayers.eachLayer(function(layer) { layer.setOpacity(rangeInput)});
         }
-
+        //map opacity event listener
         document.getElementById("opacitySlide").addEventListener ("change", updateOpacity, false);
 
+        //USDM opacity fucnction
+        function updateOpacityUSDM(value) {
+          var rangeInputUSDM = document.getElementById("opacitySlideUSDM").value
+          //activeBase.setOpacity(rangeInput)
+          USDMLayer.eachLayer(function(layer) { layer.setStyle({fillOpacity: rangeInputUSDM, opacity: rangeInputUSDM})});
+        }
+        //USDM opacity event listener
+        document.getElementById("opacitySlideUSDM").addEventListener ("change", updateOpacityUSDM, false);
 
         // legend for soil moisture points
         function getColor(d) {
