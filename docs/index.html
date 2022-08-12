@@ -271,11 +271,11 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://unpkg.com/leaflet.tilelayer.fallback@1.0.4/dist/leaflet.tilelayer.fallback-src.js"></script>
     <div class="rangeslider">
-      <label id= "sliderLabel" for="slider">Map Transparency</label>
+      <label id= "sliderLabel" for="slider">Map Opacity</label>
       <input id="opacitySlide" type="range" class="form-range" min="0" max="1" step="0.01" value="0.9" fill="white">
     </div>
     <div class="rangesliderUSDM">
-      <label id= "sliderLabelUSDM" for="slider">USDM Transparency</label>
+      <label id= "sliderLabelUSDM" for="slider">USDM Opacity</label>
       <input id="opacitySlideUSDM" type="range" class="form-range" min="0" max="1" step="0.01" value="0.9" fill="white">
     </div>
     <div id="map"></div>
@@ -328,12 +328,15 @@
             position: 'bottomright',
             prefix: '<a href="https://climate.umt.edu/" target="_blank">MCO</a>'
         }));
-        map.attributionControl.addAttribution('<a href="https://thunderforest.com" target="_blank">Thunderforest</a>');
-        map.attributionControl.addAttribution('<a href="https://openstreetmap.org/copyright" target="_blank">OSM contributors</a>');
 
         //base map
-        L.tileLayer.fallback('https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=2a290c2900324a42bf8588e8687eb40d', {className: 'toGrey'}).addTo(map)
+        //L.tileLayer.fallback('https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=2a290c2900324a42bf8588e8687eb40d', {className: 'toGrey'}).addTo(map)
+        //map.attributionControl.addAttribution('<a href="https://thunderforest.com" target="_blank">Thunderforest</a>');
+        //map.attributionControl.addAttribution('<a href="https://openstreetmap.org/copyright" target="_blank">OSM contributors</a>');
         
+        L.tileLayer.fallback('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {className: 'toGrey'}).addTo(map)
+        map.attributionControl.addAttribution('<a href="https://www.esri.com/" target="_blank">Tiles &copy; ESRI</a>');
+
         // outdated base map layers and vectors
          //$.getJSON("https://tile.thunderforest.com/thunderforest.transport-v2.json?apikey=2a290c2900324a42bf8588e8687eb40d",function(data){
         //   L.geoJson(data).addTo(newMap);
