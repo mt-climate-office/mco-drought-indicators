@@ -4,6 +4,8 @@ library(readr)
 library(snotelr)
 library(doParallel)
 library(lubridate)
+library(leaflet)
+library(sf)
 
 yday.waterYear = function(x, start.month = 10L){
   day = day(x)

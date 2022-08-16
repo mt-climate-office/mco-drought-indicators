@@ -15,6 +15,15 @@ done
 sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/current_usdm.fgb /home/zhoylman/mco-drought-indicators-data/usdm/current_usdm.geojson
 sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/current_snotel.fgb /home/zhoylman/mco-drought-indicators-data/snotel/geojson/current_snotel.geojson
 
+#convert soil moisture geojsons to flat geo buffs
+sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/current_soil_moisture_anom_04in.fgb /home/zhoylman/mco-drought-indicators-data/mesonet/soil-moisture/geojson/current_soil_moisture_anom_04in.geojson
+
+sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/current_soil_moisture_anom_08in.fgb /home/zhoylman/mco-drought-indicators-data/mesonet/soil-moisture/geojson/current_soil_moisture_anom_08in.geojson
+
+sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/current_soil_moisture_anom_20in.fgb /home/zhoylman/mco-drought-indicators-data/mesonet/soil-moisture/geojson/current_soil_moisture_anom_20in.geojson
+
+sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/current_soil_moisture_anom_36in.fgb /home/zhoylman/mco-drought-indicators-data/mesonet/soil-moisture/geojson/current_soil_moisture_anom_36in.geojson
+
 #copy data to server
 sudo cp -r /home/zhoylman/mco-drought-indicators-data/cog/* /var/data/drought-indicators/cog/
 
