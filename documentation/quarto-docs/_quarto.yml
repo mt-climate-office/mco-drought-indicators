@@ -1,0 +1,35 @@
+project:
+  type: book
+  output-dir: docs
+  
+book:
+  title: "UMRB Drought Dashboard Handbook"
+  author: "Montana Climate Office"
+  cover-image: images/MCO_logo.png
+  site-url: https://climate.umt.edu/
+  repo-url: https://github.com/mt-climate-office/mco-drought-indicators/
+  repo-branch: master
+  chapters:
+    - index.qmd
+    - drought_basics.qmd
+    - part: fundimentals.qmd
+      chapters: 
+        - core_datasets.qmd
+        - climatology_length.qmd
+    - part: drought_metrics.qmd
+      chapters:
+        - percentiles.qmd
+        - spi.qmd
+        - spei.qmd
+        - eddi.qmd
+        - stand_swe.qmd
+        - ndvi.qmd
+    - part: other.qmd
+      chapters:
+        - hypsomeSWE.qmd
+        
+format:
+  html: 
+    theme: cosmo
+    cover-image: images/MCO_logo.png
+    code-link: false

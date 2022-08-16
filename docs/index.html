@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>Drought Dashboard</title>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149859729-1"></script>
     <script>
@@ -12,6 +13,7 @@
     </script>
     <!-- Import Bootstrap Scripts and CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Define Custom CSS styling -->
     <style>
@@ -60,6 +62,17 @@
         color: #555;
       }
 
+      .pointLegend {
+        padding: 6px 4px;
+        font: 14px Arial, Helvetica, sans-serif;
+        background: white;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        line-height: 18px;
+        color: #555;
+      }
+
       select {
             -webkit-appearance: auto;
             -moz-appearance: auto;
@@ -71,7 +84,14 @@
       .legend h4 {
         text-align: center;
         font-size: 16px;
-        margin: 2px 12px 8px;
+        margin: 0px 0px 12px;
+        color: #777;
+      }
+
+      .pointLegend h4 {
+        text-align: center;
+        font-size: 16px;
+        margin: 0px 0px -6px;
         color: #777;
       }
 
@@ -88,7 +108,37 @@
         opacity: 0.7;
       }
 
+      .pointLegend i {
+        width: 18px;
+        height: 18px;
+        float: left;
+        margin: 0 8px 0 0;
+        opacity: 0.7;
+      }
+
       .legend i.icon {
+        background-size: 18px;
+        background-color: rgba(255, 255, 255, 1);
+      }
+
+      .circle {
+      float: left;
+      border: 1px solid #222;
+      border-radius: 50%;
+      }
+
+      .pointLegend .colorcircle {
+      border-radius: 50%;
+      width: 15px;
+      height: 15px;
+      margin-top: 0px;
+      }
+      .pointLegend .circlepadding {
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      }
+
+      .pointLegend i.icon {
         background-size: 18px;
         background-color: rgba(255, 255, 255, 1);
       }
@@ -97,6 +147,67 @@
         margin-left: 20px;
         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
         'Lucida Sans', Arial, sans-serif;
+      }
+      
+      .select2 {
+        width:300px!important;
+        z-index: 99999 !important;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: 10px;
+        font-size:14px;
+      }
+
+      .select2-results__options{
+        font-size:12px !important;
+      }  
+
+      .leaflet-left {
+          padding-top: 40px;
+      }
+
+      #addSoilMoisturePoints {
+        font-size:16px !important;
+        position: absolute;
+        top: 110px;
+        right: 280px;
+        padding: 10px;
+        z-index: 400;
+        height: 60px;
+      }
+
+      .rangeslider {
+        position: absolute;
+        top: 111px;
+        width: 200px;
+        height: 60px;
+        right: 70px;
+        padding: 10px;
+        z-index: 800;
+        border: 1px solid rgb(0, 0, 0);
+        color: rgb(0, 0, 0);
+        background-color: #EFEFEF;
+        text-align: center;
+      }
+
+      .rangesliderUSDM {
+        font-size:16px !important;
+        position: absolute;
+        top: 625px;
+        width: 195px;
+        height: 60px;
+        right: 30px;
+        padding: 10px;
+        z-index: 800;
+        border: 1px solid rgb(0, 0, 0);
+        color: rgb(0, 0, 0);
+        background-color: #EFEFEF;
+        text-align: center;
+        display:none;
+      }
+
+      .toGrey img {
+          filter: grayscale(1);
       }
 
     </style>
@@ -114,18 +225,28 @@
             <a class="nav-link" href="https://fcfc-mesonet.cfc.umt.edu/dash/">MT Mesonet</a>
           </li>
           <!-- Add documentation soon -->
-          <!-- 
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Drought Impacts
+            </a>
+            <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
+              <h6 class="dropdown-header">MT Drought Impacts Reporter</h6> 
+              <a class="dropdown-item" href="http://nris.mt.gov/droughtsurvey">Make a Report</a>
+              <a class="dropdown-item" href="http://nris.mt.gov/droughtimpacts">See Current Reports</a>
+            </div>
+          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Documentation
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item" href="#">Standardized Precipitation Index (SPI)</a>
-              <a class="dropdown-item" href="#">Standardized Precipitation Evapotranspiration Index (SPEI)</a>
-              <a class="dropdown-item" href="#">Evaporative Demand Drought Index (EDDI)</a>
+            <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
+              <h6 class="dropdown-header">Dashboard Documentation</h6> 
+              <a class="dropdown-item" href="#">Data and Metrics (Coming Soon!)</a>
+              <div class="dropdown-divider"></div>
+              <!-- <h6 class="dropdown-header">General</h6> -->
+              <a class="dropdown-item" href="https://climate.umt.edu/" target="_blank">Montana Climate Office (About Us)</a>
             </div>
           </li>
-          -->
           </ul>
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
             <li class="nav-item">
@@ -139,7 +260,7 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/chroma-js"></script>
-    <script src="https://unpkg.com/georaster-layer-for-leaflet/dist/georaster-layer-for-leaflet.min.js"></script>
+    <script src="https://unpkg.com/georaster-layer-for-leaflet/dist/georaster-layer-for-leaflet.min.js"></script> 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://unpkg.com/flatgeobuf@3.22.0/dist/flatgeobuf-geojson.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">
@@ -147,18 +268,22 @@
     <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-      <button type="button" class="btn-close" aria-label="Close" data-dismiss="alert"></button>
-      <h4 class="alert-heading"><center>Welcome to the new UMRB Drought Dashboard!</center></h4>
-      <center>This version of the dashboard features an all-in-one mapping approach. 
-        Select a variable from the dropdown menu on the left side of the map to get started. </center>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/leaflet.tilelayer.fallback@1.0.4/dist/leaflet.tilelayer.fallback-src.js"></script>
+    <div class="rangeslider">
+      <label id= "sliderLabel" for="slider">Map Opacity</label>
+      <input id="opacitySlide" type="range" class="form-range" min="0" max="1" step="0.01" value="0.9" fill="white">
+    </div>
+    <div class="rangesliderUSDM">
+      <label id= "sliderLabelUSDM" for="slider">USDM Opacity</label>
+      <input id="opacitySlideUSDM" type="range" class="form-range" min="0" max="1" step="0.01" value="0.9" fill="white">
     </div>
     <div id="map"></div>
+    <input type="button" id="addSoilMoisturePoints" value='Add Soil Moisture Stations' class="btnStyle span3" />
     <script>
       //Map script! 
       document.addEventListener("DOMContentLoaded", async () => { 
         //define scaler for data
-        
         var scaler = 10;
 
         // initalize leaflet map and set some prefs
@@ -173,34 +298,61 @@
           zoomAnimationThreshold: 3,
           fadeAnimation: true,
           markerZoomAnimation:false,
-          zoomDelta: 0.25,
-          zoomSnap: 0
+          zoomDelta: 0.5,
+          zoomSnap: 0,
+          zoomControl: false
         }).setView(new L.LatLng(45, -111), 6);
         
         map.createPane('SNOTEL');
         map.getPane('SNOTEL').style.zIndex = 650;
+        map.createPane('labels');
+        map.getPane('labels').style.zIndex = 651;
+      
+        //define layer control for baselayers (will be removed with selector change)
+        var layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false})
+        
+        //define layer control for flatgeobufs (will not be removed with selector change)
+        var fgbLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map)
+        var snowFGBLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false});
+        var soilMoistureFGBLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false});
 
         //set min zoom
         map.options.minZoom = 5;
-         
-        //add MCO attribution
+
+        L.control.zoom({
+            position:'topright'
+        }).addTo(map);
+
+        //add attribution
         map.addControl(L.control.attribution({
             position: 'bottomright',
             prefix: '<a href="https://climate.umt.edu/" target="_blank">MCO</a>'
         }));
 
-        //add background
+        //base map
+        //L.tileLayer.fallback('https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=2a290c2900324a42bf8588e8687eb40d', {className: 'toGrey'}).addTo(map)
+        //map.attributionControl.addAttribution('<a href="https://thunderforest.com" target="_blank">Thunderforest</a>');
+        //map.attributionControl.addAttribution('<a href="https://openstreetmap.org/copyright" target="_blank">OSM contributors</a>');
+        
+        L.tileLayer.fallback('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {className: 'toGrey'}).addTo(map)
+        map.attributionControl.addAttribution('<a href="https://www.esri.com/" target="_blank">Tiles &copy; ESRI</a>');
+
+        // outdated base map layers and vectors
+         //$.getJSON("https://tile.thunderforest.com/thunderforest.transport-v2.json?apikey=2a290c2900324a42bf8588e8687eb40d",function(data){
+        //   L.geoJson(data).addTo(newMap);
+        //});
+        //L.geoJSON('https://tile.thunderforest.com/thunderforest.transport-v2.json?apikey=2a290c2900324a42bf8588e8687eb40d').addTo(map);
+        //L.tileLayer('https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=2a290c2900324a42bf8588e8687eb40d').addTo(map);
+        //add background - slows down loads...
         //L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png').addTo(map);
-
-        // add OpenStreetMap basemap
-        L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=94vjatYf0fxNnMGBpIwo', {
-            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
         //add stamen toner labels and lines
-        L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png').addTo(map);
-        L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}.png').addTo(map);
-
+        //var labels = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png', {pane: 'labels'}).addTo(map);
+        //L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}.png').addTo(map);
+        //L.tileLayer('https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=94vjatYf0fxNnMGBpIwo').addTo(map);
+        //add labels to the control layer
+        //fgbLayerControl.addOverlay(labels, 'Map Labels')
+        //snowFGBLayerControl.addOverlay(labels, 'Map Labels')
+        
         //define legend control
         var legend = L.control({ position: "bottomleft" });
         var USDMlegend = L.control({ position: "bottomright" });
@@ -208,6 +360,8 @@
         //define active layers layer group to populate as cogs are added
         var activeLayers = new L.LayerGroup();
         var snowLayers = new L.LayerGroup();
+        var USDMLayer = new L.LayerGroup();
+        var soilMoistureLayers = new L.LayerGroup();
 
         // define selector
         var selector = L.control({
@@ -226,44 +380,82 @@
         // names the variables
         $('select').empty()
 
-        //define variables in dropdown
-        var variables = ['Choose a Variable','horizontal-line',
-                        'SPI', 'SPEI', 'EDDI', 'horizontal-line', 
-                        'Precipitation Percentiles','Temperature Percentiles', 'horizontal-line',
-                        'Snowpack', 'horizontal-line',
-                        'SMAP Soil Moisture', 'horizontal-line',
-                        'GRACE Groundwater', 'horizontal-line',
-                        'NDVI Anomaly','horizontal-line']
-
-        //populate selector
-        variables.forEach(function(item) {
-          if(item === 'horizontal-line'){
-            $('select')
-                .append($('<hr>', {
-                        class: 'divider'
-                    }));
+        // define selecter data
+        var selectData = [{
+          id:"",
+          text: ""
+        },
+        {
+          text:'Drought Metrics',
+          children: [{
+            id: 'SPI',
+            text: 'SPI (Standardized Precipitation Index)',
+          },
+          {
+            id: 'SPEI',
+            text: 'SPEI (Standardized Precipitation Evapotranspiration Index)'
+          },
+          {
+            id: 'EDDI',
+            text: 'EDDI (Evaporative Demand Drought Index)'
           }
-          else {
-            $('select')
-                .append($('<option>', {
-                        value: item
-                    })
-                    .text(item));
+        ]
+        },
+        {
+          text:'Meteorology',
+          children: [{
+            id: 'Precipitation Percentiles',
+            text: 'Precipitation Percentiles',
+          },
+          {
+            id: 'Temperature Percentiles',
+            text: 'Temperature Percentiles'
+          },
+        ]
+        },
+        {
+          text:'Snow',
+          children: [{
+            id: 'Snowpack',
+            text: 'Snow Water Equivalent and Hypsome-SWE',
           }
-        })
+        ]
+        },
+        {
+          text:'Soil Moisture',
+          children: [{
+            id: 'Soil Moisture',
+            text: 'Soil Moisture (Modelled and Observed)',
+          }
+        ]
+        },
+        {
+          text:'Groundwater',
+          children: [{
+            id: 'GRACE Groundwater',
+            text: 'GRACE Groundwater Percentile [NASA]',
+          }
+        ]
+        },
+        {
+          text:'Vegetation',
+          children: [{
+            id: 'NDVI Anomaly',
+            text: 'NDVI (Greeness) Anomaly [NASA]',
+          }
+        ]
+        }]
 
-        //after first selection is made, change dropdown value of "Choose a Varaible" to "Clear Map"
-        $('select').change(function(event) {
-          $('select').find('option').first().text("Clear Map");
-        }); 
+        $(document).ready(function() {
+          $('select').select2({placeholder: 'Choose a Variable', data: selectData});
+        });
+   
+        function setParent(el, newParent){
+            newParent.appendChild(el);
+        }
 
-        //define layer control for baselayers (will be removed with selector change)
-        var layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false})
-        
-        //define layer control for flatgeobufs (will not be removed with selector change)
-        var fgbLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map)
-        var snowFGBLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false});
-
+        setParent(selector.getContainer(), document.getElementById('map'));
+      
         // define COG load function 
         function addCOG(url, name_, display = false, breaks, scale) { 
           var layer_name = name_
@@ -279,7 +471,7 @@
               // define COG georaster
               var layer = new GeoRasterLayer({
                   georaster: georaster,
-                  opacity: 0.9,
+                  opacity: document.getElementById("opacitySlide").value,
                   updateWhenZooming: false,
                   pixelValuesToColorFn: function(pixelValues) {
                     var pixelValue = pixelValues[0]; // there's just one band in this raster
@@ -329,10 +521,11 @@
         }
 
         //define function to add flatgeobuf files
-        async function addFGB(fgb_url, fgb_name, weight, display = false, popup_property){
+        async function addFGB(fgb_url, fgb_name, weight, display = false, popup_property, depth = null){
           //define tempGroup 
           var tempGroup = [];   
           var tempGroupHypsomeSWE = []; 
+          var tempGroupSoilMoisture = [];
           //redefine popup property    
           var popup_property_ = popup_property
           //async wait for flatgeobuf fetch
@@ -344,6 +537,8 @@
               tempGroup.push(
                 L.geoJSON(f, {color: 'black', fillOpacity: 0.5, weight: weight, fillColor: f.properties.fillColor})
               );
+              var USDM = L.featureGroup(tempGroup);
+              USDMLayer.addLayer(USDM)
             } 
             //both hypsomeSWE and watersheds use Watershed FGB, no need to load twice
             else if (fgb_name === 'Watersheds'){
@@ -368,7 +563,17 @@
               tempGroup.push(
                 L.geoJSON(f, {pointToLayer: createCircleMarker})
                 .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_"+
-                         f.properties.site_id+".png' height='400' width='500' loading='lazy'/>",
+                         f.properties.site_id+".png' height='300' width='400' loading='lazy'/>",
+                         {
+                            maxWidth: "auto"
+                          })
+              );
+            }
+            else if (fgb_name.includes('Mesonet Soil Moisture')) {
+              tempGroup.push(
+                L.geoJSON(f, {pointToLayer: createCircleMarker})
+                .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/"+
+                         f.properties.station_key+"_"+f.properties.name+"_current.png' height='350' width='350' loading='lazy'/>",
                          {
                             maxWidth: "auto"
                           })
@@ -403,11 +608,28 @@
             } else if (fgb_name === 'SNOTEL SWE'){
               //define tempGroupLayer feature group to add to layer control
               var snotelSWE = L.featureGroup(tempGroup);
+              snotelSWE._leaflet_id = 'SNOTEL SWE'
               //define to sessionStorage
               sessionStorage.snotelSWE = snotelSWE;
               //add group to the fgb layer control 
               snowFGBLayerControl.addOverlay(snotelSWE , fgb_name); 
               snowLayers.addLayer(snotelSWE)
+              if(display == true){
+                snowLayers.addTo(map)
+              }
+            } 
+            else if (fgb_name.includes('Soil Moisture')){
+              //define tempGroupLayer feature group to add to layer control
+              var mesonetVWC = L.featureGroup(tempGroup);
+              mesonetVWC._leaflet_id = 'Mesonet VWC'+depth
+              //define to sessionStorage
+              sessionStorage.mesonetVWC = mesonetVWC;
+              //add group to the fgb layer control 
+              soilMoistureFGBLayerControl.addBaseLayer(mesonetVWC , fgb_name); 
+              soilMoistureLayers.addLayer(mesonetVWC)
+              if(display == true){
+                mesonetVWC.addTo(map)
+              }
             } else {
               //define tempGroupLayer feature group to add to layer control
               var tempGroupLayer = L.featureGroup(tempGroup);
@@ -415,6 +637,8 @@
               fgbLayerControl.addOverlay(tempGroupLayer , fgb_name); 
               //add it to the snow control too for later (only used when snow selector is active)
               snowFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
+              //add it to the soil moisture control too for later (only used when soil moisture selector is active)
+              //soilMoistureFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
               //display if display param == true on initial load
                 if(display == true){
                   tempGroupLayer.addTo(map)
@@ -432,17 +656,24 @@
           activeLayers.eachLayer(function(layer) { map.removeLayer(layer);});
           //remove hypsomeswe from map if loaded
           snowLayers.eachLayer(function(layer) { map.removeLayer(layer);});
+          //remove soil moisture from map if loaded
+          soilMoistureLayers.eachLayer(function(layer) { map.removeLayer(layer);});
           //remove old layer control
           map.removeControl(layerControl);
           //remove old legend
           map.removeControl(legend);
+          map.removeControl(pointLegend);
+          //$("#opacitySlide").val(0.9);
         }
 
         var updateFgbControls = function(){
           //remove old FGB control 
           map.removeControl(snowFGBLayerControl);
+          map.removeControl(soilMoistureFGBLayerControl);
           map.addControl(fgbLayerControl);
         }
+
+        soilMoistureFGBLayerControl.addBaseLayer(L.featureGroup() , '(e) None'); 
 
         // add FGBs to map (before selector change!!)
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/states.fgb', fgb_name = 'States', weight = 3, display = true, popup_property = null);
@@ -453,6 +684,11 @@
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_usdm.fgb', fgb_name = 'USDM', weight = 1, display = false, popup_property = 'DM');
         //add SNOTEL SWE (only added to snow control)
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_snotel.fgb', fgb_name = 'SNOTEL SWE', weight = 1, display = false, popup_property = 'NAME');
+        //add soil Moisture Anomolies from Mesonet (only added to soil moisture control)
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_04in.fgb', fgb_name = '(a) MT Mesonet Soil Moisture (4in)', weight = 1, display = false, popup_property = 'NAME', depth = '4in');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_08in.fgb', fgb_name = '(b) MT Mesonet Soil Moisture (8in)', weight = 1, display = false, popup_property = 'NAME', depth = '8in');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_20in.fgb', fgb_name = '(c) MT Mesonet Soil Moisture (20in)', weight = 1, display = false, popup_property = 'NAME', depth = '20in');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_36in.fgb', fgb_name = '(d) MT Mesonet Soil Moisture (36in)', weight = 1, display = false, popup_property = 'NAME', depth = '36in');
 
         //build USDM legend
         USDMlegend.onAdd = function(map) {
@@ -466,17 +702,95 @@
               return div;
             };
 
-        //add event handler to toggle USDM legend when displayed
+        //add event handler to toggle USDM legend and slider when displayed
         map.on('overlayadd', function(eventLayer){
             if (eventLayer.name === 'USDM'){
               map.addControl(USDMlegend);
+              $(".rangesliderUSDM").show()    
             } 
         })
         map.on('overlayremove', function(eventLayer){
             if (eventLayer.name === 'USDM'){
                 map.removeControl(USDMlegend);
+                $(".rangesliderUSDM").hide()
             } 
         })
+        //map opacity function
+        function updateOpacity(value) {
+          var rangeInput = document.getElementById("opacitySlide").value
+          //activeBase.setOpacity(rangeInput)
+          activeLayers.eachLayer(function(layer) { layer.setOpacity(rangeInput)});
+        }
+        //map opacity event listener
+        document.getElementById("opacitySlide").addEventListener ("change", updateOpacity, false);
+
+        //USDM opacity fucnction
+        function updateOpacityUSDM(value) {
+          var rangeInputUSDM = document.getElementById("opacitySlideUSDM").value
+          //activeBase.setOpacity(rangeInput)
+          USDMLayer.eachLayer(function(layer) { layer.setStyle({fillOpacity: rangeInputUSDM, opacity: rangeInputUSDM})});
+        }
+        //USDM opacity event listener
+        document.getElementById("opacitySlideUSDM").addEventListener ("change", updateOpacityUSDM, false);
+
+        // legend for soil moisture points
+        function getColor(d) {
+            return d === '<-2 (D4)'  ? "#730000" :
+                  d === '-2 - -1.6 (D3)'  ? "#E60000" :
+                  d === '-1.6 - -1.3 (D2)' ? "#FFAA00" :
+                  d === '-1.3 - -0.8 (D1)' ? "#FCD37F" :
+                  d === '-0.8 - -0.5 (D0)' ? "#FFFF00" :
+                  d === '-0.5 - 0.5' ? "#FFFFFF" :
+                  d === '0.5 - 0.8' ? "#82FCF9" :
+                  d === '0.8 - 1.3' ? "#32E1FA" :
+                  d === '1.3 - 1.6' ? "#325CFE" :
+                  d === '1.6 - 2' ? "#4030E3" :
+                  d === '>2' ? "#303B83" :
+                                "#000000";
+        }
+        function style(feature) {
+            return {
+                weight: 1.5,
+                opacity: 1,
+                fillOpacity: 1,
+                radius: 6,
+                fillColor: getColor(feature.properties.TypeOfIssue),
+                color: "grey"
+
+            };
+        }
+
+        var pointLegend = L.control({position: 'topright'});
+        pointLegend.onAdd = function (map) {
+
+        var div = L.DomUtil.create('div', 'info pointLegend');
+        labels = ['<h4>Soil Moisture<br>Anomaly (Stations)</h4>'],
+        categories = ['<-2 (D4)','-2 - -1.6 (D3)','-1.6 - -1.3 (D2)','-1.3 - -0.8 (D1)',
+                      '-0.8 - -0.5 (D0)', '-0.5 - 0.5', '0.5 - 0.8', '0.8 - 1.3',
+                      '1.6 - 2', '>2', 'Anomaly N/A<br>Note: Click on points<br>for real time data.'];
+
+        for (var i = 0; i < categories.length; i++) {
+
+                div.innerHTML += 
+                labels.push(
+                    '<i class="circle" style="background:' + getColor(categories[i]) + '"></i> ' +
+                (categories[i] ? categories[i] : '+'));
+
+            }
+            div.innerHTML = labels.join('<br>');
+        return div;
+        }; 
+
+        //function to add soil moisture data
+        var addSoilMoisturePoints = function(){
+            //add soil moisture legend
+            pointLegend.addTo(map);
+            map.addControl(soilMoistureFGBLayerControl);
+            map.addLayer(soilMoistureLayers._layers['Mesonet VWC4in']);
+        }
+
+        document.getElementById ("addSoilMoisturePoints").addEventListener ("click", addSoilMoisturePoints, false);
+
 
         //function to call when selector is choosen
         $('select').change(function() {
@@ -518,6 +832,8 @@
               "(e) 180 Day SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
               "(f) 1 Year SPI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
+              "(f) 2 Year SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
               "(h) Water Year SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
@@ -576,6 +892,8 @@
               "(e) 180 Day SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
               "(f) 1 Year SPEI", display = false, breaks = breaks, scale = scale)
+            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
+            //  "(f) 2 Year SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
               "(h) Water Year SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
@@ -634,6 +952,8 @@
               "(e) 180 Day EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
               "(f) 1 Year EDDI", display = false, breaks = breaks, scale = scale)
+            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
+            //  "(f) 2 Year EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
               "(h) Water Year EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
@@ -776,7 +1096,7 @@
           if(this.value === 'Snowpack'){
             //remove old FGB controls (special case, otherwise use updateFgbControls())
             map.removeControl(fgbLayerControl);
-            map.addControl(snowFGBLayerControl);
+            map.removeControl(soilMoistureFGBLayerControl);
             //add snow controls
             map.addControl(snowFGBLayerControl);
             //define variable of interest
@@ -801,6 +1121,8 @@
               "(a) Standardized SWE", display = true, breaks = breaks, scale = scale)
             //add hypsome-swe to the map
             map.addLayer(snowLayers._layers['Hypsome-SWE']);
+            //add SNOTEL to map
+            map.addLayer(snowLayers._layers['SNOTEL SWE']);
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
@@ -822,11 +1144,14 @@
             legend.addTo(map);
             //fin
           }
-          if(this.value === 'SMAP Soil Moisture'){
-            //update FGB controls 
-            updateFgbControls()
+          if(this.value === 'Soil Moisture'){
+            //remove old FGB controls (special case, otherwise use updateFgbControls())
+            map.removeControl(fgbLayerControl);
+            map.removeControl(snowFGBLayerControl);
+            map.addControl(fgbLayerControl);
+            
             //define variable of interest
-            var variable = 'SMAP<br>Soil Moisture'
+            var variable = 'SMAP Root-Zone<br>Soil Moisture'
             //remove active layers from map and legend
             cleanUp()
             //clear the active layers group to repopulate
@@ -842,7 +1167,9 @@
             var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
             // add COGS
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_smap_anom.tif", 
-              "(a) SMAP Soil Moisture", display = true, breaks = breaks, scale = scale)
+              "(a) SMAP Root-Zone Soil Moisture", display = true, breaks = breaks, scale = scale)
+            //add soil moisture point data
+            addSoilMoisturePoints()
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");

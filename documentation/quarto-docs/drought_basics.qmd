@@ -1,0 +1,19 @@
+# Drought Basics {.unnumbered}
+
+## Drought 101
+
+As described by the American Meteorological Society, drought is defined as "A period of abnormally dry weather sufficiently long enough to cause a serious hydrological imbalance." Droughts can be characterized in terms of their severity, location, duration and timing. They arise from a range of hydrometeorological processes that suppress precipitation, enhance evaporative water loss and contribute to declines in soil moisture, surface water or groundwater availability. In turn, these declines lead to conditions that are significantly drier than normal and that have serious impacts to important sectors across the world.
+
+Drought intensity is characterized according to how much moisture is expected in a given location and/or time period. This important concept means that drought is relative and dependent on the base-line reference conditions against which today’s conditions are compared. For example, a missing inch of precipitation may be of no concern to communities on the coast where precipitation is abundant, but may have catastrophic implications for communities in more arid regions.
+
+## Types of Drought
+
+While somewhat technical, there are five types of drought that are generally thought to occur. These drought types include: 
+
+* Meteorological Drought: When dry weather patterns dominate an area.
+* Hydrological Drought: When low water supply becomes evident in the water system.
+* Agricultural Drought: When crops become affected by drought.
+* Socioeconomic Drought: When the supply and demand of various commodities is affected by drought.
+* Ecological Drought: When natural ecosystems are affected by drought.
+
+Although these types of droughts have been identified, they do not occur in isolation from one another. For example, meteorological drought is a primary driver of other forms of drought, such as hydrological and agricultural drought. 
