@@ -410,6 +410,10 @@
             text: 'Precipitation Percentiles',
           },
           {
+            id: 'Precipitation Percent of Normal',
+            text: 'Precipitation Percent of Normal',
+          },
+          {
             id: 'Temperature Percentiles',
             text: 'Temperature Percentiles (Daily Maximum Temperature)'
           },
@@ -1034,6 +1038,63 @@
               div.innerHTML += '<i style="background: #325CFE"></i><span>90 - 95</span><br>';
               div.innerHTML += '<i style="background: #4030E3"></i><span>95 - 98</span><br>';
               div.innerHTML += '<i style="background: #303B83"></i><span>98 - 100</span><br>';
+              return div;
+            };
+            //add to map
+            legend.addTo(map);
+            //fin
+          }
+          if(this.value === 'Precipitation Percent of Normal'){
+            //update FGB controls 
+            updateFgbControls()
+            //define variable of interest
+            var variable = 'Precipitation<br>% of Normal'
+            //remove active layers from map and legend
+            cleanUp()
+            //clear the active layers group to repopulate
+            activeLayers = new L.LayerGroup();
+            //create new layer control and add it to the map
+            layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+            //create new legend "contol" object
+            legend = L.control({ position: "bottomleft" });
+            //define time
+            var time = loadFile('https://data.climate.umt.edu/drought-indicators/precipitation/time.txt')
+            //define breaks
+            var breaks = [-999, 5, 25, 50, 70, 90, 110, 130, 150, 200, 400, 999].map(function(x) { return x * scaler; });
+            //add chroma scale that matches the USDM
+            var scale = chroma.scale(["#543005", "#8C510A", "#BF812D", "#DFC27D", "#F6E8C3", "#FFFFFF", '#C7EAE5', '#80CDC1', '#35978F', '#01665E', '#003C30']).classes(breaks); 
+            // add COGS
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_15.tif", 
+              "(a) 15 Day % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_30.tif", 
+              "(b) 30 Day % of Normal", display = true, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_60.tif", 
+              "(c) 60 Day % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_90.tif", 
+              "(d) 90 Day % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_180.tif", 
+              "(e) 180 Day % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_365.tif", 
+              "(f) 1 Year % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_water_year.tif", 
+              "(h) Water Year % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_year_to_date.tif", 
+              "(i) Year to Date % of Normal", display = false, breaks = breaks, scale = scale)
+            //populate the legend
+            legend.onAdd = function(map) {
+              var div = L.DomUtil.create("div", "legend");
+              div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+              div.innerHTML += '<i style="background: #543005"></i><span>0 - 5</span><br>';
+              div.innerHTML += '<i style="background: #8C510A"></i><span>5 - 25</span><br>';
+              div.innerHTML += '<i style="background: #BF812D"></i><span>25 - 50</span><br>';
+              div.innerHTML += '<i style="background: #DFC27D"></i><span>50 - 70</span><br>';
+              div.innerHTML += '<i style="background: #F6E8C3"></i><span>70 - 90</span><br>';
+              div.innerHTML += '<i style="background: #FFFFFF"></i><span>90 - 110</span><br>';
+              div.innerHTML += '<i style="background: #C7EAE5"></i><span>110 - 130</span><br>';
+              div.innerHTML += '<i style="background: #80CDC1"></i><span>130 - 150</span><br>';
+              div.innerHTML += '<i style="background: #35978F"></i><span>150 - 200</span><br>';
+              div.innerHTML += '<i style="background: #01665E"></i><span>200 - 400</span><br>';
+              div.innerHTML += '<i style="background: #003C30"></i><span>400 - 800</span><br>';
               return div;
             };
             //add to map
