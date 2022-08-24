@@ -18,10 +18,13 @@ Rscript /home/zhoylman/mco-drought-indicators/processing/compute-point/mesonet/s
 #Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/snodas-maps.R >/home/zhoylman/mco-drought-indicators-data/logs/snodas 2>&1
 
 # Build HTML widget files
-Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-drought.R >/home/zhoylman/mco-drought-indicators-data/logs/build-drought-html 2>&1
-Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-precip-temp.R >/home/zhoylman/mco-drought-indicators-data/logs/build-precip-temp-html 2>&1
-Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-cpc-and-grace.R >/home/zhoylman/mco-drought-indicators-data/logs/build-cpc-grace-html 2>&1
+#Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-drought.R >/home/zhoylman/mco-drought-indicators-data/logs/build-drought-html 2>&1
+#Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-precip-temp.R >/home/zhoylman/mco-drought-indicators-data/logs/build-precip-temp-html 2>&1
+#Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-cpc-and-grace.R >/home/zhoylman/mco-drought-indicators-data/logs/build-cpc-grace-html 2>&1
 #Rscript /home/zhoylman/mco-drought-indicators/processing/build-widgets/R/build-html-snotel-snodas.R >/home/zhoylman/mco-drought-indicators-data/logs/build-snodas-html 2>&1
+
+#process topofire data
+Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/process-topofire.R
 
 #rescale data to 16 bit int.
 Rscript /home/zhoylman/mco-drought-indicators/processing/cog/R/16bit-rescaling.R
