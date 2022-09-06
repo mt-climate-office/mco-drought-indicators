@@ -8,16 +8,16 @@ rescale = function(x){
 }
 
 #drougth indicies
-names = list.files('/home/zhoylman/mco-drought-indicators-data/spi', full.names = F, pattern = "*.tif") %>%
+names = list.files('/home/zhoylman/mco-drought-indicators-data/spi', full.names = F, pattern = "*.tif$") %>%
   as_tibble() %>%
-  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/spei', full.names = F, pattern = "*.tif"))) %>%
-  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/eddi', full.names = F, pattern = "*.tif"))) %$%
+  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/spei', full.names = F, pattern = "*.tif$"))) %>%
+  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/eddi', full.names = F, pattern = "*.tif$"))) %$%
   value
 
-data = list.files('/home/zhoylman/mco-drought-indicators-data/spi', full.names = T, pattern = "*.tif") %>%
+data = list.files('/home/zhoylman/mco-drought-indicators-data/spi', full.names = T, pattern = "*.tif$") %>%
   as_tibble() %>%
-  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/spei', full.names = T, pattern = "*.tif"))) %>%
-  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/eddi', full.names = T, pattern = "*.tif"))) %$%
+  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/spei', full.names = T, pattern = "*.tif$"))) %>%
+  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/eddi', full.names = T, pattern = "*.tif$"))) %$%
   value %>%
   lapply(., rescale)
   
@@ -28,9 +28,9 @@ for(i in 1:length(names)){
 
 #precipititaion 
 
-names = list.files('/home/zhoylman/mco-drought-indicators-data/precipitation', full.names = F, pattern = "*.tif") 
+names = list.files('/home/zhoylman/mco-drought-indicators-data/precipitation', full.names = F, pattern = "*.tif$") 
 
-data = list.files('/home/zhoylman/mco-drought-indicators-data/precipitation', full.names = T, pattern = "*.tif") %>%
+data = list.files('/home/zhoylman/mco-drought-indicators-data/precipitation', full.names = T, pattern = "*.tif$") %>%
   lapply(., rescale)
 
 for(i in 1:length(names)){
@@ -39,9 +39,9 @@ for(i in 1:length(names)){
 
 #temperature 
 
-names = list.files('/home/zhoylman/mco-drought-indicators-data/temperature', full.names = F, pattern = "*.tif") 
+names = list.files('/home/zhoylman/mco-drought-indicators-data/temperature', full.names = F, pattern = "*.tif$") 
 
-data = list.files('/home/zhoylman/mco-drought-indicators-data/temperature', full.names = T, pattern = "*.tif") %>%
+data = list.files('/home/zhoylman/mco-drought-indicators-data/temperature', full.names = T, pattern = "*.tif$") %>%
   lapply(., rescale)
 
 for(i in 1:length(names)){
@@ -50,9 +50,9 @@ for(i in 1:length(names)){
 
 #Soil Moisture 
 
-names = list.files('/home/zhoylman/mco-drought-indicators-data/smap/data', full.names = F, pattern = "*.tif") 
+names = list.files('/home/zhoylman/mco-drought-indicators-data/smap/data', full.names = F, pattern = "*.tif$") 
 
-data = list.files('/home/zhoylman/mco-drought-indicators-data/smap/data', full.names = T, pattern = "*.tif")  %>%
+data = list.files('/home/zhoylman/mco-drought-indicators-data/smap/data', full.names = T, pattern = "*.tif$")  %>%
   lapply(., rescale)
 
 for(i in 1:length(names)){
@@ -62,9 +62,9 @@ for(i in 1:length(names)){
 
 #GRACE groundwater
 
-names = list.files('/home/zhoylman/mco-drought-indicators-data/grace', full.names = F, pattern = "*.tif") 
+names = list.files('/home/zhoylman/mco-drought-indicators-data/grace', full.names = F, pattern = "*.tif$") 
 
-data = list.files('/home/zhoylman/mco-drought-indicators-data/grace', full.names = T, pattern = "*.tif")  %>%
+data = list.files('/home/zhoylman/mco-drought-indicators-data/grace', full.names = T, pattern = "*.tif$")  %>%
   lapply(., rescale)
 
 for(i in 1:length(names)){
@@ -73,14 +73,14 @@ for(i in 1:length(names)){
 
 #NDVI
 
-names = list.files('/home/zhoylman/mco-drought-indicators-data/ndvi/data/anom', full.names = F, pattern = "*.tif") %>%
+names = list.files('/home/zhoylman/mco-drought-indicators-data/ndvi/data/anom', full.names = F, pattern = "*.tif$") %>%
   as_tibble() %>%
-  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/ndvi/data/trend', full.names = F, pattern = "*.tif"))) %$%
+  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/ndvi/data/trend', full.names = F, pattern = "*.tif$"))) %$%
   value
 
-data = list.files('/home/zhoylman/mco-drought-indicators-data/ndvi/data/anom', full.names = T, pattern = "*.tif") %>%
+data = list.files('/home/zhoylman/mco-drought-indicators-data/ndvi/data/anom', full.names = T, pattern = "*.tif$") %>%
   as_tibble() %>%
-  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/ndvi/data/trend', full.names = T, pattern = "*.tif"))) %$%
+  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/ndvi/data/trend', full.names = T, pattern = "*.tif$"))) %$%
   value %>%
   lapply(., rescale)
 
@@ -90,14 +90,14 @@ for(i in 1:length(names)){
 
 #SWE
 
-names = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/standardized_swe', full.names = F, pattern = "*.tif") %>%
+names = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/standardized_swe', full.names = F, pattern = "*.tif$") %>%
   as_tibble() %>%
-  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/delta_snow_depth', full.names = F, pattern = "*.tif"))) %$%
+  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/delta_snow_depth', full.names = F, pattern = "*.tif$"))) %$%
   value
 
-data = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/standardized_swe', full.names = T, pattern = "*.tif") %>%
+data = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/standardized_swe', full.names = T, pattern = "*.tif$") %>%
   as_tibble() %>%
-  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/delta_snow_depth', full.names = T, pattern = "*.tif"))) %$%
+  bind_rows(as_tibble(list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/delta_snow_depth', full.names = T, pattern = "*.tif$"))) %$%
   value %>%
   lapply(., rescale)
 
