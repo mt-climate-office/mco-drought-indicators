@@ -19,7 +19,7 @@ clipped = crop(topofire, UMRB) %>%
 #prevent raster from writing .xml auxilary files
 rgdal::setCPLConfigOption("GDAL_PAM_ENABLED", "FALSE")
 
-writeRaster(clipped, '/home/zhoylman/mco-drought-indicators-data/topofire/soil-moisture/topofire_soil_moisture_anom.tif')
+writeRaster(clipped, '/home/zhoylman/mco-drought-indicators-data/topofire/soil-moisture/topofire_soil_moisture_anom.tif', overwrite=TRUE)
 
 rescaled = clipped * 10
 

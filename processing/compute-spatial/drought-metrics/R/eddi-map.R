@@ -21,8 +21,8 @@ time = data.frame(datetime = as.Date(as.numeric(substring(names(raster_pet_spati
 time$day = strftime(time$datetime,"%m-%d")
 
 #compute water year
-water_year = (length(time$day) - which(time$day == "10-01")[length(which(time$day == "10-01"))])
-year_to_date = (length(time$day) - which(time$day == "01-01")[length(which(time$day == "01-01"))])
+water_year = (length(time$day) - which(time$day == "10-01")[length(which(time$day == "10-01"))])+1
+year_to_date = (length(time$day) - which(time$day == "01-01")[length(which(time$day == "01-01"))])+1
 
 #designate time scale
 time_scale = c(15,30,60,90,180,365,730, water_year, year_to_date)
