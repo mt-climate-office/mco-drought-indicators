@@ -221,7 +221,12 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
                        (values(mean_swe) %>% sum(., na.rm = T)))*100) %>%
     round(.,  0)
   
+  if(percent_of_ave == 'NaN'){
+    percent_of_ave = 0
+  }
+  
   if(percent_of_ave > 300){
+    
     percent_of_ave = '> 300'
   }
   
@@ -229,7 +234,7 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
     rast %>%
     crop(., roi %>% vect) %>%
     mask(., roi %>% vect) %>%
-    resample(., mean_swe)
+    project(., mean_swe, method = 'bilinear')
   
   data = data.frame(dem = values(dem),
                     mean_swe_m = (((values(mean_swe)/1000) * (res(mean_swe)[1] * res(mean_swe)[2]))),
@@ -270,7 +275,8 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
   percent_of_normal_elev = data %>%
     tidyr::pivot_wider(names_from = c('name.x'), values_from = sum) %>%
     mutate(`Percent of Average` = (`2022`/`Median Climatology (2004 - 2022)`)*100,
-           `Percent of Average` = ifelse(`Percent of Average` > 300, 300, `Percent of Average`))
+           `Percent of Average` = ifelse(`Percent of Average` > 300, 300, `Percent of Average`),
+           `Percent of Average` = ifelse(is.na(`Percent of Average`) & n > 0, 0, `Percent of Average`))
     
   
   center_of_mass = data %>%

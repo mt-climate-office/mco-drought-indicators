@@ -27,7 +27,7 @@ get_snotel_water_year = function(site_id, state, network){
     day = day(x)
     month = month(x)
     #dont want yday to go from 1 - 366, rather to 365
-    new_date = make_date(2022, month, day)
+    new_date = make_date(2023, month, day)
     start.yr = year(new_date) - (month(new_date) < start.month)
     start.date = make_date(start.yr, start.month, 1L)
     as.integer(new_date - start.date + 1L)
@@ -72,7 +72,10 @@ current = foreach(i = 1:length(sites$site_id), .packages = c('lubridate', 'dplyr
            `Precipitation Accumulation (mm) Start of Day Values` = NA)
   })
   
-} %>%
+}%>%
+  lapply(., function(x){x %>% mutate(Date = as.Date(Date),
+                                     `Snow Water Equivalent (mm) Start of Day Values` = as.numeric(`Snow Water Equivalent (mm) Start of Day Values`),
+                                     `Precipitation Accumulation (mm) Start of Day Values` = as.numeric(`Precipitation Accumulation (mm) Start of Day Values`))}) %>%
   bind_rows()%>%
   tidyr::drop_na(site_id)
 
