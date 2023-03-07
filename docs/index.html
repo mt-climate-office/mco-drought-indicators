@@ -842,7 +842,7 @@
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
               "(f) 1 Year SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
-              "(f) 2 Year SPI", display = false, breaks = breaks, scale = scale)
+              "(g) 2 Year SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
               "(h) Water Year SPI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
@@ -902,7 +902,7 @@
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
               "(f) 1 Year SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
-              "(f) 2 Year SPEI", display = false, breaks = breaks, scale = scale)
+              "(g) 2 Year SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
               "(h) Water Year SPEI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
@@ -962,7 +962,7 @@
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
               "(f) 1 Year EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
-              "(f) 2 Year EDDI", display = false, breaks = breaks, scale = scale)
+              "(g) 2 Year EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
               "(h) Water Year EDDI", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
@@ -1020,6 +1020,8 @@
               "(e) 180 Day Percentile", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_365.tif", 
               "(f) 1 Year Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_730.tif", 
+              "(g) 2 Year Percentile", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_water_year.tif", 
               "(h) Water Year Percentile", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_year_to_date.tif", 
@@ -1077,6 +1079,8 @@
               "(e) 180 Day % of Normal", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_365.tif", 
               "(f) 1 Year % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_730.tif", 
+              "(g) 2 Year % of Normal", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_water_year.tif", 
               "(h) Water Year % of Normal", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_year_to_date.tif", 
@@ -1135,9 +1139,9 @@
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_365.tif", 
               "(f) 1 Year Percentile", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_water_year.tif", 
-              "(h) Water Year Percentile", display = false, breaks = breaks, scale = scale)
+              "(g) Water Year Percentile", display = false, breaks = breaks, scale = scale)
             addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_year_to_date.tif", 
-              "(i) Year to Date Percentile", display = false, breaks = breaks, scale = scale)
+              "(h) Year to Date Percentile", display = false, breaks = breaks, scale = scale)
             //populate the legend
             legend.onAdd = function(map) {
               var div = L.DomUtil.create("div", "legend");
