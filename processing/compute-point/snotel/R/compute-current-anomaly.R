@@ -6,6 +6,7 @@ library(doParallel)
 library(lubridate)
 library(leaflet)
 library(sf)
+library(xml2)
 
 yday.waterYear = function(x, start.month = 10L){
   day = day(x)
@@ -22,11 +23,14 @@ sites_with_climatology = read_csv('/home/zhoylman/mco-drought-indicators-data/sn
 sites = read_csv('/home/zhoylman/mco-drought-indicators-data/snotel/climatology/site_meta.csv') %>%
   filter(site_id %in% unique(sites_with_climatology$site_id))
 
+#i = 1
+#site_id = sites$site_id[i]; state = sites$state[i]; network = sites$network[i]
+
 get_snotel_most_recent = function(site_id, state, network){
   yday.waterYear = function(x, start.month = 10L){
     day = day(x)
     month = month(x)
-    #dont want yday to go from 1 - 366, rather to 365
+    #dont want yday to go from 1 - 366, rather to 365 =
     new_date = make_date(2022, month, day)
     start.yr = year(new_date) - (month(new_date) < start.month)
     start.date = make_date(start.yr, start.month, 1L)
@@ -38,7 +42,8 @@ get_snotel_most_recent = function(site_id, state, network){
     site_id[1], ":",
     state[1], ":",
     network[1],
-    "%7Cid=%22%22%7Cname/",Sys.Date()-14,",",Sys.Date(),"/WTEQ::value,PREC::value"
+    "/",Sys.Date()-14,",",Sys.Date(),"/WTEQ::value,PREC::value"
+    #"%7Cid=%22%22%7Cname/",Sys.Date()-14,",",Sys.Date(),"/WTEQ::value,PREC::value"
   )
   
   export = getURL(base_url) %>%

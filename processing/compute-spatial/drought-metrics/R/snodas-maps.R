@@ -244,7 +244,7 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
     tidyr::drop_na() %>%
     mutate(quantile = .bincode(dem, quantile(dem, seq(0.01,1,by = 0.01))),
            lin.bins = .bincode(dem, seq(min(dem, na.rm = T)-1, max(dem, na.rm = T)+1, length.out = 50))) %>%
-    tidyr::pivot_longer(names_to = 'name', cols = c(`Median Climatology (2004 - 2022)`, `2022`)) %>%
+    tidyr::pivot_longer(names_to = 'name', cols = c(`Median Climatology (2004 - 2023)`, `2023`)) %>%
     group_by(lin.bins, name) %>%
     summarise(n = length(value),
               sum = sum(value, na.rm = T)) %>%
@@ -274,7 +274,7 @@ foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2',
   #compute # of average at all elevations
   percent_of_normal_elev = data %>%
     tidyr::pivot_wider(names_from = c('name.x'), values_from = sum) %>%
-    mutate(`Percent of Average` = (`2022`/`Median Climatology (2004 - 2022)`)*100,
+    mutate(`Percent of Average` = (`2023`/`Median Climatology (2004 - 2023)`)*100,
            `Percent of Average` = ifelse(`Percent of Average` > 300, 300, `Percent of Average`),
            `Percent of Average` = ifelse(is.na(`Percent of Average`) & n > 0, 0, `Percent of Average`))
     
