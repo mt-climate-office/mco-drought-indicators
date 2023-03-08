@@ -8,6 +8,8 @@ source(paste0(git.dir, '/processing/ancillary-functions/R/load-libs.R'))
 source(paste0(git.dir,"/processing/ancillary-functions/R/drought-functions.R"))
 source(paste0(git.dir,"/processing/ancillary-functions/R/get-snodas.R"))
 
+`%notin%` = Negate(`%in%`)
+
 ########################## clean up data ##################################
 do.call(file.remove, list(list.files(paste0(export.dir, "snodas/processed/swe/"), full.names = TRUE)))
 do.call(file.remove, list(list.files(paste0(export.dir, "snodas/processed/snow_depth/"), full.names = TRUE)))
@@ -59,7 +61,7 @@ time = files %>%
 process_raster = function(date){
   raster_temp = raster(files[which(time == date)]) %>%
     crop(., extent(UMRB)) %>%
-    mask(., UMRB) /1000 * 39.3701
+    mask(., UMRB) /1000 * 39.3701 #m to in
   return(raster_temp)
 }
 
@@ -341,6 +343,140 @@ tictoc::toc()
 print('finished hypsome-swe')
 
 stopCluster(cl)
+
+########################## snodas timeseries ###############################
+
+current_swe =  data.frame(files = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/swe/', full.names = T)) %>%
+  as_tibble() %>%
+  mutate(time = gsub("\\D", "", files),
+         date = as.Date(time, format = '%Y%m%d')) %>%
+  filter(date == Sys.Date())
+
+# get start year based on water year (water year)
+base_month = Sys.Date() %>% lubridate::month()
+if(base_month %in% c(1:9)){
+  base_year = Sys.Date() %>% lubridate::year() - 1
+} else {
+  base_year = Sys.Date() %>% lubridate::year()
+}
+
+library(exactextractr)
+timeseries = read_csv('/home/zhoylman/mco-drought-indicators-data/snodas/timeseries/snodas_watershed_sum_swe_m3.csv')
+today_rast = (rast(current_swe$files)/1000) %>% #mm to m
+  crop(., watersheds) %>%
+  mask(., watersheds) %>%
+  terra::project(., "epsg:5070")
+
+#update time series data is needed
+if(!any(timeseries$time %in% Sys.Date()) == T){
+  today_extract = exact_extract(today_rast, watersheds, fun = 'sum')  * (res(today_rast)[1] * res(today_rast)[2])
+  
+  today_extract_tbl = as_tibble(today_extract) %>%
+    t() %>%
+    as_tibble()
+  
+  colnames(today_extract_tbl) = watersheds$HUC8
+  
+  today_extract_tbl = today_extract_tbl %>%
+    mutate(time = Sys.Date())
+  
+  timeseries_append = bind_rows(timeseries, today_extract_tbl)
+  
+  write_csv(timeseries_append, '/home/zhoylman/mco-drought-indicators-data/snodas/timeseries/snodas_watershed_sum_swe_m3.csv')
+} else {
+  timeseries_append = timeseries
+}
+
+yday.waterYear = function(x, start.month = 10L){
+  day = day(x)
+  month = month(x)
+  #dont want yday to go from 1 - 366, rather to 365
+  new_date = make_date(2023, month, day)
+  start.yr = year(new_date) - (month(new_date) < start.month)
+  start.date = make_date(start.yr, start.month, 1L)
+  as.integer(new_date - start.date + 1L)
+}
+
+base_year_waterYear = function(x){
+  base_month = x %>% lubridate::month()
+  if(base_month %in% c(1:9)){
+    base_year = x %>% lubridate::year() - 1
+  } else {
+    base_year = x %>% lubridate::year()
+  }
+  return(base_year)
+} 
+
+#compute climatology
+timeseries_append = timeseries_append %>%
+  tidyr::pivot_longer(., cols = -c(time), values_to = 'swe') %>%
+  mutate(water_year_yday = yday.waterYear(time)) %>%
+  rowwise() %>%
+  mutate(water_base_year = base_year_waterYear(time))
+
+snodas_climatology = timeseries_append %>%
+  filter(water_base_year %notin% base_year) %>%
+  group_by(name, water_year_yday) %>%
+  summarise(swe_q50 = quantile(swe, 0.5),
+            swe_q05 = quantile(swe, 0.05),
+            swe_q25 = quantile(swe, 0.25),
+            swe_q75 = quantile(swe, 0.75),
+            swe_q95 = quantile(swe, 0.95),
+            swe_max = max(swe),
+            swe_min = min(swe)) %>%
+  mutate(time = as.Date(water_year_yday, origin = as.Date(paste0(base_year, '-09-30'), format = '%Y-%m-%d')))
+
+this_year_swe = timeseries_append %>%
+  filter(water_base_year == base_year)
+
+plot_snodas = function(current_data, climatology_data, site_id_, base_year){
+  data_select = current_data %>%
+    dplyr::filter(name == site_id_)
+
+  climatology_start_year = 2003
+
+  climatology_data_select = climatology_data  %>%
+    dplyr::filter(name == site_id_) %>%
+    mutate(WY_date = time)
+
+  site_meta = watersheds %>%
+    dplyr::filter(HUC8 == site_id_)
+
+  plot = ggplot()+
+    ggtitle(paste0(str_to_title(site_meta$NAME), " (", as.Date(max(data_select$time)), ")"), 'Data Derived from SNODAS')+
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q95, ymax = swe_max, fill = "95th - Max"), alpha = 0.25)+
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q75, ymax = swe_q95, fill = "75th - 95th"), alpha = 0.25)+
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q25, ymax = swe_q75, fill = "25th - 75th"), alpha = 0.25)+
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q05, ymax = swe_q25, fill = "5th - 25th"), alpha = 0.25)+
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_min, ymax = swe_q05, fill = "Min - 5th"), alpha = 0.25)+
+    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_min), color = 'darkred', size = 0.75)+
+    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_max), color = 'darkblue', size = 0.75)+
+    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_q50, color = "Median"), size = 0.75)+
+    geom_line(data = data_select, aes(x = time, y = swe, color = "Current"), size = 2)+
+    scale_color_manual(name = "",values = c(
+      'Median' = 'forestgreen',
+      'Current' = 'black')) +
+    scale_fill_manual(name = paste0('Percentiles\n(',climatology_start_year,' - 2022)'), values = c("darkblue","cyan","green","orange", 'darkred'),
+                      breaks = c("95th - Max", "75th - 95th", "25th - 75th", "5th - 25th", "Min - 5th")) +
+    ylab("Cumulative Basin Snow Water Equivalent (m³)")+
+    xlab("Date")+
+    theme_bw(base_size = 20)+
+    theme(plot.title = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5, size = 12),
+          legend.title.align=0.5)
+  
+  return(plot)
+}
+
+for(i in 1:length(watersheds$HUC8)){
+  #print(i)
+  snodas_climatology_plot = plot_snodas(current_data = this_year_swe, 
+                                   climatology_data = snodas_climatology, 
+                                   site_id_ = watersheds$HUC8[i], 
+                                   base_year = 2022)
+  ggsave(snodas_climatology_plot, file = paste0('/home/zhoylman/mco-drought-indicators-data/snodas/plots/snodas-climatology-swe-', watersheds$HUC8[i], '.png'), 
+         width = 10, height = 8, units = 'in')
+}
 
 
 ########################## clean up data ##################################
