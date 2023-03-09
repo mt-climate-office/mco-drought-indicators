@@ -210,6 +210,35 @@
           filter: grayscale(1);
       }
 
+      .tabs {
+          position:relative;
+          clear:both;
+      }
+
+      .tab {
+          position: center;
+          float:center;
+          display: none;
+      }
+
+      .tab-link {
+          background:#eee;
+          display: inline-block;
+          padding:10px;
+          border:1px solid #ccc;
+          margin-left:-1px;
+          position:relative;
+          list-style-type: none;
+          left:1px;
+          top:1px;
+          cursor:pointer;
+          clear:both;
+      }
+      
+      .tab:target {
+          display: block;
+      }
+
     </style>
   </head>
   <body>
@@ -527,7 +556,7 @@
           }
           return L.circleMarker( latlng, options );
         }
-
+        
         //define function to add flatgeobuf files
         async function addFGB(fgb_url, fgb_name, weight, display = false, popup_property, depth = null){
           //define tempGroup 
@@ -553,12 +582,37 @@
               //first HypsomeSWE
               tempGroupHypsomeSWE.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight})
               .bindTooltip(f.properties[popup_property_])
-              .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/hypsome-swe-"+
-                         f.properties.HUC8+".png' height='500px' width='500px' loading='lazy'/>",
-                         {
-                            maxWidth: "auto",
-                            popupAnchor: [0,0]
-                          }));
+              //.bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/hypsome-swe-"+
+              //           f.properties.HUC8+".png' height='500px' width='500px' loading='lazy'/>",
+              //           {
+              //              maxWidth: "auto",
+              //              popupAnchor: [0,0]
+              //            }));
+
+              .bindPopup(`<ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item">
+                              <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="true">Timeseries</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="false">Hypsome-SWE</a>
+                            </li>
+                          </ul>
+                          <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">`+
+                              "<img src='https://data.climate.umt.edu/drought-indicators/plots/hypsome-swe-"+
+                              f.properties.HUC8+".png' height='420px' width='420px' loading='lazy'/>"+
+                            `</div>
+                            <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">`+
+                              "<img src='https://data.climate.umt.edu/drought-indicators/plots/snodas-climatology-swe-"+
+                              f.properties.HUC8+".png' height='420px' width='500px' loading='lazy'/>"+
+                            `</div>
+                          </div>`,
+                            {
+                              maxWidth: "auto",
+                              popupAnchor: [0,0]
+                            }));
+
+
               //Now just regular watersheds without the popup
               //if there is a popop property to bind, do it.
               if(popup_property_ == null){
@@ -654,6 +708,7 @@
             }
         };
         
+
         //define exists function
         function exists(data){
           data !== null && data !== undefined
