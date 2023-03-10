@@ -472,7 +472,7 @@
           text:'Snow',
           children: [{
             id: 'Snowpack',
-            text: 'Snow Water Equivalent and Hypsome-SWE',
+            text: 'Snow Water Equivalent (SWE)',
           }
         ]
         },
@@ -603,10 +603,10 @@
 
               .bindPopup(`<ul class="nav nav-pills" id="myTab" role="tablist">
                             <li class="nav-item">
-                              <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Hypsome-SWE</a>
+                              <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">SWE by Elevation</a>
                             </li>
                             <li class="nav-item">
-                              <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Timeseries</a>
+                              <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Seasonal Accumulation</a>
                             </li>
                           </ul>
                           <div class="tab-content" id="myTabContent">
@@ -669,7 +669,7 @@
               //define to sessionStorage
               sessionStorage.hypsomeSWE = hypsomeSWE;
               //add group to the fgb laer control 
-              snowFGBLayerControl.addOverlay(hypsomeSWE , 'Hypsome-SWE'); 
+              snowFGBLayerControl.addOverlay(hypsomeSWE , 'Watersheds (SWE)'); 
               snowLayers.addLayer(hypsomeSWE)
               //display if display param == true on initial load
               if(display == true){
