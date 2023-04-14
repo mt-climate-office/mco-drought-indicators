@@ -50,7 +50,8 @@ get_snotel_water_year = function(site_id, state, network){
   )
   
   export = getURL(base_url) %>%
-    read_csv(skip = 59) %>%
+    gsub(".*As of:","",.) %>%
+    read_csv(., skip = 2) %>%
     mutate(water_year_yday = yday.waterYear(Date),
            site_id = site_id) %>%
     dplyr::select(site_id, water_year_yday, Date, `Snow Water Equivalent (mm) Start of Day Values`, `Precipitation Accumulation (mm) Start of Day Values`)

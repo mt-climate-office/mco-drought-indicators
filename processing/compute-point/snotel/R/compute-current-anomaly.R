@@ -47,7 +47,8 @@ get_snotel_most_recent = function(site_id, state, network){
   )
   
   export = getURL(base_url) %>%
-    read_csv(skip = 59) %>%
+    gsub(".*As of:","",.) %>%
+    read_csv(., skip = 2) %>%
     dplyr::filter(Date == max(Date)) %>%
     mutate(water_year_yday = yday.waterYear(Date),
            site_id = site_id) %>%
