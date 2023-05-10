@@ -84,7 +84,7 @@
       .legend h4 {
         text-align: center;
         font-size: 16px;
-        margin: 0px 0px 12px;
+        margin: 0px 0px 6px;
         color: #777;
       }
 
@@ -750,7 +750,6 @@
           map.addControl(fgbLayerControl);
         }
 
-        soilMoistureFGBLayerControl.addBaseLayer(L.featureGroup() , '(e) None'); 
 
         // add FGBs to map (before selector change!!)
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/states.fgb', fgb_name = 'States', weight = 3, display = true, popup_property = null);
