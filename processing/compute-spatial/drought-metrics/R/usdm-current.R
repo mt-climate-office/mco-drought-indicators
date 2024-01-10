@@ -57,3 +57,27 @@ time = usdm[[2]] %>% as.Date(., format = "%Y%m%d") %>% as.character()
 fileConn<-file(paste0(export.dir, "usdm/time.txt"))
 writeLines(time, fileConn)
 close(fileConn)
+
+# previous weeks USDM maps
+process_historical_usdm = function(time, file_dsn){
+  temp = st_read(paste0('https://droughtmonitor.unl.edu/data/json/usdm_',as.numeric(gsub("\\D", "", time)),'.json')) %>%
+    st_make_valid() %>%
+    st_intersection(., UMRB) %>%
+    mutate(fillColor = ifelse(DM == 0, '#FFFF00', 
+                              ifelse(DM == 1, "#D2B48C", 
+                                     ifelse(DM == 2, "#FFA500", 
+                                            ifelse(DM == 3, "#FF0000", 
+                                                   ifelse(DM == 4, "#811616", "#FFFFFF"))))))
+  
+  sf::st_write(temp, dsn=file_dsn, layer = "historical_usdm", delete_dsn = T)
+  
+  return(temp)
+}
+
+#loop though the number of historical weeks of interest
+for(i in 1:8){
+  process_historical_usdm(time = as.Date(time) - 7 * i,
+                          file_dsn = paste0("/home/zhoylman/mco-drought-indicators-data/usdm/historical_",i,"wk_usdm.geojson"))
+}
+
+

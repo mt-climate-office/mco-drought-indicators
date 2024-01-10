@@ -154,7 +154,7 @@ for(d in 1:length(depths)){
         theme(legend.position = 'bottom',
               legend.title=element_blank(),
               plot.title = element_text(hjust = 0.5))+
-        guides(colour = guide_legend(nrow = 1))+
+        guides(colour = guide_legend(nrow = 2))+
         ggtitle(paste0(depths_lay[d], ' Soil Moisture Data (', max_time,')\nMT Mesonet: ', stations$name[which(stations$station_key == temp_stations[i])]))+
         scale_color_manual(values=grouped_cols)
       

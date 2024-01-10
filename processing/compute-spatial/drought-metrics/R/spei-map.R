@@ -48,7 +48,7 @@ water_year = (length(time$day) - which(time$day == "10-01")[length(which(time$da
 year_to_date = (length(time$day) - which(time$day == "01-01")[length(which(time$day == "01-01"))])+1
 
 #designate time scale
-time_scale = c(15,30,60,90,180,365,730, water_year, year_to_date)
+time_scale = c(15,30,45,60,90,120,180,365,730, water_year, year_to_date)
 
 for(t in 1:length(time_scale)){
   #compute indexes for time breaks

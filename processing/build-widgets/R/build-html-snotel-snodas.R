@@ -17,54 +17,8 @@ counties = st_read(paste0(git.dir, 'processing/base-data/processed/county_umrb.s
 watersheds = st_read(paste0(git.dir, 'processing/base-data/processed/watersheds_umrb.shp'))
 tribal = st_read(paste0(git.dir, 'processing/base-data/processed/UMRB_tribal_lands_simple.geojson'))
 
+print('check 1')
 #import raw swe and depth 
-current_swe = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/swe/', full.names = T) %>%
-  as_tibble() %>%
-  mutate(time = gsub("\\D", "",  value),
-         time = as.Date(time, format = '%Y%m%d')) %>%
-  filter(time == max(time)) %$%
-  value %>%
-  raster() %>%
-  crop(., st_union(watersheds) %>% as(., 'Spatial')) %>%
-  mask(., st_union(watersheds) %>% as(., 'Spatial'))
-
-current_swe_time = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/swe/', full.names = T) %>%
-  as_tibble() %>%
-  mutate(time = gsub("\\D", "",  value),
-         time = as.Date(time, format = '%Y%m%d')) %>%
-  filter(time == max(time)) %$%
-  time
-
-current_depth = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/snow_depth/', full.names = T) %>%
-  as_tibble() %>%
-  mutate(time = gsub("\\D", "",  value),
-         time = as.Date(time, format = '%Y%m%d')) %>%
-  filter(time == max(time)) %$%
-  value %>%
-  raster() %>%
-  crop(., st_union(watersheds) %>% as(., 'Spatial')) %>%
-  mask(., st_union(watersheds) %>% as(., 'Spatial'))
-
-current_depth_time = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/snow_depth/', full.names = T) %>%
-  as_tibble() %>%
-  mutate(time = gsub("\\D", "",  value),
-         time = as.Date(time, format = '%Y%m%d')) %>%
-  filter(time == max(time)) %$%
-  time 
-
-#crop range to 99th percentile and convert to integer
-values(current_depth) = ifelse(values(current_depth) > quantile(values(current_depth), 0.999, na.rm = T),
-                              quantile(values(current_depth), 0.999, na.rm = T),
-                              values(current_depth))/25.4
-values(current_depth) = as.integer(values(current_depth))
-values(current_depth) = ifelse(values(current_depth) == 0, NA, values(current_depth))
-
-values(current_swe) = ifelse(values(current_swe) > quantile(values(current_swe), 0.999, na.rm = T),
-                               quantile(values(current_swe), 0.999, na.rm = T),
-                               values(current_swe))/25.4
-#values(current_swe) = as.integer(values(current_swe))
-current_swe = current_swe * (current_swe > 0)
-values(current_swe) = ifelse(values(current_swe) == 0, NA, values(current_swe))
 
 #define input shp files
 sites_of_interest = read_csv('/home/zhoylman/mco-drought-indicators-data/snotel/climatology/site_climatology.csv')
@@ -87,15 +41,16 @@ snodas_standardized_swe = raster(paste0(export.dir, 'snodas/processed/standardiz
 snodas_standardized_swe[snodas_standardized_swe >= 2.5] = 2.49
 snodas_standardized_swe[snodas_standardized_swe <= -2.5] = -2.49
 
+print('check 3')
+
+
 #color pallet
 pal <- colorNumeric(c("red", "yellow", "green", "blue", "purple"), domain = c(min(snotel$swe_anom, na.rm = T),max(snotel$swe_anom, na.rm = T)), na.color = "grey")
 pal_standard <- colorNumeric(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66"), -2.5:2.5, na.color = "transparent")
 pal_standard_r <- colorNumeric(rev(c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66")), -2.5:2.5, na.color = "transparent")
 
-pal_swe_raw = colorNumeric(c("cyan", "lightblue", "blue", "darkblue", "purple"), domain = c(min(values(current_swe), na.rm = T)-1,max(values(current_swe), na.rm = T)+1), na.color = "transparent")
-pal_swe_raw_rev = colorNumeric(rev(c("cyan", "lightblue", "blue", "darkblue", "purple")), domain = c(min(values(current_swe), na.rm = T)-1,max(values(current_swe), na.rm = T)+1), na.color = "grey")
-pal_depth_raw = colorNumeric(c("cyan", "lightblue", "blue", "darkblue", "purple"), domain = c(min(values(current_depth), na.rm = T)-1,max(values(current_depth), na.rm = T)+1), na.color = "transparent")
-pal_depth_raw_rev = colorNumeric(rev(c("cyan", "lightblue", "blue", "darkblue", "purple")), domain = c(min(values(current_depth), na.rm = T)-1,max(values(current_depth), na.rm = T)+1), na.color = "grey")
+#pal_depth_raw = colorNumeric(c("cyan", "lightblue", "blue", "darkblue", "purple"), domain = c(min(values(current_depth), na.rm = T)-1,max(values(current_depth), na.rm = T)+1), na.color = "transparent")
+#pal_depth_raw_rev = colorNumeric(rev(c("cyan", "lightblue", "blue", "darkblue", "purple")), domain = c(min(values(current_depth), na.rm = T)-1,max(values(current_depth), na.rm = T)+1), na.color = "grey")
 
 #time id
 snotel_time = snotel$Date %>% max()
@@ -125,6 +80,9 @@ pal_rev <- colorNumeric(rev(c('red', 'white' , 'blue')), domain = c(50,150), na.
 
 pal_r_rev_numeric <- colorNumeric(colorRamp((c("#8b0000", "#ff0000", "#ffff00", "#ffffff", "#00ffff", "#0000ff", "#000d66"))), 
                       domain = -20:20, na.color = "transparent")
+
+print('check 4')
+
 
 #custom legend fix
 css_fix <- "div.info.legend.leaflet-control br {clear: both;}"
@@ -412,8 +370,11 @@ swe_map_mobile = base_map_mobile() %>%
   }") %>%
   prependContent(tags$style(type = "text/css", css_fix)) 
 
+print('check 5')
 
 saveWidget(swe_map_mobile, paste0(export.dir, "widgets/swe_snotel_mobile.html"), selfcontained = F, libdir = paste0(export.dir, "widgets/libs/"))
+
+print('check 6')
 
 # #### standardized SWE
 

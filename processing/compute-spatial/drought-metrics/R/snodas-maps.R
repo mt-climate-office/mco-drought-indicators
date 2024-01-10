@@ -395,7 +395,7 @@ yday.waterYear = function(x, start.month = 10L){
   day = day(x)
   month = month(x)
   #dont want yday to go from 1 - 366, rather to 365
-  new_date = make_date(2023, month, day)
+  new_date = make_date(2024, month, day)
   start.yr = year(new_date) - (month(new_date) < start.month)
   start.date = make_date(start.yr, start.month, 1L)
   as.integer(new_date - start.date + 1L)
@@ -477,7 +477,7 @@ for(i in 1:length(watersheds$HUC8)){
   snodas_climatology_plot = plot_snodas(current_data = this_year_swe, 
                                    climatology_data = snodas_climatology, 
                                    site_id_ = watersheds$HUC8[i], 
-                                   base_year = 2022)
+                                   base_year = 2023)
   ggsave(snodas_climatology_plot, file = paste0('/home/zhoylman/mco-drought-indicators-data/snodas/plots/snodas-climatology-swe-', watersheds$HUC8[i], '.png'), 
          width = 10, height = 8, units = 'in')
 }

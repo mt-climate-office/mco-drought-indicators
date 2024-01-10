@@ -19,14 +19,17 @@ states_sf = sf::read_sf("/home/zhoylman/mco-drought-indicators/processing/base-d
 states_i = c('WA', 'OR', 'MT', 'ID', 'WY', 'ND', 'SD')
 
 for(s in 1:length(states_i)){
-  usdm = st_read('/home/zhoylman/mco-drought-indicators-data/usdm/current_usdm.shp')%>%
-    st_intersection(., states_sf %>% filter(STATE_ABBR == states_i[s]))
-  
   county = sf::read_sf('/home/zhoylman/mco-drought-indicators/processing/base-data/processed/county_umrb.shp') %>%
     st_intersection(., states_sf %>% filter(STATE_ABBR == states_i[s]))
   
   for(m in 1:length(metric)){
     time = read_csv(paste0(base_url, metric[m], '/time.csv')) %$% time
+    
+    usdm = st_read('/home/zhoylman/mco-drought-indicators-data/usdm/current_usdm.shp')%>%
+      st_intersection(., states_sf %>% filter(STATE_ABBR == states_i[s])) %>%
+      mutate(`Dx Class` = dplyr::recode_factor(`DM`, `4` = paste0(name[m],' < -2 (D4)'), `3` = paste0('-2 < ',name[m],' < -1.6 (D3)'),
+                                               `2` = paste0('-1.6 < ',name[m],' < -1.3 (D2)'), `1` = paste0('-1.3 < ',name[m],' < -0.8 (D1)'),
+                                               `0` = paste0('-0.8 < ',name[m],' < -0.5 (D0)')))
     for(i in 1:length(time_scales)){
       drought = raster::raster(paste0("/vsicurl/https://data.climate.umt.edu/drought-indicators/", 
                                       metric[m], "/current_", metric[m], '_', time_scales[i], '.tif')) %>%
@@ -60,6 +63,7 @@ for(s in 1:length(states_i)){
         scale_fill_manual(values = rev(c("white","#ffff00", "#D2B48C", "#ffa500", "#ff0000", "#811616")),
                           name = 'Produced by the Montana Climate Office (contact: zachary.hoylman@umontana.edu)', drop = F)+
         geom_sf(data = county, fill = 'transparent', color = 'black', size = 0.1)+
+        geom_sf(data = usdm,  aes(fill = `Dx Class`), size = 0.1, alpha = 0.3)+
         theme_bw(base_size = 12)+ 
         labs(x = NULL, y = NULL)+
         theme(plot.title = element_text(hjust = 0.5),
@@ -68,6 +72,8 @@ for(s in 1:length(states_i)){
               legend.box.background = element_rect(colour = "black"),
               legend.title=element_text(size=8))+
         guides(fill=guide_legend(nrow=2,byrow=TRUE, title.position = "bottom", title.hjust = 0.5))
+      
+      map
       
       ggsave(map, file = paste0('/home/zhoylman/mco-drought-indicators-data/figures/usdm-color-scheme/', states_i[s],'/',
                                 states_i[s], '_',metric[m], '_', time_scales[i], '.png'), width = 7, height = 5, units = 'in')
