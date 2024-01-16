@@ -335,9 +335,9 @@ swe_map_mobile = base_map_mobile() %>%
                                   snotel$site_id,':',snotel$state,':SNTL/',Sys.Date()-1,',',Sys.Date(),'/WTEQ::value,SNWD::value,PREC::value,TOBS::value?sortBy=0:1">Current Hourly SNOTEL Table (Yesterday -> Today)</a>'),
                    radius = 10, stroke = TRUE, fillOpacity = 0.9,
                    color = "black", fillColor = pal(snotel$swe_anom), group = "SNOTEL (SWE)", options = popupOptions(maxWidth = 650))%>%
-  addRasterImage(current_1, colors = pal_r, opacity = 0.8, group = "24hr Change", project = TRUE)%>%
-  addRasterImage(current_3, colors = pal_r, opacity = 0.8, group = "72hr Change", project = TRUE)%>%
-  addRasterImage(current_7, colors = pal_r, opacity = 0.8, group = "7 Day Change", project = TRUE)%>%
+  addRasterImage(current_1, colors = pal_r, opacity = 0.6, group = "24hr Change", project = TRUE)%>%
+  addRasterImage(current_3, colors = pal_r, opacity = 0.6, group = "72hr Change", project = TRUE)%>%
+  addRasterImage(current_7, colors = pal_r, opacity = 0.6, group = "7 Day Change", project = TRUE)%>%
   leaflet::addLayersControl(position = "topleft",
                             baseGroups = c("24hr Change","72hr Change", "7 Day Change"),
                             overlayGroups = c("SNOTEL (SWE)",  "Weather", 'Legends'),
@@ -350,7 +350,7 @@ swe_map_mobile = base_map_mobile() %>%
   )%>%
   addLegend("bottomleft", pal = pal_r_rev, values = 20:-20,
             title = paste0("SNODAS Snow <br>Depth Change (in)<br>",snodas_time$time),
-            opacity = 1,
+            opacity = 0.6,
             group = "Legends",
             labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
   )%>%

@@ -2,6 +2,8 @@
 
 # Compute Current Drought Conditions
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/usdm-current.R >/home/zhoylman/mco-drought-indicators-data/logs/usdm 2>&1
+Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/process-SPoRT.R >/home/zhoylman/mco-drought-indicators-data/logs/SPoRT 2>&1
+Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/process-ForDRI.R >/home/zhoylman/mco-drought-indicators-data/logs/ForDRI 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/spi-map.R >/home/zhoylman/mco-drought-indicators-data/logs/spi 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/spei-map.R >/home/zhoylman/mco-drought-indicators-data/logs/spei 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/eddi-map.R >/home/zhoylman/mco-drought-indicators-data/logs/eddi 2>&1

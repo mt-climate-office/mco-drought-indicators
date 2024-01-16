@@ -99,9 +99,9 @@ base_map = function(x){
 base_map_mobile = function(x){
   #prefer canvas works best for lots of points on mobile
   leaflet::leaflet(options = leafletOptions(preferCanvas = TRUE)) %>%
-    leaflet::addTiles("https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a") %>%
-    leaflet::addProviderTiles("Stamen.TonerLines") %>%
-    leaflet::addProviderTiles("Stamen.TonerLabels") %>%
+    #leaflet::addTiles("https://api.maptiler.com/tiles/hillshades/{z}/{x}/{y}.png?key=KZO7rAv96Alr8UVUrd4a") %>%
+    #leaflet::addTiles("https://tiles.stadiamaps.com/tiles/stamen_toner_lines/{z}/{x}/{y}{r}.png") %>%
+    leaflet::addTiles("http://sgx.geodatenzentrum.de/wmts_topplus_open/tile/1.0.0/web_grau/default/WEBMERCATOR/{z}/{y}/{x}.png") %>%
     leaflet::setView(lng = -105, lat = 45.5, zoom = 6) %>%
     leaflet::addPolygons(data = states, group = "States", fillColor = "transparent", weight = 5, color = "black", opacity = 1)%>%
     leaflet::addWMSTiles(
