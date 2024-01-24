@@ -236,7 +236,6 @@ beta_fit_smi = function(x, export_opts = 'SMI', return_latest = T, climatology_l
       fit.cdf = pbeta(x, shape1 = params[1], shape2 = params[2])
       #compute smi (soil moisture index)
       smi = qnorm(fit.cdf, mean = 0, sd = 1)
-      rm(fit.beta, params, fit.cdf); gc(); gc()
       if(return_latest == T){
         if(export_opts == 'CDF'){
           return(fit.cdf[length(fit.cdf)]) 
