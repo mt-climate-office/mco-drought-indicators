@@ -218,6 +218,55 @@ eddi_fun = function(x, climatology_length = 30) {
   }
 }
 
+#fit the beta distrobution (2 parameter) - Useful for soil moisture etc
+beta_fit_smi = function(x, export_opts = 'SMI', return_latest = T, climatology_length = 30) {
+  #load the package needed for these computations
+  library(MASS)
+  #first try beta
+  tryCatch(
+    {
+      x = as.numeric(x)
+      #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
+      x = tail(x, climatology_length)
+      #fit the beta distribution
+      fit.beta = fitdistr(x, densfun = "beta", start = list(shape1 = 1, shape2 = 1))
+      #store parameters
+      params = fit.beta$estimate
+      #compute probabilistic cdf 
+      fit.cdf = pbeta(x, shape1 = params[1], shape2 = params[2])
+      #compute smi (soil moisture index)
+      smi = qnorm(fit.cdf, mean = 0, sd = 1)
+      if(return_latest == T){
+        if(export_opts == 'CDF'){
+          return(fit.cdf[length(fit.cdf)]) 
+        }
+        if(export_opts == 'params'){
+          return(params) 
+        }
+        if(export_opts == 'SMI'){
+          return(smi[length(smi)]) 
+        }
+      }
+      if(return_latest == F){
+        if(export_opts == 'CDF'){
+          return(fit.cdf) 
+        }
+        if(export_opts == 'params'){
+          return(params) 
+        }
+        if(export_opts == 'SMI'){
+          return(smi) 
+        }
+      }
+      
+    },
+    #else return NA
+    error=function(cond) {
+      return(NA)
+    })
+}
+
+
 #percent of normal
 percent_of_normal = function(x, climatology_length = 30){
   #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
