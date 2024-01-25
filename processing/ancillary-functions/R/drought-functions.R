@@ -226,6 +226,11 @@ beta_fit_smi = function(x, export_opts = 'SMI', return_latest = T, climatology_l
   tryCatch(
     {
       x = as.numeric(x)
+      #if soil moisture is 0, replace it with 0.01 Really Dry
+      if(any(x == 0, na.rm = T)){
+        index = which(x == 0)
+        x[index] = 0.01
+      }
       #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
       x = tail(x, climatology_length)
       #fit the beta distribution
