@@ -1,336 +1,870 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Drought Dashboard</title>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149859729-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
 
-      gtag('config', 'UA-149859729-1');
-    </script>
-    <!-- Import Bootstrap Scripts and CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Define Custom CSS styling -->
-    <style>
-      #map {
-        bottom: 0px;
-        left: 0px;
-        position: relative;
-        right: 0px;
-        top: 20px;
-        height: 730px;
-        width: 98%;
-        border: 3px solid #000000;
-        margin-left:auto;
-        margin-right:auto;
+<head>
+  <title>Drought Dashboard</title>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149859729-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-149859729-1');
+  </script>
+  <!-- Import Bootstrap Scripts and CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Define Custom CSS styling -->
+  <style>
+    /* Style for the loading spinner */
+    #loading-spinner {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #fff;
+      /* Set your background color */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    /* Style for the spinner itself */
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-top: 4px solid #3498db;
+      /* Set your spinner color */
+      border-radius: 50%;
+      width: 200px;
+      height: 200px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    /* Style for the loading message */
+    .loading-message {
+      font-size: 22px;
+      color: #000000;
+      /* Set your text color */
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
       }
 
-      footer {
-        text-align: center;
-        background-color: rgba(255, 255, 255, 0.199);
-        color: rgb(0, 0, 0);
+      100% {
+        transform: rotate(360deg);
       }
+    }
 
-      .parent{
-        height:200px;
-        text-align:center;
-        display:table;
-        width:100%;
-        margin-top: 20px;
-      }
+    /* Style to hide content until loaded */
+    body.loaded {
+      overflow: auto;
+    }
 
-      .parent .child{
-        display:table-cell;
-        vertical-align:middle;
-        width:100%;
-        height:100%;
-      }
+    body:not(.loaded) {
+      overflow: hidden;
+    }
 
-      .legend {
-        padding: 6px 4px;
-        font: 14px Arial, Helvetica, sans-serif;
-        background: white;
-        background: rgba(255, 255, 255, 0.8);
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-        border-radius: 5px;
-        line-height: 18px;
-        color: #555;
-      }
+    /* Style to hide Leaflet-sidebar */
+    .leaflet-sidebar {
+      display: none;
+    }
 
-      .pointLegend {
-        padding: 6px 4px;
-        font: 14px Arial, Helvetica, sans-serif;
-        background: white;
-        background: rgba(255, 255, 255, 0.8);
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-        border-radius: 5px;
-        line-height: 18px;
-        color: #555;
-      }
+    body.loaded .leaflet-sidebar {
+      display: block;
+    }
 
-      select {
-            -webkit-appearance: auto;
-            -moz-appearance: auto;
-            appearance: auto;
-            text-align-last:center;
-            text-align: center;
-      }
+    /* Style to hide Leaflet legends */
+    .legend {
+      display: none;
+    }
 
-      .legend h4 {
-        text-align: center;
-        font-size: 16px;
-        margin: 0px 0px 6px;
-        color: #777;
-      }
+    body.loaded .legend {
+      display: block;
+    }
 
-      .pointLegend h4 {
-        text-align: center;
-        font-size: 16px;
-        margin: 0px 0px -6px;
-        color: #777;
-      }
+    /* Style to hide Leaflet attributes */
+    .leaflet-control-attribution {
+      display: none;
+    }
 
-      .legend span {
-        position: relative;
-        bottom: 3px;
-      }
+    body.loaded .leaflet-control-attribution {
+      display: block;
+    }
 
-      .legend i {
-        width: 18px;
-        height: 18px;
-        float: left;
-        margin: 0 8px 0 0;
-        opacity: 0.7;
-      }
+     /* Style to hide Leaflet zoom */
+     .leaflet-control-zoom {
+      display: none;
+    }
 
-      .pointLegend i {
-        width: 18px;
-        height: 18px;
-        float: left;
-        margin: 0 8px 0 0;
-        opacity: 0.7;
-      }
+    body.loaded .leaflet-control-zoom {
+      display: block;
+    }
 
-      .legend i.icon {
-        background-size: 18px;
-        background-color: rgba(255, 255, 255, 1);
-      }
 
-      .circle {
+    #map {
+      bottom: 0px;
+      left: 0px;
+      position: relative;
+      right: 0px;
+      top: 50px;
+      height: 730px;
+      width: 98%;
+      border: 3px solid #000000;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    footer {
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.199);
+      color: rgb(0, 0, 0);
+    }
+
+    .parent {
+      height: 200px;
+      text-align: center;
+      display: table;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .parent .child {
+      display: table-cell;
+      vertical-align: middle;
+      width: 100%;
+      height: 100%;
+    }
+
+    .legend {
+      padding: 6px 4px;
+      font: 14px Arial, Helvetica, sans-serif;
+      background: white;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      line-height: 18px;
+      color: #555;
+    }
+
+    .pointLegend {
+      padding: 6px 4px;
+      font: 14px Arial, Helvetica, sans-serif;
+      background: white;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      line-height: 18px;
+      color: #555;
+    }
+
+
+    .legend h4 {
+      text-align: center;
+      font-size: 16px;
+      margin: 0px 0px 2px;
+      color: #777;
+      padding: 10px;
+      margin-right: 10px;
+      /* Adjust margin as needed */
+    }
+
+
+    .pointLegend h4 {
+      text-align: center;
+      font-size: 16px;
+      margin: 0px 0px -6px;
+      color: #777;
+    }
+
+    .legend span {
+      position: relative;
+      bottom: 3px;
+    }
+
+    .legend i {
+      width: 18px;
+      height: 18px;
+      float: left;
+      margin: 0 8px 0 0;
+      opacity: 0.7;
+    }
+
+    .pointLegend i {
+      width: 18px;
+      height: 18px;
+      float: left;
+      margin: 0 8px 0 0;
+      opacity: 0.7;
+    }
+
+    .legend i.icon {
+      background-size: 18px;
+      background-color: rgba(255, 255, 255, 1);
+    }
+
+    .circle {
       float: left;
       border: 1px solid #222;
       border-radius: 50%;
-      }
+    }
 
-      .pointLegend .colorcircle {
+    .pointLegend .colorcircle {
       border-radius: 50%;
       width: 15px;
       height: 15px;
       margin-top: 0px;
-      }
-      .pointLegend .circlepadding {
+    }
+
+    .pointLegend .circlepadding {
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.85);
-      }
+    }
 
-      .pointLegend i.icon {
-        background-size: 18px;
-        background-color: rgba(255, 255, 255, 1);
-      }
+    .pointLegend i.icon {
+      background-size: 18px;
+      background-color: rgba(255, 255, 255, 1);
+    }
 
-      .navbar-brand{
-        margin-left: 20px;
-        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
+    .navbar-brand {
+      margin-left: 20px;
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
         'Lucida Sans', Arial, sans-serif;
-      }
-      
-      .select2 {
-        width:300px!important;
-        z-index: 99999 !important;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        margin-left: 10px;
-        font-size:14px;
-      }
+    }
 
-      .select2-results__options{
-        font-size:12px !important;
-      }  
+    .leaflet-sidebar .leaflet-sidebar-header {
+      background-color: #212529;
+    }
 
-      .leaflet-left {
-          padding-top: 40px;
+    .leaflet-sidebar .leaflet-sidebar-tabs {
+      background-color: #e2e2e2;
+    }
+
+    .select2 {
+      width: 200px !important;
+      margin-top: 0px;
+      margin-bottom: 10px;
+      margin-left: 0px;
+      font-size: 14px;
+    }
+
+    .select2-results__options {
+      font-size: 12px !important;
+      justify-content: space-between;
+    }
+
+    .select2-container {
+      z-index: 1000001;
+    }
+
+    .leaflet-left {
+      padding-top: 40px;
+    }
+
+    #removeStationData {
+      font-size: 14px !important;
+      transform: translate(0, -60%);
+    }
+
+    .rangeslider {
+      position: absolute;
+      top: -112px;
+      width: 0px;
+      height: 0px;
+      right: 70px;
+      padding: 10px;
+      z-index: 800;
+      font-size: 0;
+      border: 0px solid rgb(0, 0, 0);
+      color: rgb(0, 0, 0);
+      background-color: none;
+      text-align: center;
+      display: none;
+    }
+
+    .rangesliderUSDM {
+      font-size: 16px !important;
+      position: absolute;
+      top: -112px;
+      width: 0px;
+      height: 0px;
+      right: 30px;
+      padding: 10px;
+      z-index: 800;
+      border: 1px solid rgb(0, 0, 0);
+      color: rgb(0, 0, 0);
+      background-color: none;
+      text-align: center;
+      display: none;
+    }
+
+    .timeSliderUSDM {
+      width: 100%;
+      margin-bottom: 10px;
+      /* Adjust margin as needed */
+    }
+
+    #sliderLabelTimeUSDM {
+      display: block;
+      text-align: center;
+    }
+
+    #timeSlideUSDM {
+      width: 100%;
+    }
+
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 5px;
+    }
+
+    .slider-labels span {
+      flex: 0 0 auto;
+    }
+
+    .toGrey img {
+      filter: grayscale(1);
+    }
+
+    .tabs {
+      position: relative;
+      clear: both;
+    }
+
+    .tab {
+      position: center;
+      float: center;
+      display: none;
+    }
+
+    .tab-link {
+      background: #eee;
+      display: inline-block;
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin-left: -1px;
+      position: relative;
+      list-style-type: none;
+      left: 1px;
+      top: 1px;
+      cursor: pointer;
+      clear: both;
+    }
+
+    .tab:target {
+      display: block;
+    }
+
+    .nav-pills>li>a.active {
+      background-color: #0074d9 !important;
+    }
+
+    hr {
+      padding: 2px;
+      margin: 0px;
+    }
+
+
+    .leaflet-sidebar {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100% !important;
+      overflow: hidden;
+      z-index: 2000;
+    }
+
+    .leaflet-sidebar.collapsed {
+      width: 40px !important;
+    }
+
+    @media (min-width: 768px) {
+      .leaflet-sidebar {
+        top: 10px;
+        bottom: 10px;
+        transition: width 500ms;
       }
+    }
 
-      #addSoilMoisturePoints {
-        font-size:16px !important;
-        position: absolute;
-        top: 90px;
-        right: 280px;
-        padding: 10px;
-        z-index: 800;
-        height: 60px;
+    @media (min-width: 768px) and (max-width: 991px) {
+      .leaflet-sidebar {
+        width: 300px !important;
+        max-width: 300px !important;
       }
+    }
 
-      .rangeslider {
-        position: absolute;
-        top: 91px;
-        width: 200px;
-        height: 60px;
-        right: 70px;
-        padding: 10px;
-        z-index: 800;
-        border: 1px solid rgb(0, 0, 0);
-        color: rgb(0, 0, 0);
-        background-color: #EFEFEF;
-        text-align: center;
+    @media (min-width: 992px) and (max-width: 1199px) {
+      .leaflet-sidebar {
+        width: 300px !important;
+        max-width: 300px !important;
       }
+    }
 
-      .rangesliderUSDM {
-        font-size:16px !important;
-        position: absolute;
-        top: 525px;
-        width: 195px;
-        height: 60px;
-        right: 30px;
-        padding: 10px;
-        z-index: 800;
-        border: 1px solid rgb(0, 0, 0);
-        color: rgb(0, 0, 0);
-        background-color: #EFEFEF;
-        text-align: center;
-        display:none;
+    @media (min-width: 1200px) {
+      .leaflet-sidebar {
+        width: 300px !important;
+        max-width: 300px !important;
       }
+    }
 
-      .toGrey img {
-          filter: grayscale(1);
+    .leaflet-sidebar-pane {
+      display: none;
+      left: 0;
+      right: 0;
+      box-sizing: border-box;
+      padding: 10px 20px;
+    }
+
+    .leaflet-sidebar-pane.active {
+      display: block;
+    }
+
+    @media (min-width: 768px) and (max-width: 991px) {
+      .leaflet-sidebar-pane {
+        min-width: 300px !important;
       }
+    }
 
-      .tabs {
-          position:relative;
-          clear:both;
+    .leaflet-sidebar-left.leaflet-touch {
+      box-shadow: none;
+      border-right: 2px solid rgba(0, 0, 0, 0.2);
+    }
+
+    @media (min-width: 768px) {
+      .leaflet-sidebar-left~.leaflet-control-container .leaflet-left {
+        transition: left 500ms;
+        left: 310px !important;
       }
+    }
 
-      .tab {
-          position: center;
-          float:center;
-          display: none;
+    @media (min-width: 768px) and (max-width: 991px) {
+      .leaflet-sidebar-left~.leaflet-control-container .leaflet-left {
+        left: 310px !important;
       }
+    }
 
-      .tab-link {
-          background:#eee;
-          display: inline-block;
-          padding:10px;
-          border:1px solid #ccc;
-          margin-left:-1px;
-          position:relative;
-          list-style-type: none;
-          left:1px;
-          top:1px;
-          cursor:pointer;
-          clear:both;
+    @media (min-width: 992px) and (max-width: 1199px) {
+      .leaflet-sidebar-left~.leaflet-control-container .leaflet-left {
+        left: 310px !important;
       }
-      
-      .tab:target {
-          display: block;
+    }
+
+    @media (min-width: 1200px) {
+      .leaflet-sidebar-left~.leaflet-control-container .leaflet-left {
+        left: 310px !important;
       }
+    }
 
-      .nav-pills > li > a.active {
-          background-color: #9900ff !important;
-      }
+    .leaflet-sidebar-left.collapsed~.leaflet-control-container .leaflet-left {
+      left: 50px !important;
+    }
 
+    .leaflet-sidebar-right.collapsed~.leaflet-control-container .leaflet-right {
+      right: 10px !important;
+    }
 
-    </style>
-  </head>
-  <body>
-    <!-- Build Nav Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <a class="navbar-brand" href="">UMRB Drought Indicators Dashboard</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse " id="navbarNavDropdown">
-        <ul class="navbar-nav navbar-right">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              MT Mesonet
-            </a>
-            <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
-              <h6 class="dropdown-header">Montana Mesonet</h6> 
-              <a class="dropdown-item" href="https://mesonet.climate.umt.edu/dash/">Current Data</a>
-              <a class="dropdown-item" href="https://shiny.cfc.umt.edu/mesonet-download/">Data Downloader</a>
-            </div>
-          </li>
-          <!-- Add documentation soon -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Drought Impacts
-            </a>
-            <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
-              <h6 class="dropdown-header">MT Drought Impacts Reporter</h6> 
-              <a class="dropdown-item" href="http://nris.mt.gov/droughtsurvey">Make a Report</a>
-              <a class="dropdown-item" href="http://nris.mt.gov/droughtimpacts">See Current Reports</a>
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Documentation
-            </a>
-            <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
-              <h6 class="dropdown-header">Dashboard Documentation</h6> 
-              <a class="dropdown-item" href="#">Data and Metrics (Coming Soon!)</a>
-              <div class="dropdown-divider"></div>
-              <!-- <h6 class="dropdown-header">General</h6> -->
-              <a class="dropdown-item" href="https://climate.umt.edu/" target="_blank">Montana Climate Office (About Us)</a>
-            </div>
-          </li>
-          </ul>
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link ml-auto" href="https://github.com/mt-climate-office">MCO GitHub</a>
-            </li>
+    .leaflet-sidebar .leaflet-control {
+      width: 200px;
+      /* Adjust the width to your preference */
+    }
+
+    .leaflet-sidebar .leaflet-control-layers-list {
+      line-height: 0.01;
+      /* Adjust this value as needed to reduce line spacing */
+    }
+
+    .leaflet-control-layers-selector {
+      margin-bottom: -10px;
+      /* Adjust this value as needed */
+    }
+
+    .btnStyle {
+      position: relative;
+      left: 10px;
+
+    }
+
+    /* Custom CSS for changing tab colors */
+    #myTabs .nav-item .nav-link {
+      color: #000000;
+      /* Set the text color */
+      background-color: #ffffff;
+      /* Set the background color */
+      border-color: #000000;
+      /* Set the border color */
+    }
+
+    #myTabs .nav-item .nav-link.active,
+    #myTabs .nav-item .nav-link:hover {
+      color: #ffffff;
+      /* Set the text color for active and hover states */
+      background-color: #0074d9;
+      /* Set the background color for active and hover states */
+      border-color: #000000;
+      /* Set the border color for active and hover states */
+    }
+
+    .map-title-container {
+      position: absolute;
+      top: 46px;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #ffffff00;
+      padding: 10px;
+      border: 0px solid #ccc;
+      z-index: 1000;
+      white-space: nowrap;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .slider-triangle {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 5px;
+      background: #D3D3D3;
+      outline: none;
+      opacity: 0.7;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 5px;
+      background: #D3D3D3;
+      outline: none;
+      opacity: 0.7;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+    }
+   
+    .sliderticks {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10px;
+    }
+
+    .sliderticks p {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      width: 1px;
+      background: #D3D3D3;
+      height: 10px;
+      line-height: 40px;
+      margin: 0 0 20px 0;
+    }
+
+    /* Replace '.your-navbar-class' with the actual class or ID of your navbar */
+    .navbar {
+      z-index: 10000000; /* Adjust the value based on your layout and requirements */
+    }
+
+  </style>
+</head>
+
+<body>
+  <div id="loading-spinner">
+    <div class="spinner"></div>
+    <div class="loading-message">
+      <center><b>Loading the UMRB Drought Indicators Dashboard<br>Please Wait...</b></center>
+    </div>
+  </div>
+  <!-- Build Nav Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="">UMRB Drought Indicators Dashboard</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+      aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse " id="navbarNavDropdown">
+      <ul class="navbar-nav navbar-right">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            MT Mesonet
+          </a>
+          <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
+            <h6 class="dropdown-header">Montana Mesonet</h6>
+            <a class="dropdown-item" href="https://mesonet.climate.umt.edu/dash/">Current Data</a>
+            <a class="dropdown-item" href="https://shiny.cfc.umt.edu/mesonet-download/">Data Downloader</a>
+          </div>
+        </li>
+        <!-- Add documentation soon -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Drought Impacts
+          </a>
+          <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
+            <h6 class="dropdown-header">MT Drought Impacts Reporter</h6>
+            <a class="dropdown-item" href="http://nris.mt.gov/droughtsurvey">Make a Report</a>
+            <a class="dropdown-item" href="http://nris.mt.gov/droughtimpacts">See Current Reports</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Documentation
+          </a>
+          <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
+            <h6 class="dropdown-header">Dashboard Documentation</h6>
+            <a class="dropdown-item" href="#">Data and Metrics (Coming Soon!)</a>
+            <div class="dropdown-divider"></div>
+            <!-- <h6 class="dropdown-header">General</h6> -->
+            <a class="dropdown-item" href="https://climate.umt.edu/" target="_blank">Montana Climate Office (About
+              Us)</a>
+          </div>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link ml-auto" href="https://github.com/mt-climate-office/mco-drought-indicators">MCO GitHub</a>
+        </li>
+      </ul>
+    </div>
+    <!-- SIDEBAR!  
+      This is where you define the sidebar layout. You define the tabs you want to have on the side here as well as the content that is 
+      in the tabs.
+      -->
+    <div id="sidebar" class="leaflet-sidebar collapsed">
+      <div class="leaflet-sidebar-tabs">
+        <!-- top aligned tabs -->
+        <ul role="tablist">
+          <li><a href="#home" role="tab"><i class="fa fa-bars active"></i></a></li>
+          <!-- ADD INFO TAB HERE
+                <li><a href="#info" role="tab"><i class="fa fa-info"></i></a></li> -->
+          <li><a href="https://github.com/mt-climate-office/mco-drought-indicators" target="_blank"><i
+                class="fa fa-github"></i></a></li>
         </ul>
       </div>
-    </nav>
-    <!-- import remote scripts -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/georaster"></script>
-    <script src="https://unpkg.com/chroma-js"></script>
-    <script src="https://unpkg.com/georaster-layer-for-leaflet/dist/georaster-layer-for-leaflet.min.js"></script> 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://unpkg.com/flatgeobuf@3.22.0/dist/flatgeobuf-geojson.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">
-    <script src="https://unpkg.com/leaflet-gesture-handling"></script>
-    <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://unpkg.com/leaflet.tilelayer.fallback@1.0.4/dist/leaflet.tilelayer.fallback-src.js"></script>
-    <div class="rangeslider">
-      <label id= "sliderLabel" for="slider">Map Opacity</label>
-      <input id="opacitySlide" type="range" class="form-range" min="0" max="1" step="0.01" value="0.5" fill="white">
+
+      <div class="leaflet-sidebar-content">
+        <div class="leaflet-sidebar-pane" id="home">
+          <header class="leaflet-sidebar-header">
+            Control Panel
+            <span class="leaflet-sidebar-close"><i class="fa fa-caret-right"></i></span>
+          </header>
+
+          <!-- Bootstrap Nav tabs -->
+          <ul class="nav nav-tabs" id="myTabs" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="tab1-tab" data-toggle="tab" href="#tab1" role="tab" aria-controls="tab1"
+                aria-selected="true"><b>Map Controls</b></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="tab2-tab" data-toggle="tab" href="#tab2" role="tab" aria-controls="tab2"
+                aria-selected="false"><b>Station Data</b></a>
+            </li>
+          </ul>
+
+          <!-- Bootstrap Tab panes -->
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+              <!-- Content for Tab 1 goes here -->
+              <table style="width: 210px !important;">
+                <tr>
+                  <td>
+                    <p>
+                      <br>Welcome to the <b>Upper Missouri River Basin (UMRB) Drought Indicators Dashboard</b>! Start by
+                      selecting the variable of interest below.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="outer-div">
+                      <center><b>Choose a Variable</b></center>
+                      <div id="var-container" class="inner-div"></div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="outer-div">
+                      <br>
+                      <center><b>Timescales/Models</b></center>
+                      <div id="timescale-container" class="inner-div"></div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="outer-div">
+                      <p>
+                        <center><b>Adjust map opacity (transparency)</b></center>
+                      </p>
+                      <div id="map-opacity-container" class="inner-div"></div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="outer-div">
+                      <br>
+                      <center><b>Map Overlays</b></center>
+                      <div id="overlay-container" class="inner-div"></div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="outer-div">
+                      <p><br>
+                        <center><b>Adjust U.S. Drought Monitor (USDM) overlay opacity (transparency)</b></center>
+                      </p>
+                      <div id="usdm-opacity-container" class="inner-div"></div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="outer-div">
+                      <p>
+                        <center><b>View Historical U.S. Drought Monitor (USDM) Maps (weeks)</b></center>
+                      </p>
+                      <div id="usdm-time-container" class="inner-div"></div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+              <!-- Content for Tab 2 goes here -->
+              <table style="width: 210px !important;">
+                <tr>
+                  <td>
+                    <div class="outer-div">
+                      <p><br>
+                        <center><b>Add station data to map</b></center><br>
+                      </p>
+                      <div id="station-data-container" class="inner-div"></div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="outer-div">
+                      <p>
+                        <hr><br>
+                        <center><b></b></center><br>
+                      </p>
+                      <div id="remove-station-container" class="inner-div"></div>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Add content for Tab 2 as needed -->
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- THIS IS WHERE WE ADD THE INFO TAB
+            <div class="leaflet-sidebar-pane" id="info">
+              <h1 class="leaflet-sidebar-header">
+                Information<span class="leaflet-sidebar-close"><i class="fa fa-caret-right"></i></span>
+              </h1>
+              <p style="width: 210px !important;">
+                <br>Here I am thinking of adding simple desciptions of the metric selected. It will be dynamic and change is SPI or SPEI is selected etc. This will not replace full on documentation, but will be a nice quick reference. 
+              </p>
+            </div> -->
     </div>
-    <div class="rangesliderUSDM">
-      <label id= "sliderLabelUSDM" for="slider">USDM Opacity</label>
-      <input id="opacitySlideUSDM" type="range" class="form-range" min="0" max="1" step="0.01" value="0.3" fill="white">
+    <div id="custom-map-controls"></div>
+  </nav>
+  <!-- import remote scripts -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/georaster"></script>
+  <script src="https://unpkg.com/chroma-js"></script>
+  <script src="https://unpkg.com/georaster-layer-for-leaflet/dist/georaster-layer-for-leaflet.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://unpkg.com/flatgeobuf@3.22.0/dist/flatgeobuf-geojson.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css"
+    type="text/css">
+  <script src="https://unpkg.com/leaflet-gesture-handling"></script>
+  <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="https://unpkg.com/leaflet.tilelayer.fallback@1.0.4/dist/leaflet.tilelayer.fallback-src.js"></script>
+  <!-- SIDEBAR! Must include the font-awesome and the leaflet-sidebar.min.css stylesheets here. -->
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.0.4/css/leaflet-sidebar.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css"
+    type="text/css">
+  <!-- SIDEBAR! Must include the leaflet-sidebar.js here. -->
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-sidebar-v2@3.2.3/js/leaflet-sidebar.js"></script>
+  <script> src = "https://raw.githubusercontent.com/vogdb/Leaflet.ActiveLayers/master/src/ActiveLayers.js"</script>
+
+  <div class="rangeslider">
+    <input id="opacitySlide" type="range" class="slider" min="0" max="1" step="0.01" value="0.4">
+  </div>
+  <div class="rangesliderUSDM">
+    <input id="opacitySlideUSDM" type="range" class="slider" min="0" max="1" step="0.01" value="0.3" fill="white">
+  </div>
+  <div class="timeSliderUSDM">
+    <input id="timeSlideUSDM" type="range" min="-8" max="0" value="0" class="slider-triangle">
+    <div id="timeSlideUSDMticks" class="sliderticks">
+      <p>-8</p>
+      <p>-7</p>
+      <p>-6</p>
+      <p>-5</p>
+      <p>-4</p>
+      <p>-3</p>
+      <p>-2</p>
+      <p>-1</p>
+      <div style="padding-top:15px">
+        <p><b>Current</b></p>
+      </div>
     </div>
+    <div class="map-title-container">
+      <div id="layer-control-container"></div>
+    </div>
+
     <div id="map"></div>
-    <input type="button" id="addSoilMoisturePoints" value='Add Soil Moisture Stations' class="btnStyle span3" />
+
+    <input type="button" id="removeStationData" value='Remove Stations from Map' class="btnStyle span3" />
+
     <script>
+      // Hide loading spinner when the page is fully loaded
+      window.addEventListener('load', function () {
+        document.body.classList.add('loaded');
+        document.getElementById('loading-spinner').style.display = 'none';
+      });
       //Map script! 
-      document.addEventListener("DOMContentLoaded", async () => { 
+      document.addEventListener("DOMContentLoaded", async () => {
         //define scaler for data
         var scaler = 10;
 
         // initalize leaflet map and set some prefs
         const map = L.map('map', {
-          preferCanvas: true, 
-          gestureHandling: true, 
+          preferCanvas: true,
+          gestureHandling: true,
           attributionControl: false,
           inertia: false,
           noMoveStart: true,
@@ -338,48 +872,60 @@
           zoomAnimation: true,
           zoomAnimationThreshold: 3,
           fadeAnimation: true,
-          markerZoomAnimation:false,
+          markerZoomAnimation: false,
           zoomDelta: 0.5,
           zoomSnap: 0,
           zoomControl: false
         }).setView(new L.LatLng(45, -111), 6);
-        
+
         map.createPane('SNOTEL');
         map.getPane('SNOTEL').style.zIndex = 650;
         map.createPane('labels');
         map.getPane('labels').style.zIndex = 651;
-      
+
         //define layer control for baselayers (will be removed with selector change)
-        var layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false})
-        
+        var layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: true })
+
         //define layer control for flatgeobufs (will not be removed with selector change)
-        var fgbLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map)
-        var snowFGBLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false});
-        var soilMoistureFGBLayerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false});
+        var fgbLayerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map)
+        fgbLayerControl.getContainer().style.height = '110px';
+        fgbLayerControl.getContainer().style.overflow = 'visible';
+        document.querySelector('.leaflet-control-layers-list').style.minHeight = '100%';
+        document.querySelector('.leaflet-control-layers-list').style.overflow = 'visible';
+        var snowFGBLayerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false });
+        var soilMoistureFGBLayerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false });
 
         //set min zoom
         map.options.minZoom = 5;
 
         L.control.zoom({
-            position:'topright'
+          position: 'topright'
         }).addTo(map);
 
         //add attribution
         map.addControl(L.control.attribution({
-            position: 'bottomright',
-            prefix: '<a href="https://climate.umt.edu/" target="_blank">MCO</a>'
+          position: 'bottomright',
+          prefix: '<a href="https://climate.umt.edu/" target="_blank">MCO</a>'
         }));
+
+        // SIDEBAR! This is where you add the sidebar to the map
+        var sidebar = L.control
+          .sidebar({ container: "sidebar", position: "left", autopan: true })
+          .addTo(map)
+          // This makes it so the 'home' tab is open by default. 
+          .open('home');
+
 
         //base map
         //L.tileLayer.fallback('https://tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=2a290c2900324a42bf8588e8687eb40d', {className: 'toGrey'}).addTo(map)
         //map.attributionControl.addAttribution('<a href="https://thunderforest.com" target="_blank">Thunderforest</a>');
         //map.attributionControl.addAttribution('<a href="https://openstreetmap.org/copyright" target="_blank">OSM contributors</a>');
-        
-        L.tileLayer.fallback('https://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {className: 'toGrey'}).addTo(map)
+
+        L.tileLayer.fallback('https://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', { className: 'toGrey' }).addTo(map)
         map.attributionControl.addAttribution('<a href="https://www.esri.com/" target="_blank">Tiles &copy; ESRI</a>');
 
         // outdated base map layers and vectors
-         //$.getJSON("https://tile.thunderforest.com/thunderforest.transport-v2.json?apikey=2a290c2900324a42bf8588e8687eb40d",function(data){
+        //$.getJSON("https://tile.thunderforest.com/thunderforest.transport-v2.json?apikey=2a290c2900324a42bf8588e8687eb40d",function(data){
         //   L.geoJson(data).addTo(newMap);
         //});
         //L.geoJSON('https://tile.thunderforest.com/thunderforest.transport-v2.json?apikey=2a290c2900324a42bf8588e8687eb40d').addTo(map);
@@ -393,12 +939,13 @@
         //add labels to the control layer
         //fgbLayerControl.addOverlay(labels, 'Map Labels')
         //snowFGBLayerControl.addOverlay(labels, 'Map Labels')
-        
+
         //define default legend controls
         var legend = L.control({ position: "bottomleft" });
         var USDMlegend = L.control({ position: "bottomright" });
         var topofire_legend = L.control({ position: "bottomleft" });
         var smap_legend = L.control({ position: "bottomleft" });
+        var sport_legend = L.control({ position: "bottomleft" });
 
         //define active layers layer group to populate as cogs are added
         var activeLayers = new L.LayerGroup();
@@ -408,13 +955,13 @@
 
         // define selector
         var selector = L.control({
-            position: 'topleft'
+          position: 'topleft'
         })
 
         // create DOM object
-        selector.onAdd = function(map) {
-            var div = L.DomUtil.create('select');
-            return div
+        selector.onAdd = function (map) {
+          var div = L.DomUtil.create('select');
+          return div
         }
 
         //add to map
@@ -425,101 +972,166 @@
 
         // define selecter data
         var selectData = [
-        {
-          text:'Drought Metrics',
-          children: [{
-            id: 'SPI',
-            text: 'SPI (Standardized Precipitation Index)',
+          {
+            text: 'Drought Metrics',
+            children: [{
+              id: 'SPI',
+              text: 'SPI (Standardized Precipitation Index)',
+            },
+            {
+              id: 'SPEI',
+              text: 'SPEI (Standardized Precipitation Evapotranspiration Index)'
+            },
+            {
+              id: 'EDDI',
+              text: 'EDDI (Evaporative Demand Drought Index)'
+            }
+            ]
           },
           {
-            id: 'SPEI',
-            text: 'SPEI (Standardized Precipitation Evapotranspiration Index)'
+            text: 'Soil Moisture',
+            children: [{
+              id: 'Soil Moisture',
+              text: 'Soil Moisture (Modelled)',
+            }
+            ]
           },
           {
-            id: 'EDDI',
-            text: 'EDDI (Evaporative Demand Drought Index)'
-          }
-        ]
-        },
-        {
-          text:'Soil Moisture',
-          children: [{
-            id: 'Soil Moisture',
-            text: 'Soil Moisture (Modelled)',
-          }
-        ]
-        },
-        {
-          text:'Meteorology',
-          children: [{
-            id: 'Precipitation Percentiles',
-            text: 'Precipitation Percentiles',
+            text: 'Meteorology',
+            children: [{
+              id: 'Precipitation Percentiles',
+              text: 'Precipitation Percentiles',
+            },
+            {
+              id: 'Precipitation Percent of Normal',
+              text: 'Precipitation Percent of Normal',
+            },
+            {
+              id: 'Temperature Percentiles',
+              text: 'Temperature Percentiles (Daily Maximum Temperature)'
+            },
+            ]
           },
           {
-            id: 'Precipitation Percent of Normal',
-            text: 'Precipitation Percent of Normal',
+            text: 'Snow',
+            children: [{
+              id: 'Snowpack',
+              text: 'Snow Water Equivalent (SWE)',
+            }
+            ]
           },
           {
-            id: 'Temperature Percentiles',
-            text: 'Temperature Percentiles (Daily Maximum Temperature)'
+            text: 'Groundwater',
+            children: [{
+              id: 'GRACE Groundwater',
+              text: 'GRACE Groundwater Percentile [NASA]',
+            }
+            ]
           },
-        ]
-        },
-        {
-          text:'Snow',
-          children: [{
-            id: 'Snowpack',
-            text: 'Snow Water Equivalent (SWE)',
-          }
-        ]
-        },
-        {
-          text:'Groundwater',
-          children: [{
-            id: 'GRACE Groundwater',
-            text: 'GRACE Groundwater Percentile [NASA]',
-          }
-        ]
-        },
-        {
-          text:'Vegetation',
-          children: [
           {
-            id: 'VHI',
-            text: 'Vegetation Health Index (VHI) [NOAA]',
-          }
-        ]
-        }]
+            text: 'Vegetation',
+            children: [
+              {
+                id: 'ForDRI',
+                text: 'Forest Drought Response Index (ForDRI) [NDMC]',
+              },
+              {
+                id: 'VHI',
+                text: 'Vegetation Health Index (VHI) [NOAA]',
+              }
+            ]
+          }]
 
-        $(document).ready(function() {
+        $(document).ready(function () {
           //$('select').select2({placeholder: 'Choose a Variable', data: selectData});
-          $('select').select2({data: selectData});
+          $('select').select2({ data: selectData });
         });
-   
-        function setParent(el, newParent){
-            newParent.appendChild(el);
+
+
+        function setParent(el, newParent) {
+          newParent.appendChild(el);
         }
 
         setParent(selector.getContainer(), document.getElementById('map'));
-      
+
+        // define station data selector
+
+        // define selector
+        var selectorStation = L.control({
+          position: 'topright'
+        })
+
+        // create DOM object
+        selectorStation.onAdd = function (map) {
+          var div = L.DomUtil.create('selectorStation');
+          return div
+        }
+
+        //add to map
+        selectorStation.addTo(map);
+
+        // define selecter data
+        var selectDataStation = [
+          {
+            text: 'Dataset',
+            children: [{
+              id: 'soilMoisture',
+              text: 'MT Mesonet Soil Moisture',
+            },
+            {
+              id: 'SNOTEL',
+              text: 'Snow Telemetry (SNOTEL) Network'
+            }
+            ]
+          }]
+
+        $(document).ready(function () {
+          $('selectorStation').select2({ placeholder: 'Select a Station Dataset', data: selectDataStation });
+        });
+
+
+        // Close Select2 dropdown when clicking outside
+        // select2 div - not sure why this is needed!
+        function closeSelectOnOutsideClick() {
+          $(document).on('click', function (e) {
+            var container = $('.select2-container');
+
+            // Check if the clicked element is not within the Select2 container
+            if (!container.is(e.target) && container.has(e.target).length === 0) {
+              // Close the Select2 dropdown
+              $('select').select2('close');
+              $('selectorStation').select2('close');
+
+            }
+          });
+
+          // Prevent click propagation inside the Select2 container
+          $('.select2-container').on('click', function (e) {
+            e.stopPropagation();
+          });
+        }
+
+        // Call the function to enable closing on outside click
+        closeSelectOnOutsideClick();
+
         // define COG load function 
-        function addCOG(url, name_, display = false, breaks, scale) { 
+        function addCOG(url, name_, display = false, breaks, scale, time_) {
           var layer_name = name_
           fetch(url)
-          .then(response => response.arrayBuffer())
-          .then(arrayBuffer => {
-            parseGeoraster(arrayBuffer).then(georaster => {
-              //define some constants from the georaster package
-              const min = georaster.mins[0];
-              const max = georaster.maxs[0];
-              const range = georaster.ranges[0];
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => {
+              parseGeoraster(arrayBuffer).then(georaster => {
+                //define some constants from the georaster package
+                const min = georaster.mins[0];
+                const max = georaster.maxs[0];
+                const range = georaster.ranges[0];
 
-              // define COG georaster
-              var layer = new GeoRasterLayer({
+                // define COG georaster
+                var layer = new GeoRasterLayer({
                   georaster: georaster,
                   opacity: document.getElementById("opacitySlide").value,
                   updateWhenZooming: false,
-                  pixelValuesToColorFn: function(pixelValues) {
+                  pixelValuesToColorFn: function (pixelValues) {
                     var pixelValue = pixelValues[0]; // there's just one band in this raster
                     // if there's zero wind, don't return a color
                     if (pixelValue === -32767) return null;
@@ -527,18 +1139,19 @@
                     return color;
                   },
                   resolution: 256
+                });
+                layer.name = name_
+                layer.time = time_
+                //add layers to layerControl
+                layerControl.addBaseLayer(layer, layer_name)
+                //display layer if ture
+                if (display == true) {
+                  layer.addTo(map)
+                }
+                //add to active layer array for removal
+                activeLayers.addLayer(layer)
               });
-              layer.name = name_
-              //add layers to layerControl
-              layerControl.addBaseLayer(layer, layer_name)
-              //display layer if ture
-              if(display == true){
-                layer.addTo(map)
-              }
-              //add to active layer array for removal
-              activeLayers.addLayer(layer)
             });
-          });
         }
 
         // define function to parse time file
@@ -547,14 +1160,14 @@
           var xmlhttp = new XMLHttpRequest();
           xmlhttp.open("GET", filePath, false);
           xmlhttp.send();
-          if (xmlhttp.status==200) {
+          if (xmlhttp.status == 200) {
             result = xmlhttp.responseText;
           }
           return result;
         }
 
         // This will be run when L.geoJSON creates the point layer from the GeoJSON data.
-        function createCircleMarker( feature, latlng ){
+        function createCircleMarker(feature, latlng) {
           // Change the values of these options to change the symbol's appearance
           let options = {
             radius: 8,
@@ -564,14 +1177,14 @@
             opacity: 1,
             fillOpacity: 0.8
           }
-          return L.circleMarker( latlng, options );
+          return L.circleMarker(latlng, options);
         }
-        
+
         //define function to add flatgeobuf files
-        async function addFGB(fgb_url, fgb_name, weight, display = false, popup_property, depth = null){
+        async function addFGB(fgb_url, fgb_name, weight, display = false, popup_property, depth = null) {
           //define tempGroup 
-          var tempGroup = [];   
-          var tempGroupHypsomeSWE = []; 
+          var tempGroup = [];
+          var tempGroupHypsomeSWE = [];
           var tempGroupSoilMoisture = [];
           //redefine popup property    
           var popup_property_ = popup_property
@@ -580,157 +1193,164 @@
           //loop each feature
           for await (const f of flatgeobuf.deserialize(response.body))
             //if the layer is USDM then add it differently (fill colors etc)
-            if(fgb_name === 'USDM'){
+            if (fgb_name === 'U.S. Drought Monitor') {
               tempGroup.push(
-                L.geoJSON(f, {color: 'black', fillOpacity: 0.3, weight: weight, fillColor: f.properties.fillColor})
+                L.geoJSON(f, { color: 'black', fillOpacity: document.getElementById("opacitySlideUSDM").value, weight: weight, fillColor: f.properties.fillColor })
               );
+              tempGroup._leaflet_id = 'USDM'
               var USDM = L.featureGroup(tempGroup);
+              USDM._leaflet_id = 'USDM'
+              //define to sessionStorage
+              sessionStorage.USDM = USDM;
               USDMLayer.addLayer(USDM)
-            } 
+            }
             //both hypsomeSWE and watersheds use Watershed FGB, no need to load twice
-            else if (fgb_name === 'Watersheds'){
+            else if (fgb_name === 'Watersheds') {
               //first HypsomeSWE
-              tempGroupHypsomeSWE.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight})
-              .bindTooltip(f.properties[popup_property_])
-              //.bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/hypsome-swe-"+
-              //           f.properties.HUC8+".png' height='500px' width='500px' loading='lazy'/>",
-              //           {
-              //              maxWidth: "auto",
-              //              popupAnchor: [0,0]
-              //            }));
-
-              .bindPopup(`<ul class="nav nav-pills" id="myTab" role="tablist">
-                            <li class="nav-item">
-                              <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">SWE by Elevation</a>
-                            </li>
-                            <li class="nav-item">
-                              <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Seasonal Accumulation</a>
-                            </li>
-                          </ul>
-                          <div class="tab-content" id="myTabContent">
-                            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">`+
-                              "<img src='https://data.climate.umt.edu/drought-indicators/plots/hypsome-swe-"+
-                              f.properties.HUC8+".png' height='420px' width='420px' loading='lazy'/>"+
-                            `</div>
-                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">`+
-                              "<img src='https://data.climate.umt.edu/drought-indicators/plots/snodas-climatology-swe-"+
-                              f.properties.HUC8+".png' height='420px' width='500px' loading='lazy'/>"+
-                            `</div>
-                          </div>`,
-                            {
-                              maxWidth: "auto",
-                              popupAnchor: [0,0]
-                            }));
+              tempGroupHypsomeSWE.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight })
+                .bindTooltip(f.properties[popup_property_])
+                .bindPopup(`<div class="custom-popup">
+                              <ul class="nav nav-pills" id="myTab" role="tablist">
+                                  <li class="nav-item">
+                                      <a class="nav-link active" id="hypsomeSWE-tab" data-toggle="tab" data-target="#time" role="tab" aria-controls="time" aria-selected="true">Seasonal Accumulation</a>
+                                  </li>
+                                  <li class="nav-item">
+                                      <a class="nav-link" id="time-tab" data-toggle="tab" data-target="#hypsomeSWE" role="tab" aria-controls="hypsomeSWE" aria-selected="false">SWE by Elevation</a>
+                                  </li>
+                              </ul>
+                              <div class="tab-content" id="myTabContent">
+                                  <div class="tab-pane fade show active" id="time" role="tabpanel" aria-labelledby="time-tab">
+                                      <img src='https://data.climate.umt.edu/drought-indicators/plots/snodas-climatology-swe-${f.properties.HUC8}.png' height='420px' width='500px' loading='lazy'/>
+                                  </div>
+                                  <div class="tab-pane fade" id="hypsomeSWE" role="tabpanel" aria-labelledby="hypsomeSWE-tab">
+                                      <img src='https://data.climate.umt.edu/drought-indicators/plots/hypsome-swe-${f.properties.HUC8}.png' height='420px' width='420px' loading='lazy'/>
+                                  </div>
+                              </div>
+                          </div>`, {
+                  maxWidth: "auto",
+                  popupAnchor: [-1, 0]
+                }));
 
 
               //Now just regular watersheds without the popup
               //if there is a popop property to bind, do it.
-              if(popup_property_ == null){
-                tempGroup.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight}));
+              if (popup_property_ == null) {
+                tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight }));
               } else {
-                tempGroup.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight}).bindTooltip(f.properties[popup_property_]));
-              }     
-            } 
+                tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight }).bindTooltip(f.properties[popup_property_]));
+              }
+            }
             else if (fgb_name === 'SNOTEL SWE') {
               tempGroup.push(
-                L.geoJSON(f, {pointToLayer: createCircleMarker})
-                .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_"+
-                         f.properties.site_id+".png' height='300' width='400' loading='lazy'/>",
-                         {
-                            maxWidth: "auto"
-                          })
+                L.geoJSON(f, { pointToLayer: createCircleMarker })
+                  .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/snotel_plot_" +
+                    f.properties.site_id + ".png' height='300' width='400' loading='lazy'/>",
+                    {
+                      maxWidth: "auto"
+                    })
               );
             }
-            else if (fgb_name.includes('Mesonet Soil Moisture')) {
+            else if (fgb_name.includes('Soil Moisture')) {
               tempGroup.push(
-                L.geoJSON(f, {pointToLayer: createCircleMarker})
-                .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/"+
-                         f.properties.station_key+"_"+f.properties.name+"_current.png' height='350' width='350' loading='lazy'/>",
-                         {
-                            maxWidth: "auto"
-                          })
+                L.geoJSON(f, { pointToLayer: createCircleMarker })
+                  .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/" +
+                    f.properties.station + "_" + f.properties.generalized_depth + "_current.png' height='350' width='400' loading='lazy'/>",
+                    {
+                      maxWidth: "auto"
+                    })
               );
             }
             else {
               //if there is a popop property to bind, do it.
-              if(popup_property_ == null){
-                tempGroup.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight}));
+              if (popup_property_ == null) {
+                tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight }));
               } else {
-                tempGroup.push(L.geoJSON(f, {color: 'black', fillOpacity: 0, weight: weight}).bindTooltip(f.properties[popup_property_]));
+                tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight }).bindTooltip(f.properties[popup_property_]));
               }
             }
-            //if adding hypsome-swe, we need to name it differently for cleanUp fun
-            if(fgb_name === 'Watersheds'){
-              //define tempGroupLayer feature group to add to layer control
-              var hypsomeSWE = L.featureGroup(tempGroupHypsomeSWE);
-              hypsomeSWE._leaflet_id = 'Hypsome-SWE'
-              //define to sessionStorage
-              sessionStorage.hypsomeSWE = hypsomeSWE;
-              //add group to the fgb laer control 
-              snowFGBLayerControl.addOverlay(hypsomeSWE , 'Watersheds (SWE)'); 
-              snowLayers.addLayer(hypsomeSWE)
-              //display if display param == true on initial load
-              if(display == true){
-                hypsomeSWE.addTo(map)
-              }
-              //define tempGroupLayer feature group to add to layer control
-              var tempGroupLayer = L.featureGroup(tempGroup);
-              //add group to the fgb laer control 
-              fgbLayerControl.addOverlay(tempGroupLayer , fgb_name); 
-            } else if (fgb_name === 'SNOTEL SWE'){
-              //define tempGroupLayer feature group to add to layer control
-              var snotelSWE = L.featureGroup(tempGroup);
-              snotelSWE._leaflet_id = 'SNOTEL SWE'
-              //define to sessionStorage
-              sessionStorage.snotelSWE = snotelSWE;
-              //add group to the fgb layer control 
-              snowFGBLayerControl.addOverlay(snotelSWE , fgb_name); 
-              snowLayers.addLayer(snotelSWE)
-              if(display == true){
-                snowLayers.addTo(map)
-              }
-            } 
-            else if (fgb_name.includes('Soil Moisture')){
-              //define tempGroupLayer feature group to add to layer control
-              var mesonetVWC = L.featureGroup(tempGroup);
-              mesonetVWC._leaflet_id = 'Mesonet VWC'+depth
-              //define to sessionStorage
-              sessionStorage.mesonetVWC = mesonetVWC;
-              //add group to the fgb layer control 
-              soilMoistureFGBLayerControl.addBaseLayer(mesonetVWC , fgb_name); 
-              soilMoistureLayers.addLayer(mesonetVWC)
-              if(display == true){
-                mesonetVWC.addTo(map)
-              }
-            } else {
-              //define tempGroupLayer feature group to add to layer control
-              var tempGroupLayer = L.featureGroup(tempGroup);
-              //add group to the fgb laer control 
-              fgbLayerControl.addOverlay(tempGroupLayer , fgb_name); 
-              //add it to the snow control too for later (only used when snow selector is active)
-              snowFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
-              //add it to the soil moisture control too for later (only used when soil moisture selector is active)
-              //soilMoistureFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
-              //display if display param == true on initial load
-                if(display == true){
-                  tempGroupLayer.addTo(map)
-                }
+          //if adding hypsome-swe, we need to name it differently for cleanUp fun
+          if (fgb_name === 'Watersheds') {
+            //define tempGroupLayer feature group to add to layer control
+            var hypsomeSWE = L.featureGroup(tempGroupHypsomeSWE);
+            hypsomeSWE._leaflet_id = 'Hypsome-SWE'
+            //define to sessionStorage
+            sessionStorage.hypsomeSWE = hypsomeSWE;
+            //add group to the fgb laer control 
+            snowFGBLayerControl.addOverlay(hypsomeSWE, 'Basin-wide SWE');
+            snowLayers.addLayer(hypsomeSWE)
+            //display if display param == true on initial load
+            if (display == true) {
+              hypsomeSWE.addTo(map)
             }
+            //define tempGroupLayer feature group to add to layer control
+            var tempGroupLayer = L.featureGroup(tempGroup);
+            //add group to the fgb laer control 
+            fgbLayerControl.addOverlay(tempGroupLayer, fgb_name);
+          } else if (fgb_name === 'SNOTEL SWE') {
+            //define tempGroupLayer feature group to add to layer control
+            var snotelSWE = L.featureGroup(tempGroup);
+            snotelSWE._leaflet_id = 'SNOTEL SWE'
+            //define to sessionStorage
+            sessionStorage.snotelSWE = snotelSWE;
+            //add group to the fgb layer control 
+            snowFGBLayerControl.addOverlay(snotelSWE, fgb_name);
+            snowLayers.addLayer(snotelSWE)
+            if (display == true) {
+              snowLayers.addTo(map)
+            }
+          }
+          else if (fgb_name.includes('Soil Moisture')) {
+            //define tempGroupLayer feature group to add to layer control
+            var mesonetVWC = L.featureGroup(tempGroup);
+            mesonetVWC._leaflet_id = 'Mesonet' + depth
+            //define to sessionStorage
+            sessionStorage.mesonetVWC = mesonetVWC;
+            //add group to the fgb layer control 
+            soilMoistureFGBLayerControl.addBaseLayer(mesonetVWC, fgb_name);
+            soilMoistureLayers.addLayer(mesonetVWC)
+            if (display == true) {
+              mesonetVWC.addTo(map)
+            }
+          } else {
+            //define tempGroupLayer feature group to add to layer control
+            var tempGroupLayer = L.featureGroup(tempGroup);
+            //add group to the fgb laer control 
+            fgbLayerControl.addOverlay(tempGroupLayer, fgb_name);
+            //add it to the snow control too for later (only used when snow selector is active)
+            //NOPE, SEPERATING THE SNOW LAYERS HERE FOR A SEPERAT GROUP!
+            //snowFGBLayerControl.addOverlay(tempGroupLayer, fgb_name);
+            //add it to the soil moisture control too for later (only used when soil moisture selector is active)
+            //soilMoistureFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
+            //display if display param == true on initial load
+            if (display == true) {
+              tempGroupLayer.addTo(map)
+            }
+          }
         };
-        
+
+        var reformatDates = function(date){
+          if(date instanceof Date){
+            var formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}-${date.getFullYear()}`;
+            return formattedDate;
+          } else {
+            var date_new = new Date(date.replace(/-/g, "/"))
+            var formattedDate = `${(date_new.getMonth() + 1).toString().padStart(2, '0')}-${date_new.getDate().toString().padStart(2, '0')}-${date_new.getFullYear()}`;
+            return formattedDate;
+          }
+        }
 
         //define exists function
-        function exists(data){
+        function exists(data) {
           data !== null && data !== undefined
         }
 
-        var cleanUp = function(){
+        var cleanUp = function () {
           //remove active layers from map
-          activeLayers.eachLayer(function(layer) { map.removeLayer(layer);});
+          activeLayers.eachLayer(function (layer) { map.removeLayer(layer); });
           //remove hypsomeswe from map if loaded
-          snowLayers.eachLayer(function(layer) { map.removeLayer(layer);});
+          snowLayers.eachLayer(function (layer) { map.removeLayer(layer); });
           //remove soil moisture from map if loaded
-          soilMoistureLayers.eachLayer(function(layer) { map.removeLayer(layer);});
+          soilMoistureLayers.eachLayer(function (layer) { map.removeLayer(layer); });
           //remove old layer control
           map.removeControl(layerControl);
           //remove old legend
@@ -738,16 +1358,40 @@
           map.removeControl(pointLegend);
           map.removeControl(topofire_legend);
           map.removeControl(smap_legend)
+          map.removeControl(sport_legend);
           //$("#opacitySlide").val(0.9);
+          console.log('cleanUp complete')
+
         }
 
-        var updateFgbControls = function(){
+        var updateFgbControls = function () {
           //remove old FGB control 
+          console.log('updateFgbControls started')
           map.removeControl(snowFGBLayerControl);
           map.removeControl(soilMoistureFGBLayerControl);
-          map.addControl(fgbLayerControl);
-        }
+          //map.removeControl(fgbLayerControl);
 
+          //map.addControl(fgbLayerControl);
+          //add overlay control title
+          setParent(fgbLayerControl.getContainer(), document.getElementById('overlay-container'));
+          //add event handler to toggle USDM legend and slider when displayed
+          map.on('overlayadd', function (eventLayer) {
+            if (eventLayer.name === 'U.S. Drought Monitor') {
+              map.addControl(USDMlegend);
+            }
+          })
+
+          fgbLayerControl.getContainer().addEventListener('change', function (event) {
+            if (event.target.type === 'checkbox' && event.target.checked === false) {
+              // Check if fgbLayerControl is currently active
+              if (fgbLayerControl._map && USDMlegend && USDMlegend._map) {
+                USDMlegend.remove();
+              }
+            }
+          });
+
+          console.log('updateFgbControls complete')
+        }
 
         // add FGBs to map (before selector change!!)
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/states.fgb', fgb_name = 'States', weight = 3, display = true, popup_property = null);
@@ -755,19 +1399,194 @@
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/watersheds.fgb', fgb_name = 'Watersheds', weight = 1, display = false, popup_property = 'NAME');
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/counties.fgb', fgb_name = 'Counties', weight = 1, display = false, popup_property = 'COUNTY');
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/tribal.fgb', fgb_name = 'Tribal Lands', weight = 1, display = false, popup_property = 'NAME');
-        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_usdm.fgb', fgb_name = 'USDM', weight = 1, display = false, popup_property = 'DM');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_usdm.fgb', fgb_name = 'U.S. Drought Monitor', weight = 1, display = false, popup_property = 'DM');
         //add SNOTEL SWE (only added to snow control)
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_snotel.fgb', fgb_name = 'SNOTEL SWE', weight = 1, display = false, popup_property = 'NAME');
         //add soil Moisture Anomolies from Mesonet (only added to soil moisture control)
-        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_04in.fgb', fgb_name = '(a) MT Mesonet Soil Moisture (4in)', weight = 1, display = false, popup_property = 'NAME', depth = '4in');
-        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_08in.fgb', fgb_name = '(b) MT Mesonet Soil Moisture (8in)', weight = 1, display = false, popup_property = 'NAME', depth = '8in');
-        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_20in.fgb', fgb_name = '(c) MT Mesonet Soil Moisture (20in)', weight = 1, display = false, popup_property = 'NAME', depth = '20in');
-        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_36in.fgb', fgb_name = '(d) MT Mesonet Soil Moisture (36in)', weight = 1, display = false, popup_property = 'NAME', depth = '36in');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_shallow.fgb', fgb_name = '(a) Soil Moisture (0-4in)', weight = 1, display = false, popup_property = 'NAME', depth = 'Shallow');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_middle.fgb', fgb_name = '(b) Soil Moisture (8-20in)', weight = 1, display = false, popup_property = 'NAME', depth = 'Middle');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_deep.fgb', fgb_name = '(c) Soil Moisture (28-40in)', weight = 1, display = false, popup_property = 'NAME', depth = 'Deep');
 
         //build USDM legend
-        USDMlegend.onAdd = function(map) {
+        var USDM_Date = loadFile('https://data.climate.umt.edu/drought-indicators/fgb/usdm_time.txt')
+        var formattedDate = reformatDates(USDM_Date)
+
+        USDMlegend.onAdd = function (map) {
+          var div = L.DomUtil.create("div", "legend");
+          div.innerHTML += "<h4>U.S. Drought Monitor<br>(USDM)<br>" + formattedDate + "</h4>";
+          div.innerHTML += '<i style="background: #FFFF00"></i><span>D0 (Abnormally Dry)</span><br>';
+          div.innerHTML += '<i style="background: #FCD37F"></i><span>D1 (Moderate Drought)</span><br>';
+          div.innerHTML += '<i style="background: #FFAA00"></i><span>D2 (Severe Drought)</span><br>';
+          div.innerHTML += '<i style="background: #E60000"></i><span>D3 (Extreme Drought)</span><br>';
+          div.innerHTML += '<i style="background: #730000"></i><span>D4 (Exceptional Drought)</span><br>';
+          return div;
+        };
+
+        //map opacity function
+        function updateOpacity(value) {
+          var rangeInput = document.getElementById("opacitySlide").value
+          //activeBase.setOpacity(rangeInput)
+          activeLayers.eachLayer(function (layer) { layer.setOpacity(rangeInput) });
+        }
+        //map opacity event listener
+        document.getElementById("opacitySlide").addEventListener("input", updateOpacity, false);
+        setParent(document.getElementById("opacitySlide"), document.getElementById('map-opacity-container'));
+
+
+        //USDM opacity fucnction
+        function updateOpacityUSDM(value) {
+          var rangeInputUSDM = document.getElementById("opacitySlideUSDM").value
+          //activeBase.setOpacity(rangeInput)
+          USDMLayer.eachLayer(function (layer) { layer.setStyle({ fillOpacity: rangeInputUSDM, opacity: rangeInputUSDM }) });
+        }
+        //USDM opacity event listener
+        document.getElementById("opacitySlideUSDM").addEventListener("input", updateOpacityUSDM, false);
+        setParent(document.getElementById("opacitySlideUSDM"), document.getElementById('usdm-opacity-container'));
+
+        //move soil moisture data adder to sidebar
+        //setParent(document.getElementById("addSoilMoisturePoints"), document.getElementById('station-data-container'));
+        setParent(document.getElementById("removeStationData"), document.getElementById('remove-station-container'));
+
+        // Function to remove a layer by name from layerControl
+        function removeLayerByName(layerControl, name) {
+          var layers = layerControl._layers;
+
+          for (var layerId in layers) {
+            if (layers.hasOwnProperty(layerId) && layers[layerId].name === name) {
+              var layer = layers[layerId].layer;
+
+              // Remove the layer from the map
+              map.removeLayer(layer);
+
+              // Remove the layer from the control
+              layerControl.removeLayer(layer);
+
+              break;
+            }
+          }
+        }
+
+        // USDM TIME CHANGING FUNCTIONS!
+        // Declare a global variable for USDMlegend
+        var USDMlegend;
+
+        // Function to update the USDM legend
+        function updateUSDMlegend(url) {
+          const dateUrl = 'https://data.climate.umt.edu/drought-indicators/fgb/usdm_time.txt';
+
+          // Fetch the date and update the legend
+          fetch(dateUrl)
+            .then(response => response.text())
+            .then(dateText => {
+              const USDM_Date = new Date(dateText);
+              var formattedDate = reformatDates(USDM_Date)
+
+              // Remove existing legend if it exists
+              if (USDMlegend && USDMlegend._map) {
+                USDMlegend.remove();
+              }
+
+              USDMlegend = L.control({ position: 'bottomright' });
+
+              USDMlegend.onAdd = function (map) {
+                var div = L.DomUtil.create("div", "legend");
+                div.innerHTML += "<h4>U.S. Drought Monitor<br>(USDM)<br>" + formattedDate + "</h4>";
+                div.innerHTML += '<i style="background: #FFFF00"></i><span>D0 (Abnormally Dry)</span><br>';
+                div.innerHTML += '<i style="background: #FCD37F"></i><span>D1 (Moderate Drought)</span><br>';
+                div.innerHTML += '<i style="background: #FFAA00"></i><span>D2 (Severe Drought)</span><br>';
+                div.innerHTML += '<i style="background: #E60000"></i><span>D3 (Extreme Drought)</span><br>';
+                div.innerHTML += '<i style="background: #730000"></i><span>D4 (Exceptional Drought)</span><br>';
+                return div;
+              };
+
+              // Add the updated legend
+              USDMlegend.addTo(map);
+            })
+            .catch(error => console.error('Error fetching USDM date:', error));
+        }
+
+
+        // Function to add or update the USDM layer
+        async function addOrUpdateUSDMLayer(url, fgbName, weight, display, popupProperty) {
+          try {
+            // Create a promise to wait for the new layer to be added
+            const newLayer = await addFGB(url, fgbName, weight, display, popupProperty);
+
+            // Remove existing USDM layer if it exists
+            removeLayerByName(fgbLayerControl, 'U.S. Drought Monitor');
+            //removeLayerByName(snowFGBLayerControl, 'U.S. Drought Monitor');
+
+
+            // Add the new layer to the control
+            if (display) {
+              map.addLayer(newLayer);
+              fgbLayerControl.addOverlay(newLayer, fgbName);
+              //snowFGBLayerControl.addOverlay(newLayer, fgbName);
+
+              // Update the legend
+              updateUSDMlegend(url);
+            } else {
+              // Update the legend if the layer is removed
+              if (USDMlegend && USDMlegend._map) {
+                USDMlegend.remove();
+              }
+            }
+          } catch (error) {
+            console.error('Error adding/updating USDM layer:', error);
+          }
+        }
+
+        // USDM back in time function
+        function updateTimeUSDM(value) {
+          // Define the time lag
+          var timeUSDM = document.getElementById("timeSlideUSDM").value;
+
+          if (timeUSDM == 0) {
+            addOrUpdateUSDMLayer('https://data.climate.umt.edu/drought-indicators/fgb/current_usdm.fgb', 'U.S. Drought Monitor', 1, true, 'DM');
+            var USDM_Date = loadFile('https://data.climate.umt.edu/drought-indicators/fgb/usdm_time.txt');
+            // Reformat
+            var formattedDate = reformatDates(USDM_Date)
+
+            // Update legend directly without creating a new onAdd function
+            if (USDMlegend && USDMlegend._map) {
+              USDMlegend.remove();
+            }
+
+            USDMlegend = L.control({ position: 'bottomright' });
+
+            USDMlegend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>U.S. Drought Monitor<br>(USDM)<br>"+loadFile('https://data.climate.umt.edu/drought-indicators/fgb/usdm_time.txt')+"</h4>";
+              div.innerHTML += "<h4>U.S. Drought Monitor<br>(USDM)<br>" + formattedDate + "</h4>";
+              div.innerHTML += '<i style="background: #FFFF00"></i><span>D0 (Abnormally Dry)</span><br>';
+              div.innerHTML += '<i style="background: #FCD37F"></i><span>D1 (Moderate Drought)</span><br>';
+              div.innerHTML += '<i style="background: #FFAA00"></i><span>D2 (Severe Drought)</span><br>';
+              div.innerHTML += '<i style="background: #E60000"></i><span>D3 (Extreme Drought)</span><br>';
+              div.innerHTML += '<i style="background: #730000"></i><span>D4 (Exceptional Drought)</span><br>';
+              return div;
+            }
+            USDMlegend.addTo(map);
+
+          } else {
+            //replace is for safari!!
+            var USDM_Date = new Date(loadFile('https://data.climate.umt.edu/drought-indicators/fgb/usdm_time.txt').replace(/-/g, "/"));
+            USDM_Date.setDate(USDM_Date.getDate() - (7 * parseInt(timeUSDM.substring(1), 10)));
+            //extract YYY-mm-dd date string - this is required for safari!
+            var USDM_Date_str = USDM_Date.toISOString().slice(0, 10);
+            // Reformat
+            var formattedDate = reformatDates(USDM_Date_str)
+
+            // Build USDM layer
+            addOrUpdateUSDMLayer('https://data.climate.umt.edu/drought-indicators/fgb/historical_' + timeUSDM.substring(1) + 'wk_usdm.fgb', 'U.S. Drought Monitor', 1, true, 'DM');
+            // Update legend directly without creating a new onAdd function
+            if (USDMlegend && USDMlegend._map) {
+              USDMlegend.remove();
+            }
+
+            USDMlegend = L.control({ position: 'bottomright' });
+
+            USDMlegend.onAdd = function (map) {
+              var div = L.DomUtil.create("div", "legend");
+              div.innerHTML += "<h4>U.S. Drought Monitor<br>(USDM)<br>" + formattedDate + "</h4>";
               div.innerHTML += '<i style="background: #FFFF00"></i><span>D0 (Abnormally Dry)</span><br>';
               div.innerHTML += '<i style="background: #FCD37F"></i><span>D1 (Moderate Drought)</span><br>';
               div.innerHTML += '<i style="background: #FFAA00"></i><span>D2 (Severe Drought)</span><br>';
@@ -776,94 +1595,168 @@
               return div;
             };
 
-        //add event handler to toggle USDM legend and slider when displayed
-        map.on('overlayadd', function(eventLayer){
-            if (eventLayer.name === 'USDM'){
-              map.addControl(USDMlegend);
-              $(".rangesliderUSDM").show()    
-            } 
-        })
-        map.on('overlayremove', function(eventLayer){
-            if (eventLayer.name === 'USDM'){
-                map.removeControl(USDMlegend);
-                $(".rangesliderUSDM").hide()
-            } 
-        })
-        //map opacity function
-        function updateOpacity(value) {
-          var rangeInput = document.getElementById("opacitySlide").value
-          //activeBase.setOpacity(rangeInput)
-          activeLayers.eachLayer(function(layer) { layer.setOpacity(rangeInput)});
+            USDMlegend.addTo(map);
+          }
         }
-        //map opacity event listener
-        document.getElementById("opacitySlide").addEventListener ("change", updateOpacity, false);
 
-        //USDM opacity fucnction
-        function updateOpacityUSDM(value) {
-          var rangeInputUSDM = document.getElementById("opacitySlideUSDM").value
-          //activeBase.setOpacity(rangeInput)
-          USDMLayer.eachLayer(function(layer) { layer.setStyle({fillOpacity: rangeInputUSDM, opacity: rangeInputUSDM})});
-        }
-        //USDM opacity event listener
-        document.getElementById("opacitySlideUSDM").addEventListener ("change", updateOpacityUSDM, false);
+        // USDM opacity event listener
+        document.getElementById("timeSlideUSDM").addEventListener("input", updateTimeUSDM, false);
+        setParent(document.getElementById("timeSlideUSDM"), document.getElementById('usdm-time-container'));
+        setParent(document.getElementById("timeSlideUSDMticks"), document.getElementById('usdm-time-container'));
+
+        //add event handler to toggle USDM legend and slider when displayed
+        map.on('overlayadd', function (eventLayer) {
+          if (eventLayer.name === 'U.S. Drought Monitor') {
+            map.addControl(USDMlegend);
+          }
+        })
+
+        fgbLayerControl.getContainer().addEventListener('change', function (event) {
+          if (event.target.type === 'checkbox' && event.target.checked === false) {
+            // Check if fgbLayerControl is currently active
+            if (fgbLayerControl._map && USDMlegend && USDMlegend._map) {
+              USDMlegend.remove();
+            }
+          }
+        });
+
 
         // legend for soil moisture points
         function getColor(d) {
-            return d === '<-2 (D4)'  ? "#730000" :
-                  d === '-2 - -1.6 (D3)'  ? "#E60000" :
-                  d === '-1.6 - -1.3 (D2)' ? "#FFAA00" :
-                  d === '-1.3 - -0.8 (D1)' ? "#FCD37F" :
+          return d === '<-2 (D4)' ? "#730000" :
+            d === '-2 - -1.6 (D3)' ? "#E60000" :
+              d === '-1.6 - -1.3 (D2)' ? "#FFAA00" :
+                d === '-1.3 - -0.8 (D1)' ? "#FCD37F" :
                   d === '-0.8 - -0.5 (D0)' ? "#FFFF00" :
-                  d === '-0.5 - 0.5' ? "#FFFFFF" :
-                  d === '0.5 - 0.8' ? "#82FCF9" :
-                  d === '0.8 - 1.3' ? "#32E1FA" :
-                  d === '1.3 - 1.6' ? "#325CFE" :
-                  d === '1.6 - 2' ? "#4030E3" :
-                  d === '>2' ? "#303B83" :
-                                "#000000";
+                    d === '-0.5 - 0.5' ? "#FFFFFF" :
+                      d === '0.5 - 0.8' ? "#82FCF9" :
+                        d === '0.8 - 1.3' ? "#32E1FA" :
+                          d === '1.3 - 1.6' ? "#325CFE" :
+                            d === '1.6 - 2' ? "#4030E3" :
+                              d === '>2' ? "#303B83" :
+                                d === 'Frozen Soil' ? "#808080" :
+                                  "#000000"; 
         }
         function style(feature) {
-            return {
-                weight: 1.5,
-                opacity: 1,
-                fillOpacity: 1,
-                radius: 6,
-                fillColor: getColor(feature.properties.TypeOfIssue),
-                color: "grey"
+          return {
+            weight: 1.5,
+            opacity: 1,
+            fillOpacity: 1,
+            radius: 6,
+            fillColor: getColor(feature.properties.TypeOfIssue),
+            color: "grey"
 
-            };
+          };
         }
 
-        var pointLegend = L.control({position: 'topright'});
+        var pointLegend = L.control({ position: 'topright' });
         pointLegend.onAdd = function (map) {
 
-        var div = L.DomUtil.create('div', 'info pointLegend');
-        labels = ['<h4>Soil Moisture<br>Anomaly (Stations)</h4>'],
-        categories = ['<-2 (D4)','-2 - -1.6 (D3)','-1.6 - -1.3 (D2)','-1.3 - -0.8 (D1)',
-                      '-0.8 - -0.5 (D0)', '-0.5 - 0.5', '0.5 - 0.8', '0.8 - 1.3',
-                      '1.6 - 2', '>2', 'Anomaly N/A<br>Note: Click on points<br>for real time data.'];
+          var div = L.DomUtil.create('div', 'info pointLegend');
+          labels = ['<h4>Soil Moisture<br>Anomaly (Stations)</h4>'],
+            categories = ['<-2 (D4)', '-2 - -1.6 (D3)', '-1.6 - -1.3 (D2)', '-1.3 - -0.8 (D1)',
+              '-0.8 - -0.5 (D0)', '-0.5 - 0.5', '0.5 - 0.8', '0.8 - 1.3',
+              '1.6 - 2', '>2', 'Frozen Soil', 'Anomaly N/A<br>Note: Click on points<br>for real time data.'];
 
-        for (var i = 0; i < categories.length; i++) {
+          for (var i = 0; i < categories.length; i++) {
 
-                div.innerHTML += 
-                labels.push(
-                    '<i class="circle" style="background:' + getColor(categories[i]) + '"></i> ' +
+            div.innerHTML +=
+              labels.push(
+                '<i class="circle" style="background:' + getColor(categories[i]) + '"></i> ' +
                 (categories[i] ? categories[i] : '+'));
 
-            }
-            div.innerHTML = labels.join('<br>');
-        return div;
-        }; 
+          }
+          div.innerHTML = labels.join('<br>');
+          return div;
+        };
 
-        //function to add soil moisture data
-        var addSoilMoisturePoints = function(){
-            //add soil moisture legend
-            pointLegend.addTo(map);
-            map.addControl(soilMoistureFGBLayerControl);
-            map.addLayer(soilMoistureLayers._layers['Mesonet VWC4in']);
+        // write a function to add space between divs in the the overlay container
+        var overlayContainer = document.getElementById('overlay-container');
+
+        // Create a function to add space between divs
+        function addSpaceBetweenDivs() {
+          // Get all child divs within the overlayContainer
+          var childDivs = overlayContainer.getElementsByTagName('div');
+
+          // Loop through the child divs and apply styles to add space
+          for (var i = 0; i < childDivs.length; i++) {
+            // Apply margin or padding styles to create space
+            childDivs[i].style.marginBottom = '5px'; // Adjust the value as needed
+          }
         }
 
-        document.getElementById ("addSoilMoisturePoints").addEventListener ("click", addSoilMoisturePoints, false);
+        // Call the function to add space between divs
+
+        //function to add soil moisture data
+        var addSoilMoisturePoints = function () {
+          //add soil moisture legend
+          pointLegend.addTo(map);
+          map.addControl(soilMoistureFGBLayerControl);
+          map.addLayer(soilMoistureLayers._layers['MesonetShallow']);
+          setParent(soilMoistureFGBLayerControl.getContainer(), document.getElementById('station-data-container'));
+        }
+
+        // function to remove all point data from map
+        //function to add soil moisture data
+        var removeStationPoints = function () {
+          soilMoistureLayers.eachLayer(function (layer) { map.removeLayer(layer); });
+          map.removeControl(pointLegend);
+          map.removeControl(soilMoistureFGBLayerControl);
+          map.removeLayer(snowLayers._layers['SNOTEL SWE'])
+        }
+
+        document.getElementById("removeStationData").addEventListener("click", removeStationPoints, false);
+
+        $('selectorStation').change(function () {
+          if (this.value === 'soilMoisture') {
+            snowLayers.eachLayer(function (layer) { map.removeLayer(layer); });
+            addSoilMoisturePoints();
+            console.log(this.value)
+          }
+          if (this.value === 'SNOTEL') {
+            map.removeControl(pointLegend);
+            map.removeControl(soilMoistureFGBLayerControl);
+            soilMoistureLayers.eachLayer(function (layer) { map.removeLayer(layer); });
+            map.addLayer(snowLayers._layers['SNOTEL SWE']);
+          }
+        });
+
+        // Updated addMapTitle function
+        function addMapTitle(map, title, targetElementId) {
+          // Remove the existing title if it exists
+          var existingTitle = document.getElementById('map-title');
+          if (existingTitle) {
+            existingTitle.parentNode.removeChild(existingTitle);
+          }
+
+          // Create a container for the title
+          var container = L.DomUtil.create('div', 'map-title-container');
+          container.id = 'map-title'; // Set a unique ID for the title
+
+          // Add the title text
+          container.innerHTML = '<h2>' + title + '</h2>';
+
+          // Move the title to the target HTML element
+          var targetElement = document.getElementById(targetElementId);
+          if (targetElement) {
+            targetElement.appendChild(container);
+          }
+        }
+
+        function handleBaseLayerChange(map, e, time, targetElementId) {
+          //console.log(e.name)
+          // Don't overwrite if it's the soil moisture points; instead, update
+          if (e.name.includes('in)')) {
+            //place holder for more complicated stuff
+          } else if (e.name.includes('in)')) {
+            //place holder for more complicated stuff
+          } else {
+            var dynamicTitle = '<center>' + e.name.substring(4) + ' for ' + time + '<center/>';
+
+            // Call the updated function
+            addMapTitle(map, dynamicTitle, targetElementId);
+          }
+        }
 
         //this is a bit hacky, but load SPI initially
         //define variable of interest
@@ -872,39 +1765,45 @@
         //clear the active layers group to repopulate
         activeLayers = new L.LayerGroup();
         //create new layer control and add it to the map
-        layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+        layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+        //$('.leaflet-control-layers-list').prepend('<label style=\"text-align:center\"><b>Timescales</b></label><hr>');
+
         //create new legend "contol" object
         legend = L.control({ position: "bottomleft" });
         //define time
-        var time = loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt')
+        var time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt'))
         // import and add COGs to map from remote server
         //define breaks
-        var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
+        var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function (x) { return x * scaler; });
         //add chroma scale that matches the USDM
-        var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
+        var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks);
         // add COGS
-        //addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_15.tif", 
-        //  "(a) 15 Day SPI", display = false, breaks = breaks, scale = scale)
-        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_30.tif", 
-          "(b) 30 Day SPI", display = true, breaks = breaks, scale = scale)
-        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_60.tif", 
-          "(c) 60 Day SPI", display = false, breaks = breaks, scale = scale)
-        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_90.tif", 
-          "(d) 90 Day SPI", display = false, breaks = breaks, scale = scale)
-        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_180.tif", 
-          "(e) 180 Day SPI", display = false, breaks = breaks, scale = scale)
-        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
-          "(f) 1 Year SPI", display = false, breaks = breaks, scale = scale)
-        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
-          "(g) 2 Year SPI", display = false, breaks = breaks, scale = scale)
-        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
-          "(h) Water Year SPI", display = false, breaks = breaks, scale = scale)
-        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
-          "(i) Year to Date SPI", display = false, breaks = breaks, scale = scale)
+        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_15.tif",
+          "(a) 15 Day SPI", display = false, breaks = breaks, scale = scale, time_ = time)
+        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_30.tif",
+          "(b) 30 Day SPI", display = true, breaks = breaks, scale = scale, time_ = time)
+        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_45.tif",
+          "(c) 45 Day SPI", display = false, breaks = breaks, scale = scale, time_ = time)
+        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_60.tif",
+          "(d) 60 Day SPI", display = false, breaks = breaks, scale = scale, time_ = time)
+        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_90.tif",
+          "(e) 90 Day SPI", display = false, breaks = breaks, scale = scale, time_ = time)
+        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_120.tif",
+          "(f) 120 Day SPI", display = false, breaks = breaks, scale = scale, time_ = time)
+        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_180.tif",
+          "(g) 180 Day SPI", display = false, breaks = breaks, scale = scale, time_ = time)
+        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_365.tif",
+          "(h) 1 Year SPI", display = false, breaks = breaks, scale = scale, time_ = time)
+        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_730.tif",
+          "(i) 2 Year SPI", display = false, breaks = breaks, scale = scale, time_ = time)
+        addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_water_year.tif",
+          "(j) Water Year SPI", display = false, breaks = breaks, scale = scale, time_ = time)
+        //addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
+        //  "(i) Year to Date SPI", display = false, breaks = breaks, scale = scale)
         //populate the legend
-        legend.onAdd = function(map) {
+        legend.onAdd = function (map) {
           var div = L.DomUtil.create("div", "legend");
-          div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+          div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
           div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
           div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
           div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
@@ -922,13 +1821,36 @@
         legend.addTo(map);
         //fin
 
+
+        // SIDEBAR! - This function changes an element's parent. We can use it to move one of our selectors from 'topleft' into the sidebar.
+        function setParent(el, newParent) {
+          console.log(el);
+          newParent.appendChild(el);
+        }
+
+        // SIDEBAR! - Move the feature selector and the layer control into the sidebar divs that we defined in the HTML body. 
+        // NOTE: you must add an element to the map before you call this function on it. This means if you re-add the legend to
+        // the map every time you make a selection, you have to run this function on the legend after you call legend.addTo(map).
+
+        setParent(selector.getContainer(), document.getElementById('var-container'));
+        setParent(selectorStation.getContainer(), document.getElementById('station-data-container'));
+        setParent(fgbLayerControl.getContainer(), document.getElementById('overlay-container'));
+        setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
+        //setParent(fgbLayerControl.getContainer(), document.getElementById('home'));
+
+        // run function to get the new time id
+        map.on('baselayerchange', function (e) {
+          handleBaseLayerChange(map, e, time, 'layer-control-container');
+        });
+        
+
         //function to call when selector is choosen
-        $('select').change(function() {
-          if(this.value === 'Choose a Variable'){
+        $('select').change(function () {
+          if (this.value === 'Choose a Variable') {
             updateFgbControls()
             cleanUp()
           }
-          if(this.value === 'SPI'){
+          if (this.value === 'SPI') {
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -939,39 +1861,45 @@
             //clear the active layers group to repopulate
             activeLayers = new L.LayerGroup();
             //create new layer control and add it to the map
-            layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt')
+            var time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/spi/time.txt'))
             // import and add COGs to map from remote server
             //define breaks
-            var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
+            var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function (x) { return x * scaler; });
             //add chroma scale that matches the USDM
-            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
+            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks);
             // add COGS
-            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_15.tif", 
-            //  "(a) 15 Day SPI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_30.tif", 
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_15.tif",
+              "(a) 15 Day SPI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_30.tif",
               "(b) 30 Day SPI", display = true, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_60.tif", 
-              "(c) 60 Day SPI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_90.tif", 
-              "(d) 90 Day SPI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_180.tif", 
-              "(e) 180 Day SPI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
-              "(f) 1 Year SPI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
-              "(g) 2 Year SPI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
-              "(h) Water Year SPI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
-              "(i) Year to Date SPI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_45.tif",
+              "(c) 45 Day SPI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_60.tif",
+              "(d) 60 Day SPI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_90.tif",
+              "(e) 90 Day SPI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_120.tif",
+              "(f) 120 Day SPI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_180.tif",
+              "(g) 180 Day SPI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_365.tif",
+              "(h) 1 Year SPI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_730.tif",
+              "(i) 2 Year SPI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_water_year.tif",
+              "(j) Water Year SPI", display = false, breaks = breaks, scale = scale)
+            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
+            //  "(i) Year to Date SPI", display = false, breaks = breaks, scale = scale)
             //populate the legend
-            legend.onAdd = function(map) {
+            //populate the legend
+            legend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+              div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
               div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
               div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
               div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
@@ -987,9 +1915,15 @@
             };
             //add to map
             legend.addTo(map);
+
+            // re-run function to get the new time id
+            map.on('baselayerchange', function (e) {
+              handleBaseLayerChange(map, e, time, 'layer-control-container');
+            });
+
             //fin
           }
-          if(this.value === 'SPEI'){
+          if (this.value === 'SPEI') {
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -1000,38 +1934,43 @@
             //clear the active layers group to repopulate
             activeLayers = new L.LayerGroup();
             //create new layer control and add it to the map
-            layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/spei/time.txt')
+            var time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/spei/time.txt'))
             //define breaks
-            var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
+            var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function (x) { return x * scaler; });
             //add chroma scale that matches the USDM
-            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
+            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks);
             // add COGS
-            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_15.tif", 
-            //  "(a) 15 Day SPEI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_30.tif", 
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_15.tif",
+              "(a) 15 Day SPEI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_30.tif",
               "(b) 30 Day SPEI", display = true, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_60.tif", 
-              "(c) 60 Day SPEI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_90.tif", 
-              "(d) 90 Day SPEI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_180.tif", 
-              "(e) 180 Day SPEI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
-              "(f) 1 Year SPEI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
-              "(g) 2 Year SPEI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
-              "(h) Water Year SPEI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
-              "(i) Year to Date SPEI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_45.tif",
+              "(c) 45 Day SPEI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_60.tif",
+              "(d) 60 Day SPEI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_90.tif",
+              "(e) 90 Day SPEI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_120.tif",
+              "(f) 120 Day SPEI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_180.tif",
+              "(g) 180 Day SPEI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_365.tif",
+              "(h) 1 Year SPEI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_730.tif",
+              "(i) 2 Year SPEI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_water_year.tif",
+              "(j) Water Year SPEI", display = false, breaks = breaks, scale = scale)
+            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
+            // "(i) Year to Date SPEI", display = false, breaks = breaks, scale = scale)
             //populate the legend
-            legend.onAdd = function(map) {
+            legend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+              div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
               div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
               div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
               div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
@@ -1047,9 +1986,15 @@
             };
             //add to map
             legend.addTo(map);
+
+            // re-run function to get the new time id
+            map.on('baselayerchange', function (e) {
+              handleBaseLayerChange(map, e, time, 'layer-control-container');
+            });
+
             //fin
           }
-          if(this.value === 'EDDI'){
+          if (this.value === 'EDDI') {
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -1060,38 +2005,43 @@
             //clear the active layers group to repopulate
             activeLayers = new L.LayerGroup();
             //create new layer control and add it to the map
-            layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/eddi/time.txt')
+            var time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/eddi/time.txt'))
             //define breaks
-            var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
+            var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function (x) { return x * scaler; });
             //add chroma scale that matches the USDM
-            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83'].reverse()).classes(breaks); 
+            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83'].reverse()).classes(breaks);
             // add COGS
-            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_15.tif", 
-            //  "(a) 15 Day EDDI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_30.tif", 
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_15.tif",
+              "(a) 15 Day EDDI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_30.tif",
               "(b) 30 Day EDDI", display = true, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_60.tif", 
-              "(c) 60 Day EDDI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_90.tif", 
-              "(d) 90 Day EDDI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_180.tif", 
-              "(e) 180 Day EDDI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_365.tif", 
-              "(f) 1 Year EDDI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_730.tif", 
-              "(g) 2 Year EDDI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_water_year.tif", 
-              "(h) Water Year EDDI", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
-              "(i) Year to Date EDDI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_45.tif",
+              "(c) 45 Day EDDI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_60.tif",
+              "(d) 60 Day EDDI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_90.tif",
+              "(e) 90 Day EDDI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_120.tif",
+              "(f) 120 Day EDDI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_180.tif",
+              "(g) 180 Day EDDI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_365.tif",
+              "(h) 1 Year EDDI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_730.tif",
+              "(i) 2 Year EDDI", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_" + variable_lower + "_water_year.tif",
+              "(j) Water Year EDDI", display = false, breaks = breaks, scale = scale)
+            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_"+variable_lower+"_year_to_date.tif", 
+            //  "(j) Year to Date EDDI", display = false, breaks = breaks, scale = scale)
             //populate the legend
-            legend.onAdd = function(map) {
+            legend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+              div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
               div.innerHTML += '<i style="background: #730000"></i><span>>2 (D4)</span><br>';
               div.innerHTML += '<i style="background: #E60000"></i><span>2 - 1.6 (D3)</span><br>';
               div.innerHTML += '<i style="background: #FFAA00"></i><span>1.6 - 1.3 (D2)</span><br>';
@@ -1107,9 +2057,15 @@
             };
             //add to map
             legend.addTo(map);
+
+            // re-run function to get the new time id
+            map.on('baselayerchange', function (e) {
+              handleBaseLayerChange(map, e, time, 'layer-control-container');
+            });
+
             //fin
           }
-          if(this.value === 'Precipitation Percentiles'){
+          if (this.value === 'Precipitation Percentiles') {
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -1119,38 +2075,43 @@
             //clear the active layers group to repopulate
             activeLayers = new L.LayerGroup();
             //create new layer control and add it to the map
-            layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/precipitation/time.txt')
+            var time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/precipitation/time.txt'))
             //define breaks
-            var breaks = [-999, 2, 5, 10, 20, 30, 70, 80, 90, 95, 98, 999].map(function(x) { return x * scaler; });
+            var breaks = [-999, 2, 5, 10, 20, 30, 70, 80, 90, 95, 98, 999].map(function (x) { return x * scaler; });
             //add chroma scale that matches the USDM
-            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
+            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks);
             // add COGS
-            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_15.tif", 
-            //  "(a) 15 Day Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_30.tif", 
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_15.tif",
+              "(a) 15 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_30.tif",
               "(b) 30 Day Percentile", display = true, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_60.tif", 
-              "(c) 60 Day Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_90.tif", 
-              "(d) 90 Day Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_180.tif", 
-              "(e) 180 Day Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_365.tif", 
-              "(f) 1 Year Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_730.tif", 
-              "(g) 2 Year Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_water_year.tif", 
-              "(h) Water Year Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_year_to_date.tif", 
-              "(i) Year to Date Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_45.tif",
+              "(c) 45 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_60.tif",
+              "(d) 60 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_90.tif",
+              "(e) 90 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_120.tif",
+              "(e) 120 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_180.tif",
+              "(f) 180 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_365.tif",
+              "(g) 1 Year Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_730.tif",
+              "(h) 2 Year Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_water_year.tif",
+              "(i) Water Year Percentile", display = false, breaks = breaks, scale = scale)
+            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percentile_year_to_date.tif", 
+            //  "(i) Year to Date Percentile", display = false, breaks = breaks, scale = scale)
             //populate the legend
-            legend.onAdd = function(map) {
+            legend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+              div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
               div.innerHTML += '<i style="background: #730000"></i><span>0 - 2 (D4)</span><br>';
               div.innerHTML += '<i style="background: #E60000"></i><span>2 - 5 (D3)</span><br>';
               div.innerHTML += '<i style="background: #FFAA00"></i><span>5 - 10 (D2)</span><br>';
@@ -1166,9 +2127,15 @@
             };
             //add to map
             legend.addTo(map);
+
+            // re-run function to get the new time id
+            map.on('baselayerchange', function (e) {
+              handleBaseLayerChange(map, e, time, 'layer-control-container');
+            });
+
             //fin
           }
-          if(this.value === 'Precipitation Percent of Normal'){
+          if (this.value === 'Precipitation Percent of Normal') {
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -1178,38 +2145,43 @@
             //clear the active layers group to repopulate
             activeLayers = new L.LayerGroup();
             //create new layer control and add it to the map
-            layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/precipitation/time.txt')
+            var time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/precipitation/time.txt'))
             //define breaks
-            var breaks = [-999, 5, 25, 50, 70, 90, 110, 130, 150, 200, 400, 999].map(function(x) { return x * scaler; });
+            var breaks = [-999, 5, 25, 50, 70, 90, 110, 130, 150, 200, 400, 999].map(function (x) { return x * scaler; });
             //add chroma scale that matches the USDM
-            var scale = chroma.scale(["#543005", "#8C510A", "#BF812D", "#DFC27D", "#F6E8C3", "#FFFFFF", '#C7EAE5', '#80CDC1', '#35978F', '#01665E', '#003C30']).classes(breaks); 
+            var scale = chroma.scale(["#543005", "#8C510A", "#BF812D", "#DFC27D", "#F6E8C3", "#FFFFFF", '#C7EAE5', '#80CDC1', '#35978F', '#01665E', '#003C30']).classes(breaks);
             // add COGS
-            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_15.tif", 
-            //  "(a) 15 Day % of Normal", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_30.tif", 
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_15.tif",
+              "(a) 15 Day % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_30.tif",
               "(b) 30 Day % of Normal", display = true, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_60.tif", 
-              "(c) 60 Day % of Normal", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_90.tif", 
-              "(d) 90 Day % of Normal", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_180.tif", 
-              "(e) 180 Day % of Normal", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_365.tif", 
-              "(f) 1 Year % of Normal", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_730.tif", 
-              "(g) 2 Year % of Normal", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_water_year.tif", 
-              "(h) Water Year % of Normal", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_year_to_date.tif", 
-              "(i) Year to Date % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_45.tif",
+              "(c) 45 Day % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_60.tif",
+              "(d) 60 Day % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_90.tif",
+              "(e) 90 Day % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_120.tif",
+              "(e) 120 Day % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_180.tif",
+              "(f) 180 Day % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_365.tif",
+              "(g) 1 Year % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_730.tif",
+              "(h) 2 Year % of Normal", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_water_year.tif",
+              "(i) Water Year % of Normal", display = false, breaks = breaks, scale = scale)
+            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/precipitation_current_percent_of_normal_year_to_date.tif", 
+            //  "(i) Year to Date % of Normal", display = false, breaks = breaks, scale = scale)
             //populate the legend
-            legend.onAdd = function(map) {
+            legend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+              div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
               div.innerHTML += '<i style="background: #543005"></i><span>0 - 5</span><br>';
               div.innerHTML += '<i style="background: #8C510A"></i><span>5 - 25</span><br>';
               div.innerHTML += '<i style="background: #BF812D"></i><span>25 - 50</span><br>';
@@ -1225,9 +2197,15 @@
             };
             //add to map
             legend.addTo(map);
+
+            // re-run function to get the new time id
+            map.on('baselayerchange', function (e) {
+              handleBaseLayerChange(map, e, time, 'layer-control-container');
+            });
+
             //fin
           }
-          if(this.value === 'Temperature Percentiles'){
+          if (this.value === 'Temperature Percentiles') {
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -1237,36 +2215,41 @@
             //clear the active layers group to repopulate
             activeLayers = new L.LayerGroup();
             //create new layer control and add it to the map
-            layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/temperature/time.txt')
+            var time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/temperature/time.txt'))
             //define breaks
-            var breaks = [-999, 2, 5, 10, 20, 30, 70, 80, 90, 95, 98, 999].map(function(x) { return x * scaler; });
+            var breaks = [-999, 2, 5, 10, 20, 30, 70, 80, 90, 95, 98, 999].map(function (x) { return x * scaler; });
             //add chroma scale that matches the USDM
-            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83'].reverse()).classes(breaks); 
+            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83'].reverse()).classes(breaks);
             // add COGS
-            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_15.tif", 
-            //  "(a) 15 Day Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_30.tif", 
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_15.tif",
+              "(a) 15 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_30.tif",
               "(b) 30 Day Percentile", display = true, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_60.tif", 
-              "(c) 60 Day Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_90.tif", 
-              "(d) 90 Day Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_180.tif", 
-              "(e) 180 Day Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_365.tif", 
-              "(f) 1 Year Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_water_year.tif", 
-              "(g) Water Year Percentile", display = false, breaks = breaks, scale = scale)
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_year_to_date.tif", 
-              "(h) Year to Date Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_45.tif",
+              "(c) 45 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_60.tif",
+              "(d) 60 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_90.tif",
+              "(e) 90 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_120.tif",
+              "(e) 120 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_180.tif",
+              "(f) 180 Day Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_365.tif",
+              "(g) 1 Year Percentile", display = false, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_water_year.tif",
+              "(h) Water Year Percentile", display = false, breaks = breaks, scale = scale)
+            //addCOG("https://data.climate.umt.edu/drought-indicators/cog/temperature_current_percentile_year_to_date.tif", 
+            //  "(i) Year to Date Percentile", display = false, breaks = breaks, scale = scale)
             //populate the legend
-            legend.onAdd = function(map) {
+            legend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+              div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
               div.innerHTML += '<i style="background: #303B83"></i><span>0 - 2</span><br>';
               div.innerHTML += '<i style="background: #4030E3"></i><span>2 - 5</span><br>';
               div.innerHTML += '<i style="background: #325CFE"></i><span>5 - 10</span><br>';
@@ -1282,42 +2265,79 @@
             };
             //add to map
             legend.addTo(map);
+
+            // re-run function to get the new time id
+            map.on('baselayerchange', function (e) {
+              handleBaseLayerChange(map, e, time, 'layer-control-container');
+            });
+
             //fin
           }
-          if(this.value === 'Snowpack'){
+          if (this.value === 'Snowpack') {
+            /*
             //remove old FGB controls (special case, otherwise use updateFgbControls())
+            map.removeControl(snowFGBLayerControl);
             map.removeControl(fgbLayerControl);
             map.removeControl(soilMoistureFGBLayerControl);
             //add snow controls
             map.addControl(snowFGBLayerControl);
+            setParent(snowFGBLayerControl.getContainer(), document.getElementById('overlay-container'));
+
+            snowFGBLayerControl.getContainer().addEventListener('change', function (event) {
+              if (event.target.type === 'checkbox' && event.target.checked === false) {
+                // Check if fgbLayerControl is currently active
+                if (snowFGBLayerControl._map && USDMlegend && USDMlegend._map) {
+                  USDMlegend.remove();
+                }
+              }
+            });
+            */
+
+            updateFgbControls()
             //define variable of interest
             var variable = 'Standardized<br>Snow Water<br>Equivalent (SWE)'
             //remove active layers from map and legend
             cleanUp()
+
+            map.addControl(snowFGBLayerControl);
+            setParent(snowFGBLayerControl.getContainer(), document.getElementById('overlay-container'));
+
+            snowFGBLayerControl.getContainer().addEventListener('change', function (event) {
+              if (event.target.type === 'checkbox' && event.target.checked === false) {
+                // Check if fgbLayerControl is currently active
+                if (snowFGBLayerControl._map && USDMlegend && USDMlegend._map) {
+                  USDMlegend.remove();
+                }
+              }
+            });
+
+            addSpaceBetweenDivs()
+
             //clear the active layers group to repopulate
             activeLayers = new L.LayerGroup();
             //create new layer control and add it to the map
-            layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/snodas/time.txt')
+            var time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/snodas/time.txt'))
             // import and add COGs to map from remote server
             //define breaks
-            var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
+            var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function (x) { return x * scaler; });
             //add chroma scale that matches the USDM
-            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
+            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks);
             // add COGS
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_snodas_swe_standardized.tif", 
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_snodas_swe_standardized.tif",
               "(a) Standardized SWE", display = true, breaks = breaks, scale = scale)
             //add hypsome-swe to the map
             map.addLayer(snowLayers._layers['Hypsome-SWE']);
             //add SNOTEL to map
             map.addLayer(snowLayers._layers['SNOTEL SWE']);
             //populate the legend
-            legend.onAdd = function(map) {
+            legend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+              div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
               div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
               div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
               div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
@@ -1333,14 +2353,17 @@
             };
             //add to map
             legend.addTo(map);
+
+            // re-run function to get the new time id
+            map.on('baselayerchange', function (e) {
+              handleBaseLayerChange(map, e, time, 'layer-control-container');
+            });
             //fin
           }
-          if(this.value === 'Soil Moisture'){
+          if (this.value === 'Soil Moisture') {
             //remove old FGB controls (special case, otherwise use updateFgbControls())
-            map.removeControl(fgbLayerControl);
-            map.removeControl(snowFGBLayerControl);
-            map.addControl(fgbLayerControl);
-            
+            //update FGB controls 
+            updateFgbControls()
             //define variable of interest
             var variable = 'Soil Moisture'
             //remove active layers from map and legend
@@ -1348,28 +2371,39 @@
             //clear the active layers group to repopulate
             activeLayers = new L.LayerGroup();
             //create new layer control and add it to the map
-            layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
             //create new legend "contol" object
             topofire_legend = L.control({ position: "bottomleft" });
             smap_legend = L.control({ position: "bottomleft" });
+
+            //sport_legend = L.control({ position: "bottomleft" });
             //define time
-            var topofire_time = loadFile('https://data.climate.umt.edu/drought-indicators/topofire/time.txt')
-            var smap_time = loadFile('https://data.climate.umt.edu/drought-indicators/smap/time.txt')
-            var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function(x) { return x * scaler; });
+            var smap_time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/smap/time.txt'))
+            var topofire_time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/topofire/time.txt'))
+            var sport_time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/SPoRT/time.txt'))
+
+            //define initial time - change this for the initial loaded var
+            time = sport_time
+
+            var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function (x) { return x * scaler; });
             //add chroma scale that matches the USDM
-            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
+            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks);
             // add COGS
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/topofire_soil_moisture_anom.tif", 
-              "(a) Topofire Soil Moisture", display = true, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/sport_soil_moisture_anom.tif",
+              "(a) SPoRT Soil Moisture", display = true, breaks = breaks, scale = scale)
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/topofire_soil_moisture_anom.tif",
+              "(b) Topofire Soil Moisture", display = false, breaks = breaks, scale = scale)
+
             //addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_smap_anom.tif", 
             //  "(b) SMAP Root-Zone Soil Moisture", display = false, breaks = breaks, scale = scale)
             //add soil moisture point data
             //addSoilMoisturePoints()
 
             //populate the legend
-            topofire_legend.onAdd = function(map) {
+            topofire_legend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"<br>"+topofire_time+"</h4>";
+              div.innerHTML += "<h4>" + variable + "<br>" + topofire_time + "</h4>";
               div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
               div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
               div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
@@ -1385,9 +2419,9 @@
             };
 
             //populate the legend
-            smap_legend.onAdd = function(map) {
+            sport_legend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"<br>"+smap_time+"</h4>";
+              div.innerHTML += "<h4>" + variable + "<br>" + sport_time + "</h4>";
               div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
               div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
               div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
@@ -1401,20 +2435,57 @@
               div.innerHTML += '<i style="background: #303B83"></i><span>>2</span><br>';
               return div;
             };
+
+            //populate the legend
+            smap_legend.onAdd = function (map) {
+              var div = L.DomUtil.create("div", "legend");
+              div.innerHTML += "<h4>" + variable + "<br>" + smap_time + "</h4>";
+              div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
+              div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
+              div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
+              div.innerHTML += '<i style="background: #FCD37F"></i><span>-1.3 - -0.8 (D1)</span><br>';
+              div.innerHTML += '<i style="background: #FFFF00"></i><span>-0.8 - -0.5 (D0)</span><br>';
+              div.innerHTML += '<i style="background: #FFFFFF"></i><span>-0.5 - 0.5</span><br>';
+              div.innerHTML += '<i style="background: #82FCF9"></i><span>0.5 - 0.8</span><br>';
+              div.innerHTML += '<i style="background: #32E1FA"></i><span>0.8 - 1.3</span><br>';
+              div.innerHTML += '<i style="background: #325CFE"></i><span>1.3 - 1.6</span><br>';
+              div.innerHTML += '<i style="background: #4030E3"></i><span>1.6 - 2</span><br>';
+              div.innerHTML += '<i style="background: #303B83"></i><span>>2</span><br>';
+              return div;
+            };
+
             //add to map
             //legend.addTo(map);
             //change legend based on layer selected
             map.on('baselayerchange', function (e) {
-              if(e.name == '(a) Topofire Soil Moisture')
-                {map.removeControl(smap_legend);
-                  topofire_legend.addTo(map)};
-              if(e.name == '(b) SMAP Root-Zone Soil Moisture')
-                {map.removeControl(topofire_legend);
-                  smap_legend.addTo(map)};
+              if (e.name == '(a) SPoRT Soil Moisture') {
+                map.removeControl(smap_legend);
+                map.removeControl(topofire_legend);
+                sport_legend.addTo(map)
+                time = sport_time
+              };
+              if (e.name == '(b) Topofire Soil Moisture') {
+                map.removeControl(smap_legend);
+                map.removeControl(sport_legend);
+                topofire_legend.addTo(map)
+                time = topofire_time
+              };
+              if (e.name == '(c) SMAP Root-Zone Soil Moisture') {
+                map.removeControl(topofire_legend);
+                map.removeControl(sport_legend);
+                smap_legend.addTo(map)
+                time = smap_time
+              };
+            });
+
+            // re-run function to get the new time id
+            // put this into the map.on function above
+            map.on('baselayerchange', function (e) {
+              handleBaseLayerChange(map, e, time, 'layer-control-container');
             });
 
           }
-          if(this.value === 'GRACE Groundwater'){
+          if (this.value === 'GRACE Groundwater') {
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -1424,22 +2495,23 @@
             //clear the active layers group to repopulate
             activeLayers = new L.LayerGroup();
             //create new layer control and add it to the map
-            layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/grace/time.txt')
+            var time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/grace/time.txt'))
             //define breaks
-            var breaks = [-999, 2, 5, 10, 20, 30, 70, 80, 90, 95, 98, 999].map(function(x) { return x * scaler; });
+            var breaks = [-999, 2, 5, 10, 20, 30, 70, 80, 90, 95, 98, 999].map(function (x) { return x * scaler; });
             //add chroma scale that matches the USDM
-            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks); 
+            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks);
             // add COGS
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current-grace-groundwater-drought.tif", 
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current-grace-groundwater-drought.tif",
               "(a) GRACE Groundwater", display = true, breaks = breaks, scale = scale)
             //populate the legend
-            legend.onAdd = function(map) {
+            legend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+              div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
               div.innerHTML += '<i style="background: #730000"></i><span>0 - 2 (D4)</span><br>';
               div.innerHTML += '<i style="background: #E60000"></i><span>2 - 5 (D3)</span><br>';
               div.innerHTML += '<i style="background: #FFAA00"></i><span>5 - 10 (D2)</span><br>';
@@ -1455,9 +2527,15 @@
             };
             //add to map
             legend.addTo(map);
+
+            // re-run function to get the new time id
+            map.on('baselayerchange', function (e) {
+              handleBaseLayerChange(map, e, time, 'layer-control-container');
+            });
+
             //fin
           }
-          if(this.value === 'VHI'){
+          if (this.value === 'VHI') {
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -1467,24 +2545,25 @@
             //clear the active layers group to repopulate
             activeLayers = new L.LayerGroup();
             //create new layer control and add it to the map
-            layerControl = L.control.layers(null, null, {position: 'topleft', sortLayers: true, collapsed: false}).addTo(map);
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
             //create new legend "contol" object
             legend = L.control({ position: "bottomleft" });
             //define time
-            var time = loadFile('https://data.climate.umt.edu/drought-indicators/vhi/time.txt')
+            var time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/vhi/time.txt'))
             // import and add COGs to map from remote server
             //define breaks
             var breaks = [-999, 6, 12, 24, 36, 48, 60, 72, 84, 999];
             //add chroma scale that matches the USDM<div class="div-wrapper">
-            var scale = chroma.scale(["#FF00A0", "#F00050", "#FF7878", "#FFAA00", "#FFFF55", "#55FF55", '#00AA00', '#5555FF', '#0000AA']).classes(breaks); 
+            var scale = chroma.scale(["#FF00A0", "#F00050", "#FF7878", "#FFAA00", "#FFFF55", "#55FF55", '#00AA00', '#5555FF', '#0000AA']).classes(breaks);
             // add COGS
-            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_vhi.tif", 
-              "Vegetation Health Index", display = true, breaks = breaks, scale = scale)
-            
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_vhi.tif",
+              "(a) Vegetation Health Index", display = true, breaks = breaks, scale = scale)
+
             //populate the legend
-            legend.onAdd = function(map) {
+            legend.onAdd = function (map) {
               var div = L.DomUtil.create("div", "legend");
-              div.innerHTML += "<h4>"+variable+"<br>"+time+"</h4>";
+              div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
               div.innerHTML += '<i style="background: #FF00A0"></i><span>0 - 6</span><br>';
               div.innerHTML += '<i style="background: #F00050"></i><span>6 - 12</span><br>';
               div.innerHTML += '<i style="background: #FF7878"></i><span>12 - 24</span><br>';
@@ -1498,6 +2577,65 @@
             };
             //add to map
             legend.addTo(map);
+
+
+            // re-run function to get the new time id
+            map.on('baselayerchange', function (e) {
+              handleBaseLayerChange(map, e, time, 'layer-control-container');
+            });
+
+            //fin
+          }
+          if (this.value === 'ForDRI') {
+            //update FGB controls 
+            updateFgbControls()
+            //define variable of interest
+            var variable = 'Forest Drought<br>Response Index<br>(ForDRI)'
+            //remove active layers from map and legend
+            cleanUp()
+            //clear the active layers group to repopulate
+            activeLayers = new L.LayerGroup();
+            //create new layer control and add it to the map
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
+            //create new legend "contol" object
+            legend = L.control({ position: "bottomleft" });
+            //define time
+            var time = reformatDates(loadFile('https://data.climate.umt.edu/drought-indicators/ForDRI/time.txt'))
+            // import and add COGs to map from remote server
+            //define breaks
+            var breaks = [-999, -2.0, -1.6, -1.3, -0.8, -0.5, 0.5, 0.8, 1.3, 1.6, 2, 999].map(function (x) { return x * scaler; });
+            //add chroma scale that matches the USDM
+            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", '#82FCF9', '#32E1FA', '#325CFE', '#4030E3', '#303B83']).classes(breaks);
+            // add COGS
+            addCOG("https://data.climate.umt.edu/drought-indicators/cog/current_ForDRI.tif",
+              "(a) ForDRI (Forest Drought)", display = true, breaks = breaks, scale = scale)
+
+            //populate the legend
+            legend.onAdd = function (map) {
+              var div = L.DomUtil.create("div", "legend");
+              div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
+              div.innerHTML += '<i style="background: #730000"></i><span><-2 (D4)</span><br>';
+              div.innerHTML += '<i style="background: #E60000"></i><span>-2 - -1.6 (D3)</span><br>';
+              div.innerHTML += '<i style="background: #FFAA00"></i><span>-1.6 - -1.3 (D2)</span><br>';
+              div.innerHTML += '<i style="background: #FCD37F"></i><span>-1.3 - -0.8 (D1)</span><br>';
+              div.innerHTML += '<i style="background: #FFFF00"></i><span>-0.8 - -0.5 (D0)</span><br>';
+              div.innerHTML += '<i style="background: #FFFFFF"></i><span>-0.5 - 0.5</span><br>';
+              div.innerHTML += '<i style="background: #82FCF9"></i><span>0.5 - 0.8</span><br>';
+              div.innerHTML += '<i style="background: #32E1FA"></i><span>0.8 - 1.3</span><br>';
+              div.innerHTML += '<i style="background: #325CFE"></i><span>1.3 - 1.6</span><br>';
+              div.innerHTML += '<i style="background: #4030E3"></i><span>1.6 - 2</span><br>';
+              div.innerHTML += '<i style="background: #303B83"></i><span>>2</span><br>';
+              return div;
+            };
+            //add to map
+            legend.addTo(map);
+
+            // re-run function to get the new time id
+            map.on('baselayerchange', function (e) {
+              handleBaseLayerChange(map, e, time, 'layer-control-container');
+            });
+
             //fin
           }
         });
@@ -1506,19 +2644,21 @@
     <!-- Add footer image of logos -->
     <div class="parent">
       <div class="child">
-        <img src="./misc_content/logos2.webp" style="max-width: 70%; height: auto;" align="bottom"/>
+        <img src="./misc_content/logos2.webp" style="max-width: 70%; height: auto;" align="bottom" />
       </div>
     </div>
     <hr>
     <!-- Footer -->
     <footer>
       <p style="text-align: center;">Produced by the <a href="https://climate.umt.edu/">Montana Climate Office</a></p>
-      <p style="text-align: center;"><span style="color: #808080;"><em>Montana Forest & Conservation Experiment Station</em></span></p>
+      <p style="text-align: center;"><span style="color: #808080;"><em>Montana Forest & Conservation Experiment
+            Station</em></span></p>
       <p style="text-align: center;"><span style="color: #808080;"><em>University of Montana</em></span></p>
       <p style="text-align: center;"><span style="color: #808080;"><em>32 Campus Drive</em></span></p>
       <p style="text-align: center;"><span style="color: #808080;"><em>Missoula, MT 59812</em></span></p>
       <p style="text-align: center;"><span style="color: #808080;"><em>Phone: (406) 243-6793</em></span></p>
       <p style="text-align: center;"><span style="color: #808080;"><em>state.climatologist@umontana.edu</em></span></p>
     </footer>
-  </body>
+</body>
+
 </html>
