@@ -861,6 +861,8 @@
         //define scaler for data
         var scaler = 10;
 
+        const qParams = new URLSearchParams(window.location.search);
+        const zoom_id = qParams.get('id');
         // initalize leaflet map and set some prefs
         const map = L.map('map', {
           preferCanvas: true,
@@ -1190,8 +1192,9 @@
           var popup_property_ = popup_property
           //async wait for flatgeobuf fetch
           const response = await fetch(fgb_url)
+          let match_found = false;
           //loop each feature
-          for await (const f of flatgeobuf.deserialize(response.body))
+          for await (const f of flatgeobuf.deserialize(response.body)) {
             //if the layer is USDM then add it differently (fill colors etc)
             if (fgb_name === 'U.S. Drought Monitor') {
               tempGroup.push(
@@ -1204,6 +1207,7 @@
               sessionStorage.USDM = USDM;
               USDMLayer.addLayer(USDM)
             }
+            
             //both hypsomeSWE and watersheds use Watershed FGB, no need to load twice
             else if (fgb_name === 'Watersheds') {
               //first HypsomeSWE
@@ -1268,6 +1272,16 @@
                 tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight }).bindTooltip(f.properties[popup_property_]));
               }
             }
+
+            if (f['properties']['NAME'] === zoom_id){
+              display=true
+              const bounds = L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight }).getBounds();
+              let zoom = map.getBoundsZoom(bounds);
+              console.log(zoom);
+              map.fitBounds(bounds);
+              map.setZoom(zoom-0.5);
+            }
+        }
           //if adding hypsome-swe, we need to name it differently for cleanUp fun
           if (fgb_name === 'Watersheds') {
             //define tempGroupLayer feature group to add to layer control
