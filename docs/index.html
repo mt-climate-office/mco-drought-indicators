@@ -876,7 +876,7 @@
           zoomDelta: 0.5,
           zoomSnap: 0,
           zoomControl: false
-        }).setView(new L.LatLng(45, -111), 6);
+        })
 
         map.createPane('SNOTEL');
         map.getPane('SNOTEL').style.zIndex = 650;
@@ -916,16 +916,18 @@
           if (zoom_name === simple_string(f['properties']['name'])) {
             if (zoom_type === null || zoom_type === f['properties']['type']) {
               target = f;
+              break;
             }
           }
         }
-        console.log(target);
 
         if (target !== undefined) {
             const bounds = L.geoJSON(target).getBounds();
             let zoom = map.getBoundsZoom(bounds);
             map.fitBounds(bounds);
             map.setZoom(zoom-0.25);
+        } else {
+          map.setView(new L.LatLng(45, -111), 6);
         }
 
         //add attribution
@@ -1259,13 +1261,12 @@
                   popupAnchor: [-1, 0]
                 }));
 
-
               //Now just regular watersheds without the popup
               //if there is a popop property to bind, do it.
               if (popup_property_ == null) {
                 tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight }));
               } else {
-                tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight }).bindTooltip(f.properties[popup_property_]));
+                tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight , popup: f.properties[popup_property_]}).bindTooltip(f.properties[popup_property_]));
               }
             }
             else if (fgb_name === 'SNOTEL SWE') {
@@ -1293,10 +1294,11 @@
               if (popup_property_ == null) {
                 tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight }));
               } else {
-                tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight }).bindTooltip(f.properties[popup_property_]));
+                tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight, popup: f.properties[popup_property_] }).bindTooltip(f.properties[popup_property_]));
               }
             }
         }
+
           //if adding hypsome-swe, we need to name it differently for cleanUp fun
           if (fgb_name === 'Watersheds') {
             //define tempGroupLayer feature group to add to layer control
@@ -1308,7 +1310,7 @@
             snowFGBLayerControl.addOverlay(hypsomeSWE, 'Basin-wide SWE');
             snowLayers.addLayer(hypsomeSWE)
             //display if display param == true on initial load
-            if (display == true) {
+            if (display && (target === undefined)) {
               hypsomeSWE.addTo(map)
             }
             //define tempGroupLayer feature group to add to layer control
@@ -1351,9 +1353,27 @@
             //add it to the soil moisture control too for later (only used when soil moisture selector is active)
             //soilMoistureFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
             //display if display param == true on initial load
-            if (display == true) {
+            if (display) {
               tempGroupLayer.addTo(map)
             }
+          }
+
+          if (display && (target !== undefined) && (fgb_name !== "States")) {
+
+            if (fgb_name == "Watersheds") {
+              tempGroupLayer.addTo(map);
+            } 
+
+          // For the life of me I can't get this to consistently work. 
+          // tempGroup.forEach(function(l) {
+          //   var pop = l['options']['popup'];
+          //   console.log(pop);
+          //   if (pop !== undefined) {
+          //     l.bindPopup(pop);
+          //     l.bindTooltip(pop);
+          //   }
+          // })
+
           }
         };
 
@@ -2664,7 +2684,6 @@
             map.on('baselayerchange', function (e) {
               handleBaseLayerChange(map, e, time, 'layer-control-container');
             });
-
             //fin
           }
         });
