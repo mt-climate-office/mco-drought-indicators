@@ -121,7 +121,7 @@
       position: relative;
       right: 0px;
       top: 50px;
-      height: 730px;
+      height: 630px;
       width: 98%;
       border: 3px solid #000000;
       margin-left: auto;
@@ -870,13 +870,13 @@
           noMoveStart: true,
           animate: false,
           zoomAnimation: true,
-          zoomAnimationThreshold: 3,
+          zoomAnimationThreshold: 1,
           fadeAnimation: true,
-          markerZoomAnimation: false,
+          markerZoomAnimation: true,
           zoomDelta: 0.5,
-          zoomSnap: 0,
+          zoomSnap: 0.5,
           zoomControl: false,
-          wheelPxPerZoomLevel: 200
+          wheelPxPerZoomLevel: 5000
         })
 
         map.createPane('SNOTEL');
