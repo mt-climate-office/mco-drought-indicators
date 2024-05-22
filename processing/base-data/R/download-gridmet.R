@@ -25,8 +25,8 @@ get_gridment = function(varname, year, export.dir) {
 vars = c('pr', 'pet', 'tmmx')
 years = c(1991:2023)
 
-for(v in 1:length(vars)[1]){
+for(v in 1:length(vars)){
   for(y in years){
-    get_gridment(vars[v], y, export.dir)
+    get_gridment(vars[2], y, export.dir)
   }
 }

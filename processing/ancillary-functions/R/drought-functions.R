@@ -292,6 +292,16 @@ deviation_from_normal = function(x, climatology_length = 30){
   return(deviation_from_normal)
 }
 
+compute_percentile = function(x, climatology_length = 30){
+  if(all(is.na(x)) == T){
+    return(NA)
+  } else {
+    x = tail(x, climatology_length)
+    ecdf_ = ecdf(x)
+    return(ecdf_(x[length(x)]))
+  }
+}
+
 percentile_inverse = function(x, climatology_length = 30){
   tryCatch({
     #extract the "climatology length from the dataset (assumes x is ordered in time, 1991, 1992, 1993... 2020 etc)
@@ -330,4 +340,35 @@ fdates  = function(filenames,dateformat=F,n=NULL){
   } else  dts<-sapply(strsplit(basename(filenames),"_"),function(x) x[n])
   if(dateformat) dts <- as.Date(dts,"%Y%m%d")
   dts
+}
+
+#compute time scale slice and group vectors
+compute_timescales = function(time, time_scale){
+  #compute indexes for time breaks
+  first_date_breaks = which(time$day == time$day[length(time$datetime)])
+  second_date_breaks = first_date_breaks-(time_scale-1)
+  
+  #if there are negative indexes remove last year (incomplete data range)
+  #change this to remove all indexes from both vectors that are negative
+  if(!all(second_date_breaks < 0)){
+    pos_index = which(second_date_breaks > 0)
+    first_date_breaks = first_date_breaks[c(pos_index)]
+    second_date_breaks = second_date_breaks[c(pos_index)]
+  }
+  
+  #create slice vectors and group by vectors
+  for(j in 1:length(first_date_breaks)){
+    if(j == 1){
+      slice_vec = seq(second_date_breaks[j],first_date_breaks[j], by = 1)
+      group_by_vec = rep(j,(first_date_breaks[j] - second_date_breaks[j]+1))
+    }
+    else{
+      slice_vec = append(slice_vec, seq(second_date_breaks[j],first_date_breaks[j], by = 1))
+      group_by_vec = append(group_by_vec, rep(j,(first_date_breaks[j] - second_date_breaks[j]+1)))
+    }
+  }
+  return(list(first_date_breaks = first_date_breaks,
+              second_date_breaks = second_date_breaks,
+              slice_vec = slice_vec, 
+              group_by_vec = group_by_vec))
 }
