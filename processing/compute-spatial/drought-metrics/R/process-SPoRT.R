@@ -19,9 +19,9 @@ if(hour(time) < 12){
 }
   
 url = paste0(
-  'https://geo.ndc.nasa.gov/SPoRT/modeling/lis/conus3km/geotiff/rsm_0-2m_percentile/',
+  'https://geo.ndc.nasa.gov/SPoRT/modeling/lis/conus3km/geotiff/vsm_percentiles/',
   str_replace_all(date, "[[:punct:]]", ""),
-  '_0000_sport_lis_rsm0-2m_percentile_conus3km_float_wgs84.tif')
+  '_0000_sport_lis_vsm0-100cm_percentile_conus3km_float_wgs84.tif')
 
 data = terra::rast(url) %>%
   crop(., UMRB_sf) %>%

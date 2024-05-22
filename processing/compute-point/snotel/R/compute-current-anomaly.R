@@ -8,6 +8,8 @@ library(leaflet)
 library(sf)
 library(xml2)
 
+source('https://raw.githubusercontent.com/mt-climate-office/mco-drought-indicators/master/processing/ancillary-functions/R/drought-functions.R')
+
 yday.waterYear = function(x, start.month = 10L){
   day = day(x)
   month = month(x)
@@ -46,7 +48,7 @@ get_snotel_most_recent = function(site_id, state, network){
     #"%7Cid=%22%22%7Cname/",Sys.Date()-14,",",Sys.Date(),"/WTEQ::value,PREC::value"
   )
   
-  export = getURL(base_url) %>%
+  export = httr::GET(base_url) %>%
     gsub(".*As of:","",.) %>%
     read_csv(., skip = 2) %>%
     dplyr::filter(Date == max(Date)) %>%
