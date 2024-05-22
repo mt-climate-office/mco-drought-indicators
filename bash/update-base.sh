@@ -10,6 +10,7 @@ Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/precipitation-map.R >/home/zhoylman/mco-drought-indicators-data/logs/precip 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/temperature-map.R >/home/zhoylman/mco-drought-indicators-data/logs/temp 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/get-cpc-and-grace.R >/home/zhoylman/mco-drought-indicators-data/logs/cpc-grace 2>&1
+Rscript /home/zhoylman/mco-drought-indicators/processing/compute-point/usgs/compute-usgs-percentiles.R >/home/zhoylman/mco-drought-indicators-data/logs/usgs 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-point/mesonet/soil-moisture-anomoly.R >/home/zhoylman/mco-drought-indicators-data/logs/mesonet-anom 2>&1
 Rscript /home/zhoylman/mco-drought-indicators/processing/compute-spatial/drought-metrics/R/process-vhi.R >/home/zhoylman/mco-drought-indicators-data/logs/vhi 2>&1
 

@@ -22,12 +22,12 @@ current_vhi = raster(paste0('/vsicurl/https://www.star.nesdis.noaa.gov/pub/corp/
 current_vhi[current_vhi<=0] = NA
   
 current_time = substr(vhi_files, 18, 24) %>%
-  as.Date(., format = '%Y0%W') - 3s
+  as.Date(., format = '%Y0%W') - 3
 
 writeRaster(current_vhi, '/home/zhoylman/mco-drought-indicators-data/vhi/current_vhi.tif', datatype='INT2S',  overwrite=TRUE, NAflag = -32767)
 writeRaster(current_vhi, '/home/zhoylman/mco-drought-indicators-data/16bit-rescaled/current_vhi.tif', datatype='INT2S',  overwrite=TRUE, NAflag = -32767)
 
 #write simple time txt
 fileConn=file("/home/zhoylman/mco-drought-indicators-data/vhi/time.txt")
-writeLines(current_time %>% as.character(), fileConn)s
+writeLines(current_time %>% as.character(), fileConn)
 close(fileConn)

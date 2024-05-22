@@ -25,6 +25,15 @@ sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/historical_6wk_usdm.
 sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/historical_7wk_usdm.fgb /home/zhoylman/mco-drought-indicators-data/usdm/historical_7wk_usdm.geojson
 sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/historical_8wk_usdm.fgb /home/zhoylman/mco-drought-indicators-data/usdm/historical_8wk_usdm.geojson
 
+#convert usgs to flatgeobuf
+sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/usgs_today_current_percentiles.fgb /home/zhoylman/mco-drought-indicators-data/usgs/geojson/usgs_today_current_percentiles.geojson
+
+sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/usgs_7_current_percentiles.fgb /home/zhoylman/mco-drought-indicators-data/usgs/geojson/usgs_7_current_percentiles.geojson
+
+sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/usgs_14_current_percentiles.fgb /home/zhoylman/mco-drought-indicators-data/usgs/geojson/usgs_14_current_percentiles.geojson
+
+sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/usgs_28_current_percentiles.fgb /home/zhoylman/mco-drought-indicators-data/usgs/geojson/usgs_28_current_percentiles.geojson
+
 #convert soil moisture geojsons to flat geo buffs
 
 sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/current_soil_moisture_anom_shallow.fgb /home/zhoylman/mco-drought-indicators-data/mesonet/soil-moisture/geojson/current_soil_moisture_anom_shallow.geojson
