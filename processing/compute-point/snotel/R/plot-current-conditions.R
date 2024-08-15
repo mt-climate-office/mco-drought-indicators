@@ -21,7 +21,7 @@ list.files("/home/zhoylman/swe-futures/R/", full.names = TRUE) %>%
 
 sites_with_climatology = readr::read_csv('/home/zhoylman/mco-drought-indicators-data/snotel/climatology/site_climatology.csv')
 sites_of_interest = sites_with_climatology$site_id %>% unique()
-  write.dir = '/home/zhoylman/mco-drought-indicators-data/snotel/plots/'
+write.dir = '/home/zhoylman/mco-drought-indicators-data/snotel/plots/'
 
 errors = c()
 
@@ -32,6 +32,7 @@ foreach(i = 1:length(sites_of_interest),
   filename = paste0(write.dir,"snotel_plot_", sites_of_interest[i],".png")
   list.files("/home/zhoylman/swe-futures/R/", full.names = TRUE) %>%
     purrr::walk(source)
+
   tryCatch({
     ## Example for SNOTEL site 901 (Stuart Mountain)
     temp_plot = snotelr::snotel_download(sites_of_interest[i], 

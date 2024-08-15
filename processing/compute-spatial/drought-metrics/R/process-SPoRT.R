@@ -19,7 +19,7 @@ if(hour(time) < 12){
 }
   
 url = paste0(
-  'https://geo.ndc.nasa.gov/SPoRT/modeling/lis/conus3km/geotiff/vsm_percentiles/',
+  'https://nssrgeo.ndc.nasa.gov/SPoRT/modeling/lis/conus3km/geotiff/vsm_percentiles/',
   str_replace_all(date, "[[:punct:]]", ""),
   '_0000_sport_lis_vsm0-100cm_percentile_conus3km_float_wgs84.tif')
 
