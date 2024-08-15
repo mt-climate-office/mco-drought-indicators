@@ -12,6 +12,7 @@
 
     gtag('config', 'UA-149859729-1');
   </script>
+  <script src="https://unpkg.com/chroma-js@2.0.3/chroma.min.js"></script>
   <!-- Import Bootstrap Scripts and CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -795,7 +796,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://unpkg.com/georaster"></script>
-  <script src="https://unpkg.com/chroma-js"></script>
   <script src="https://unpkg.com/georaster-layer-for-leaflet/dist/georaster-layer-for-leaflet.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://unpkg.com/flatgeobuf@3.22.0/dist/flatgeobuf-geojson.min.js"></script>
@@ -895,6 +895,7 @@
         document.querySelector('.leaflet-control-layers-list').style.overflow = 'visible';
         var snowFGBLayerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false });
         var soilMoistureFGBLayerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false });
+        var usgsFGBLayerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false });
 
         //set min zoom
         map.options.minZoom = 5;
@@ -981,6 +982,7 @@
         var snowLayers = new L.LayerGroup();
         var USDMLayer = new L.LayerGroup();
         var soilMoistureLayers = new L.LayerGroup();
+        var usgsFGBLayer = new L.LayerGroup();
 
         // define selector
         var selector = L.control({
@@ -1110,6 +1112,10 @@
             {
               id: 'SNOTEL',
               text: 'Snow Telemetry (SNOTEL) Network'
+            },
+            {
+              id: 'USGS',
+              text: 'USGS Streamflow'
             }
             ]
           }]
@@ -1290,6 +1296,16 @@
                     })
               );
             }
+            else if (fgb_name.includes('USGS')) {
+              tempGroup.push(
+                L.geoJSON(f, { pointToLayer: createCircleMarker })
+                  .bindPopup("<img src='https://data.climate.umt.edu/drought-indicators/plots/" +
+                    f.properties.STAID + "_discharge.png' height='300' width='480' loading='lazy'/>",
+                    {
+                      maxWidth: "auto"
+                    })
+              );
+            }
             else {
               //if there is a popop property to bind, do it.
               if (popup_property_ == null) {
@@ -1342,6 +1358,18 @@
             soilMoistureLayers.addLayer(mesonetVWC)
             if (display == true) {
               mesonetVWC.addTo(map)
+            }
+          } else if (fgb_name.includes('USGS')) {
+            //define tempGroupLayer feature group to add to layer control
+            var usgsStreamflow = L.featureGroup(tempGroup);
+            usgsStreamflow._leaflet_id = 'USGS Streamflow' + depth
+            //define to sessionStorage
+            sessionStorage.usgsStreamflow = usgsStreamflow;
+            //add group to the fgb layer control 
+            usgsFGBLayerControl.addBaseLayer(usgsStreamflow, fgb_name);
+            usgsFGBLayer.addLayer(usgsStreamflow)
+            if (display == true) {
+              usgsFGBLayer.addTo(map)
             }
           } else {
             //define tempGroupLayer feature group to add to layer control
@@ -1456,6 +1484,11 @@
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_shallow.fgb', fgb_name = '(a) Soil Moisture (0-4in)', weight = 1, display = false, popup_property = 'NAME', depth = 'Shallow');
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_middle.fgb', fgb_name = '(b) Soil Moisture (8-20in)', weight = 1, display = false, popup_property = 'NAME', depth = 'Middle');
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_deep.fgb', fgb_name = '(c) Soil Moisture (28-40in)', weight = 1, display = false, popup_property = 'NAME', depth = 'Deep');
+        // USGS flow
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/usgs_today_current_percentiles.fgb', fgb_name = '(a) USGS Current', weight = 1, display = false, popup_property = 'STANAME', depth = 'Current');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/usgs_7_current_percentiles.fgb', fgb_name = '(b) USGS 7-Day', weight = 1, display = false, popup_property = 'STANAME', depth = '7Day');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/usgs_14_current_percentiles.fgb', fgb_name = '(c) USGS 14-Day', weight = 1, display = false, popup_property = 'STANAME', depth = '14Day');
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/usgs_28_current_percentiles.fgb', fgb_name = '(d) USGS 28-Day', weight = 1, display = false, popup_property = 'STANAME', depth = '28Day');
 
         //build USDM legend
         var USDM_Date = loadFile('https://data.climate.umt.edu/drought-indicators/fgb/usdm_time.txt')
@@ -1750,24 +1783,33 @@
         //function to add soil moisture data
         var removeStationPoints = function () {
           soilMoistureLayers.eachLayer(function (layer) { map.removeLayer(layer); });
-          map.removeControl(pointLegend);
+          snowLayers.eachLayer(function (layer) { map.removeLayer(layer); });
+          usgsFGBLayer.eachLayer(function (layer) { map.removeLayer(layer); });
           map.removeControl(soilMoistureFGBLayerControl);
-          map.removeLayer(snowLayers._layers['SNOTEL SWE'])
+          map.removeControl(usgsFGBLayerControl);
+          map.removeControl(snowFGBLayerControl);
+          map.removeControl(pointLegend);
         }
 
         document.getElementById("removeStationData").addEventListener("click", removeStationPoints, false);
 
         $('selectorStation').change(function () {
           if (this.value === 'soilMoisture') {
-            snowLayers.eachLayer(function (layer) { map.removeLayer(layer); });
+            removeStationPoints()
             addSoilMoisturePoints();
             console.log(this.value)
           }
           if (this.value === 'SNOTEL') {
-            map.removeControl(pointLegend);
-            map.removeControl(soilMoistureFGBLayerControl);
-            soilMoistureLayers.eachLayer(function (layer) { map.removeLayer(layer); });
+            removeStationPoints()
             map.addLayer(snowLayers._layers['SNOTEL SWE']);
+            map.addControl(snowFGBLayerControl)
+            setParent(snowFGBLayerControl.getContainer(), document.getElementById('station-data-container'));
+          }
+          if (this.value === 'USGS') {
+            removeStationPoints()
+            map.addLayer(usgsFGBLayer._layers['USGS StreamflowCurrent']);
+            map.addControl(usgsFGBLayerControl);
+            setParent(usgsFGBLayerControl.getContainer(), document.getElementById('station-data-container'));
           }
         });
 
@@ -1794,15 +1836,22 @@
         }
 
         function handleBaseLayerChange(map, e, time, targetElementId) {
-          //console.log(e.name)
+          console.log(e.name)
           // Don't overwrite if it's the soil moisture points; instead, update
           if (e.name.includes('in)')) {
-            //place holder for more complicated stuff
-          } else if (e.name.includes('in)')) {
-            //place holder for more complicated stuff
+            // var dynamicTitle = sessionStorage.dynamicTitle + ' and Soil Moisture (Stations)'
+            // Call the updated function
+            // addMapTitle(map, dynamicTitle, targetElementId);
+
+          // Don't overwrite if it's the USGS points; instead, update
+        } else if (e.name.includes('USGS')) {
+            // var dynamicTitle = sessionStorage.dynamicTitle + ' and USGS Streamflow (Stations)'
+            // Call the updated function
+            // addMapTitle(map, dynamicTitle, targetElementId);
+
           } else {
             var dynamicTitle = '<center>' + e.name.substring(4) + ' for ' + time + '<center/>';
-
+            sessionStorage.dynamicTitle = e.name.substring(4) + ' for ' + time;
             // Call the updated function
             addMapTitle(map, dynamicTitle, targetElementId);
           }
