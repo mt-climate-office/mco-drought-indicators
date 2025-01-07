@@ -188,6 +188,8 @@ registerDoParallel(cl)
 tictoc::tic()
 #length(names)
 #try for error handling
+percent_of_ave_store = list()
+
 try({
   foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2', 'progress'))%dopar%{
     roi = watersheds %>% filter(HUC8 == names[i])
@@ -233,6 +235,8 @@ try({
       
       percent_of_ave = '> 300'
     }
+    
+    percent_of_ave_store[[i]] = percent_of_ave
     
     dem = get_elev_raster(roi, z = 9) %>%
       rast %>%
@@ -340,6 +344,7 @@ try({
     ggsave(final, file = paste0('/home/zhoylman/mco-drought-indicators-data/snodas/plots/hypsome-swe-', roi$HUC8, '.png'), width = 8, height = 8, units = 'in')
     rm(plot, current, climatology, percent_of_normal_elev, data, dem, swe, mean_swe, last, roi)
     gc()
+    percent_of_ave_store
   }
 })
 
@@ -347,6 +352,37 @@ tictoc::toc()
 print('finished hypsome-swe')
 
 stopCluster(cl)
+
+# compute percent of normal swe for each huc
+swe = data.frame(files = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/swe/', full.names = T)) %>%
+  as_tibble() %>%
+  mutate(time = gsub("\\D", "", files),
+         date = as.Date(time, format = '%Y%m%d'),
+         month = lubridate::month(date),
+         day = lubridate::day(date)) %>%
+  filter(month == lubridate::month(Sys.Date()) & day == lubridate::day(Sys.Date())) %$%
+  files %>%
+  lapply(., rast) %>%
+  lapply(., terra::project, "epsg:5070")
+
+swe = swe %>%
+  lapply(., terra::resample, swe[[length(swe)]], method="bilinear") %>%
+  rast
+
+mean_swe = median(swe, na.rm = T)
+last = swe[[nlyr(swe)]]
+
+percent_median = (last/mean_swe)*100
+
+percent_median_huc = exactextractr::exact_extract(percent_median, watersheds, 'median')
+
+percent_median_huc[percent_median_huc > 300] = 300
+
+watersheds_current = watersheds %>% 
+  mutate(percent_of_normal = percent_median_huc %>%
+           round(., 0))
+
+write_sf(watersheds_current, '/home/zhoylman/mco-drought-indicators-data/snodas/current_watershed_percent/current_snodas_percent.geojson', delete_dsn = T)
 
 ########################## snodas timeseries ###############################
 

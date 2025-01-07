@@ -349,7 +349,7 @@ swe_map_mobile = base_map_mobile() %>%
             labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
   )%>%
   addLegend("bottomleft", pal = pal_r_rev, values = 20:-20,
-            title = paste0("SNODAS Snow <br>Depth Change (in)<br>",snodas_time$time),
+            title = paste0("Modelled Snow <br>Depth Change (in)<br>",snodas_time$time),
             opacity = 0.6,
             group = "Legends",
             labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))

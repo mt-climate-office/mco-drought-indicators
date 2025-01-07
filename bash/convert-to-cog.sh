@@ -25,6 +25,9 @@ sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/historical_6wk_usdm.
 sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/historical_7wk_usdm.fgb /home/zhoylman/mco-drought-indicators-data/usdm/historical_7wk_usdm.geojson
 sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/historical_8wk_usdm.fgb /home/zhoylman/mco-drought-indicators-data/usdm/historical_8wk_usdm.geojson
 
+#convert SNODAS swe summary
+sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/current_snodas_percent.fgb /home/zhoylman/mco-drought-indicators-data/snodas/current_watershed_percent/current_snodas_percent.geojson
+
 #convert usgs to flatgeobuf
 sudo ogr2ogr -f FlatGeobuf /var/data/drought-indicators/fgb/usgs_today_current_percentiles.fgb /home/zhoylman/mco-drought-indicators-data/usgs/geojson/usgs_today_current_percentiles.geojson
 
