@@ -70,6 +70,10 @@
       }
     }
 
+    body.loaded #loading-spinner {
+    display: none; /* Spinner is hidden when body has 'loaded' class */
+}
+
     /* Style to hide content until loaded */
     body.loaded {
       overflow: auto;
@@ -87,6 +91,18 @@
     body.loaded .leaflet-sidebar {
       display: block;
     }
+
+    #loading-spinner + .leaflet-control {
+    display: none;
+}
+
+body:not(.loaded) .leaflet-control {
+    display: none;
+}
+
+body.loaded .leaflet-control {
+    display: block;
+}
 
     /* Style to hide Leaflet legends */
     .legend {
@@ -114,7 +130,6 @@
     body.loaded .leaflet-control-zoom {
       display: block;
     }
-
 
     #map {
       bottom: 0px;
@@ -852,10 +867,16 @@
 
     <script>
       // Hide loading spinner when the page is fully loaded
-      window.addEventListener('load', function () {
-        document.body.classList.add('loaded');
-        document.getElementById('loading-spinner').style.display = 'none';
-      });
+     // Ensure the spinner hides only when everything is ready
+   window.addEventListener('load', function () {
+    setTimeout(() => {
+        // Ensure content is fully initialized before hiding the spinner
+        if (document.readyState === 'complete') {
+            document.body.classList.add('loaded');
+            document.getElementById('loading-spinner').style.display = 'none';
+        }
+    }, 500); // Optional delay for smoother transitions
+});
       //Map script! 
       document.addEventListener("DOMContentLoaded", async () => {
         //define scaler for data
@@ -1242,24 +1263,24 @@
             }
             
             //both hypsomeSWE and watersheds use Watershed FGB, no need to load twice
-            else if (fgb_name === 'Watersheds') {
+            else if (fgb_name === 'BasinSnow') {
               //first HypsomeSWE
               tempGroupHypsomeSWE.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight })
-                .bindTooltip(f.properties[popup_property_])
+                .bindTooltip(f.properties['NAME'] + '<br>' + f.properties[popup_property_] + '% of normal')
                 .bindPopup(`<div class="custom-popup">
                               <ul class="nav nav-pills" id="myTab" role="tablist">
                                   <li class="nav-item">
-                                      <a class="nav-link active" id="hypsomeSWE-tab" data-toggle="tab" data-target="#time" role="tab" aria-controls="time" aria-selected="true">Seasonal Accumulation</a>
+                                      <a class="nav-link" id="hypsomeSWE-tab" data-toggle="tab" data-target="#time" role="tab" aria-controls="time" aria-selected="false">Seasonal Accumulation</a>
                                   </li>
                                   <li class="nav-item">
-                                      <a class="nav-link" id="time-tab" data-toggle="tab" data-target="#hypsomeSWE" role="tab" aria-controls="hypsomeSWE" aria-selected="false">SWE by Elevation</a>
+                                      <a class="nav-link active" id="time-tab" data-toggle="tab" data-target="#hypsomeSWE" role="tab" aria-controls="hypsomeSWE" aria-selected="true">SWE by Elevation</a>
                                   </li>
                               </ul>
                               <div class="tab-content" id="myTabContent">
-                                  <div class="tab-pane fade show active" id="time" role="tabpanel" aria-labelledby="time-tab">
+                                  <div class="tab-pane fade" id="time" role="tabpanel" aria-labelledby="time-tab">
                                       <img src='https://data.climate.umt.edu/drought-indicators/plots/snodas-climatology-swe-${f.properties.HUC8}.png' height='420px' width='500px' loading='lazy'/>
                                   </div>
-                                  <div class="tab-pane fade" id="hypsomeSWE" role="tabpanel" aria-labelledby="hypsomeSWE-tab">
+                                  <div class="tab-pane fade show active" id="hypsomeSWE" role="tabpanel" aria-labelledby="hypsomeSWE-tab">
                                       <img src='https://data.climate.umt.edu/drought-indicators/plots/hypsome-swe-${f.properties.HUC8}.png' height='420px' width='420px' loading='lazy'/>
                                   </div>
                               </div>
@@ -1273,7 +1294,14 @@
               if (popup_property_ == null) {
                 tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight }));
               } else {
-                tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight , popup: f.properties[popup_property_]}).bindTooltip(f.properties[popup_property_]));
+                tempGroup.push(
+                  L.geoJSON(f, {
+                    color: 'black',
+                    fillOpacity: 0,
+                    weight: weight,
+                    popup: String(f.properties[popup_property_]), // Cast to string
+                  }).bindTooltip(String(f.properties[popup_property_])) // Cast to string
+                );
               }
             }
             else if (fgb_name === 'SNOTEL SWE') {
@@ -1317,7 +1345,7 @@
         }
 
           //if adding hypsome-swe, we need to name it differently for cleanUp fun
-          if (fgb_name === 'Watersheds') {
+          if (fgb_name === 'BasinSnow') {
             //define tempGroupLayer feature group to add to layer control
             var hypsomeSWE = L.featureGroup(tempGroupHypsomeSWE);
             hypsomeSWE._leaflet_id = 'Hypsome-SWE'
@@ -1331,9 +1359,9 @@
               hypsomeSWE.addTo(map)
             }
             //define tempGroupLayer feature group to add to layer control
-            var tempGroupLayer = L.featureGroup(tempGroup);
+            //var tempGroupLayer = L.featureGroup(tempGroup);
             //add group to the fgb laer control 
-            fgbLayerControl.addOverlay(tempGroupLayer, fgb_name);
+            //fgbLayerControl.addOverlay(tempGroupLayer, fgb_name);
           } else if (fgb_name === 'SNOTEL SWE') {
             //define tempGroupLayer feature group to add to layer control
             var snotelSWE = L.featureGroup(tempGroup);
@@ -1371,6 +1399,20 @@
             if (display == true) {
               usgsFGBLayer.addTo(map)
             }
+          } else if (fgb_name.includes('Watersheds')){
+            //define tempGroupLayer feature group to add to layer control
+            var tempGroupLayer = L.featureGroup(tempGroup);
+            //add group to the fgb laer control 
+            fgbLayerControl.addOverlay(tempGroupLayer, fgb_name);
+            //add it to the snow control too for later (only used when snow selector is active)
+            //NOPE, SEPERATING THE SNOW LAYERS HERE FOR A SEPERAT GROUP!
+            //snowFGBLayerControl.addOverlay(tempGroupLayer, fgb_name);
+            //add it to the soil moisture control too for later (only used when soil moisture selector is active)
+            //soilMoistureFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
+            //display if display param == true on initial load
+            if (display) {
+              tempGroupLayer.addTo(map)
+            }
           } else {
             //define tempGroupLayer feature group to add to layer control
             var tempGroupLayer = L.featureGroup(tempGroup);
@@ -1389,9 +1431,9 @@
 
           if (display && (target !== undefined) && (fgb_name !== "States")) {
 
-            if (fgb_name == "Watersheds") {
-              tempGroupLayer.addTo(map);
-            } 
+            // if (fgb_name == "Watersheds") {
+            //   tempGroupLayer.addTo(map);
+            // } 
 
           // For the life of me I can't get this to consistently work. 
           // tempGroup.forEach(function(l) {
@@ -1479,6 +1521,7 @@
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/tribal.fgb', fgb_name = 'Tribal Lands', weight = 1, display = target?.properties?.type === 'tribal' ?? false, popup_property = 'NAME');
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_usdm.fgb', fgb_name = 'U.S. Drought Monitor', weight = 1, display = false, popup_property = 'DM');
         //add SNOTEL SWE (only added to snow control)
+        addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_snodas_percent.fgb', fgb_name = 'BasinSnow', weight = 1, false, popup_property = 'percent_of_normal');
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_snotel.fgb', fgb_name = 'SNOTEL SWE', weight = 1, display = false, popup_property = 'NAME');
         //add soil Moisture Anomolies from Mesonet (only added to soil moisture control)
         addFGB('https://data.climate.umt.edu/drought-indicators/fgb/current_soil_moisture_anom_shallow.fgb', fgb_name = '(a) Soil Moisture (0-4in)', weight = 1, display = false, popup_property = 'NAME', depth = 'Shallow');
@@ -1856,7 +1899,6 @@
             addMapTitle(map, dynamicTitle, targetElementId);
           }
         }
-
         //this is a bit hacky, but load SPI initially
         //define variable of interest
         var variable = 'SPI'
@@ -1941,8 +1983,7 @@
         map.on('baselayerchange', function (e) {
           handleBaseLayerChange(map, e, time, 'layer-control-container');
         });
-        
-
+                
         //function to call when selector is choosen
         $('select').change(function () {
           if (this.value === 'Choose a Variable') {
