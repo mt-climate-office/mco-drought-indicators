@@ -71,8 +71,9 @@
     }
 
     body.loaded #loading-spinner {
-    display: none; /* Spinner is hidden when body has 'loaded' class */
-}
+      display: none;
+      /* Spinner is hidden when body has 'loaded' class */
+    }
 
     /* Style to hide content until loaded */
     body.loaded {
@@ -92,17 +93,17 @@
       display: block;
     }
 
-    #loading-spinner + .leaflet-control {
-    display: none;
-}
+    #loading-spinner+.leaflet-control {
+      display: none;
+    }
 
-body:not(.loaded) .leaflet-control {
-    display: none;
-}
+    body:not(.loaded) .leaflet-control {
+      display: none;
+    }
 
-body.loaded .leaflet-control {
-    display: block;
-}
+    body.loaded .leaflet-control {
+      display: block;
+    }
 
     /* Style to hide Leaflet legends */
     .legend {
@@ -122,8 +123,8 @@ body.loaded .leaflet-control {
       display: block;
     }
 
-     /* Style to hide Leaflet zoom */
-     .leaflet-control-zoom {
+    /* Style to hide Leaflet zoom */
+    .leaflet-control-zoom {
       display: none;
     }
 
@@ -572,7 +573,7 @@ body.loaded .leaflet-control {
       -webkit-transition: .2s;
       transition: opacity .2s;
     }
-   
+
     .sliderticks {
       display: flex;
       justify-content: space-between;
@@ -593,9 +594,9 @@ body.loaded .leaflet-control {
 
     /* Replace '.your-navbar-class' with the actual class or ID of your navbar */
     .navbar {
-      z-index: 10000000; /* Adjust the value based on your layout and requirements */
+      z-index: 10000000;
+      /* Adjust the value based on your layout and requirements */
     }
-
   </style>
 </head>
 
@@ -641,15 +642,12 @@ body.loaded .leaflet-control {
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">
-            Documentation
+            About Us
           </a>
           <div class="dropdown-menu position-absolute" aria-labelledby="navbarDropdownMenuLink">
-            <h6 class="dropdown-header">Dashboard Documentation</h6>
-            <a class="dropdown-item" href="#">Data and Metrics (Coming Soon!)</a>
-            <div class="dropdown-divider"></div>
             <!-- <h6 class="dropdown-header">General</h6> -->
-            <a class="dropdown-item" href="https://climate.umt.edu/" target="_blank">Montana Climate Office (About
-              Us)</a>
+            <a class="dropdown-item" href="https://climate.umt.edu/" target="_blank">Montana Climate Office
+            </a>
           </div>
         </li>
       </ul>
@@ -867,18 +865,19 @@ body.loaded .leaflet-control {
 
     <script>
       // Hide loading spinner when the page is fully loaded
-     // Ensure the spinner hides only when everything is ready
-   window.addEventListener('load', function () {
-    setTimeout(() => {
-        // Ensure content is fully initialized before hiding the spinner
-        if (document.readyState === 'complete') {
+      // Ensure the spinner hides only when everything is ready
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          // Ensure content is fully initialized before hiding the spinner
+          if (document.readyState === 'complete') {
             document.body.classList.add('loaded');
             document.getElementById('loading-spinner').style.display = 'none';
-        }
-    }, 1000); // Optional delay for smoother transitions
-});
+          }
+        }, 1000); // Optional delay for smoother transitions
+      });
       //Map script! 
       document.addEventListener("DOMContentLoaded", async () => {
+
         //define scaler for data
         var scaler = 10;
 
@@ -899,6 +898,80 @@ body.loaded .leaflet-control {
           zoomControl: false,
           wheelPxPerZoomLevel: 5000
         })
+
+        // Create the info button
+        var mapContainer = document.getElementById('map');
+        var infoButton = document.createElement('button');
+        infoButton.id = 'info-btn';
+        infoButton.className = 'btn';
+        infoButton.innerHTML = `<i class="fa fa-info-circle" style="color: black;"></i>`;
+        infoButton.style.position = 'absolute';
+        infoButton.style.top = '10px'; // Align with zoom controls
+        infoButton.style.right = '55px'; // Place next to zoom controls
+        infoButton.style.zIndex = 1000;
+        infoButton.style.cursor = 'pointer';
+        infoButton.style.padding = '5px';
+        infoButton.style.borderRadius = '4px';
+        infoButton.style.backgroundColor = 'white';
+        infoButton.style.border = '1px solid #ccc';
+        infoButton.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
+        infoButton.style.display = 'none'; // Hide initially
+
+        // Create the popup
+        var popup = document.createElement('div');
+        popup.id = 'info-popup';
+        popup.innerHTML = `<p>This is a drought dashboard displaying various drought indicators.</p>`;
+        popup.style.position = 'absolute';
+        popup.style.top = '50px'; // Just below the button
+        popup.style.right = '55px';
+        popup.style.zIndex = 1000;
+        popup.style.padding = '10px';
+        popup.style.backgroundColor = 'white';
+        popup.style.border = '1px solid #ccc';
+        popup.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
+        popup.style.borderRadius = '4px';
+        popup.style.display = 'none'; // Initially hidden
+        popup.style.width = '400px'; // Fix the width of the popup
+        popup.style.wordWrap = 'break-word'; // Ensure long text wraps properly
+
+        // Append elements to the map container
+        mapContainer.appendChild(infoButton);
+        mapContainer.appendChild(popup);
+
+        // Prevent Leaflet from intercepting events
+        L.DomEvent.disableClickPropagation(infoButton);
+        L.DomEvent.disableScrollPropagation(infoButton);
+        L.DomEvent.disableClickPropagation(popup);
+
+        // Add click event for the button to toggle the popup
+        infoButton.addEventListener('click', function () {
+          if (popup.style.display === 'none') {
+            popup.style.display = 'block';
+          } else {
+            popup.style.display = 'none';
+          }
+        });
+
+        // Show the button when the body class "loaded" is added
+        var observer = new MutationObserver(function (mutationsList) {
+          for (var mutation of mutationsList) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              if (document.body.classList.contains('loaded')) {
+                infoButton.style.display = 'block'; // Show the button
+                observer.disconnect(); // Stop observing once loaded
+              }
+            }
+          }
+        });
+
+
+        // Observe the body element for changes in its "class" attribute
+        observer.observe(document.body, { attributes: true });
+
+        // Toggle popup visibility
+        map.on('click', function () {
+          popup.style.display = 'none';
+        });
 
         map.createPane('SNOTEL');
         map.getPane('SNOTEL').style.zIndex = 650;
@@ -945,10 +1018,10 @@ body.loaded .leaflet-control {
         }
 
         if (target !== undefined) {
-            const bounds = L.geoJSON(target).getBounds();
-            let zoom = map.getBoundsZoom(bounds);
-            map.fitBounds(bounds);
-            map.setZoom(zoom-0.25);
+          const bounds = L.geoJSON(target).getBounds();
+          let zoom = map.getBoundsZoom(bounds);
+          map.fitBounds(bounds);
+          map.setZoom(zoom - 0.25);
         } else {
           map.setView(new L.LatLng(45, -111), 6);
         }
@@ -1004,6 +1077,7 @@ body.loaded .leaflet-control {
         var USDMLayer = new L.LayerGroup();
         var soilMoistureLayers = new L.LayerGroup();
         var usgsFGBLayer = new L.LayerGroup();
+        let streamflowML;
 
         // define selector
         var selector = L.control({
@@ -1045,6 +1119,14 @@ body.loaded .leaflet-control {
             children: [{
               id: 'Soil Moisture',
               text: 'Soil Moisture (Modelled)',
+            }
+            ]
+          },
+          {
+            text: 'Streamflow',
+            children: [{
+              id: 'Streamflow',
+              text: 'Streamflow (AI Modelled)',
             }
             ]
           },
@@ -1261,7 +1343,7 @@ body.loaded .leaflet-control {
               sessionStorage.USDM = USDM;
               USDMLayer.addLayer(USDM)
             }
-            
+
             //both hypsomeSWE and watersheds use Watershed FGB, no need to load twice
             else if (fgb_name === 'BasinSnow') {
               //first HypsomeSWE
@@ -1342,7 +1424,7 @@ body.loaded .leaflet-control {
                 tempGroup.push(L.geoJSON(f, { color: 'black', fillOpacity: 0, weight: weight, popup: f.properties[popup_property_] }).bindTooltip(f.properties[popup_property_]));
               }
             }
-        }
+          }
 
           //if adding hypsome-swe, we need to name it differently for cleanUp fun
           if (fgb_name === 'BasinSnow') {
@@ -1399,7 +1481,21 @@ body.loaded .leaflet-control {
             if (display == true) {
               usgsFGBLayer.addTo(map)
             }
-          } else if (fgb_name.includes('Watersheds')){
+          } else if (fgb_name.includes('Watersheds')) {
+            //define tempGroupLayer feature group to add to layer control
+            var tempGroupLayer = L.featureGroup(tempGroup);
+            //add group to the fgb laer control 
+            fgbLayerControl.addOverlay(tempGroupLayer, fgb_name);
+            //add it to the snow control too for later (only used when snow selector is active)
+            //NOPE, SEPERATING THE SNOW LAYERS HERE FOR A SEPERAT GROUP!
+            //snowFGBLayerControl.addOverlay(tempGroupLayer, fgb_name);
+            //add it to the soil moisture control too for later (only used when soil moisture selector is active)
+            //soilMoistureFGBLayerControl.addOverlay(tempGroupLayer , fgb_name); 
+            //display if display param == true on initial load
+            if (display) {
+              tempGroupLayer.addTo(map)
+            }
+          } else if (fgb_name.includes('Streamflow')) {
             //define tempGroupLayer feature group to add to layer control
             var tempGroupLayer = L.featureGroup(tempGroup);
             //add group to the fgb laer control 
@@ -1435,21 +1531,21 @@ body.loaded .leaflet-control {
             //   tempGroupLayer.addTo(map);
             // } 
 
-          // For the life of me I can't get this to consistently work. 
-          // tempGroup.forEach(function(l) {
-          //   var pop = l['options']['popup'];
-          //   console.log(pop);
-          //   if (pop !== undefined) {
-          //     l.bindPopup(pop);
-          //     l.bindTooltip(pop);
-          //   }
-          // })
+            // For the life of me I can't get this to consistently work. 
+            // tempGroup.forEach(function(l) {
+            //   var pop = l['options']['popup'];
+            //   console.log(pop);
+            //   if (pop !== undefined) {
+            //     l.bindPopup(pop);
+            //     l.bindTooltip(pop);
+            //   }
+            // })
 
           }
         };
 
-        var reformatDates = function(date){
-          if(date instanceof Date){
+        var reformatDates = function (date) {
+          if (date instanceof Date) {
             var formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}-${date.getFullYear()}`;
             return formattedDate;
           } else {
@@ -1761,7 +1857,7 @@ body.loaded .leaflet-control {
                             d === '1.6 - 2' ? "#4030E3" :
                               d === '>2' ? "#303B83" :
                                 d === 'Frozen Soil' ? "#808080" :
-                                  "#000000"; 
+                                  "#000000";
         }
         function style(feature) {
           return {
@@ -1886,8 +1982,8 @@ body.loaded .leaflet-control {
             // Call the updated function
             // addMapTitle(map, dynamicTitle, targetElementId);
 
-          // Don't overwrite if it's the USGS points; instead, update
-        } else if (e.name.includes('USGS')) {
+            // Don't overwrite if it's the USGS points; instead, update
+          } else if (e.name.includes('USGS')) {
             // var dynamicTitle = sessionStorage.dynamicTitle + ' and USGS Streamflow (Stations)'
             // Call the updated function
             // addMapTitle(map, dynamicTitle, targetElementId);
@@ -1908,6 +2004,22 @@ body.loaded .leaflet-control {
         //create new layer control and add it to the map
         layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
         //$('.leaflet-control-layers-list').prepend('<label style=\"text-align:center\"><b>Timescales</b></label><hr>');
+        // Update the info text
+        popup.innerHTML = `
+              <p><strong>Standardized Precipitation Index (SPI)</strong></p>
+              <p>The Standardized Precipitation Index (SPI) is a drought index used to quantify precipitation deficits over different time scales. It is widely used for monitoring and analyzing drought conditions.</p>
+              <ul>
+                  <li><strong>Parametric Assumption:</strong> Gamma Distribution</li>
+                  <li><strong>Reference Period:</strong> 1995-2024</li>
+                  <li><strong>Base Dataset:</strong> <a href="https://rmets.onlinelibrary.wiley.com/doi/full/10.1002/joc.3413" target="_blank">GridMET Precipitation</a></li>
+              </ul>
+              <p><strong>Relevant Citations:</strong></p>
+              <ul>
+                  <li><a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1752-1688.1999.tb03592.x" target="_blank">Benchmark SPI Reference (Guttman, 1999)</a></li>
+                  <li><a href="https://www.nature.com/articles/s41467-022-30316-5" target="_blank">Period of Record that Accounts for Climate Non-Stationarity</a></li>
+                  <li><a href="https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2023WR036087" target="_blank">Detailed Drought Metric Calculation Methods</a></li>
+              </ul>
+          `;
 
         //create new legend "contol" object
         legend = L.control({ position: "bottomleft" });
@@ -1983,7 +2095,7 @@ body.loaded .leaflet-control {
         map.on('baselayerchange', function (e) {
           handleBaseLayerChange(map, e, time, 'layer-control-container');
         });
-                
+
         //function to call when selector is choosen
         $('select').change(function () {
           if (this.value === 'Choose a Variable') {
@@ -1991,6 +2103,21 @@ body.loaded .leaflet-control {
             cleanUp()
           }
           if (this.value === 'SPI') {
+            popup.innerHTML = `
+              <p><strong>Standardized Precipitation Index (SPI)</strong></p>
+              <p>The Standardized Precipitation Index (SPI) is a drought index used to quantify precipitation deficits over different time scales. It is widely used for monitoring and analyzing drought conditions.</p>
+              <ul>
+                  <li><strong>Parametric Assumption:</strong> Gamma Distribution</li>
+                  <li><strong>Reference Period:</strong> 1995-2024</li>
+                  <li><strong>Base Dataset:</strong> <a href="https://rmets.onlinelibrary.wiley.com/doi/full/10.1002/joc.3413" target="_blank">GridMET Precipitation</a></li>
+              </ul>
+              <p><strong>Relevant Citations:</strong></p>
+              <ul>
+                  <li><a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1752-1688.1999.tb03592.x" target="_blank">Benchmark SPI Reference (Guttman, 1999)</a></li>
+                  <li><a href="https://www.nature.com/articles/s41467-022-30316-5" target="_blank">Period of Record that Accounts for Climate Non-Stationarity</a></li>
+                  <li><a href="https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2023WR036087" target="_blank">Detailed Drought Metric Calculation Methods</a></li>
+              </ul>
+          `;
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -2064,6 +2191,21 @@ body.loaded .leaflet-control {
             //fin
           }
           if (this.value === 'SPEI') {
+            popup.innerHTML = `
+    <p><strong>Standardized Precipitation Evapotranspiration Index (SPEI)</strong></p>
+    <p>The Standardized Precipitation Evapotranspiration Index (SPEI) is a drought index that accounts for both precipitation and potential evapotranspiration to measure drought severity. It is particularly useful for analyzing the combined effect of precipitation deficits and atmospheric demand.</p>
+    <ul>
+        <li><strong>Parametric Assumption:</strong> Generalized Logistic Distribution</li>
+        <li><strong>Reference Period:</strong> 1995-2024</li>
+        <li><strong>Base Dataset:</strong> <a href="https://rmets.onlinelibrary.wiley.com/doi/full/10.1002/joc.3413" target="_blank">GridMET Precipitation and PET</a></li>
+    </ul>
+    <p><strong>Relevant Citations:</strong></p>
+    <ul>
+        <li><a href="https://journals.ametsoc.org/view/journals/clim/23/7/2009jcli2909.1.xml" target="_blank">SPEI Benchmark Reference (Vicente-Serrano et al., 2010)</a></li>
+        <li><a href="https://www.nature.com/articles/s41467-022-30316-5" target="_blank">Period of Record that Accounts for Climate Non-Stationarity</a></li>
+        <li><a href="https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2023WR036087" target="_blank">Detailed Drought Metric Calculation Methods</a></li>
+    </ul>
+`;
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -2135,6 +2277,21 @@ body.loaded .leaflet-control {
             //fin
           }
           if (this.value === 'EDDI') {
+            popup.innerHTML = `
+    <p><strong>Evaporative Demand Drought Index (EDDI)</strong></p>
+    <p>The Evaporative Demand Drought Index (EDDI) is a drought index that measures atmospheric thirst (evaporative demand) over a given time scale. It is particularly effective for identifying anomalies in evaporative demand driven by temperature, wind, and other environmental factors.</p>
+    <ul>
+        <li><strong>Parametric Assumption:</strong> Non-parametric (Empirical) Distribution</li>
+        <li><strong>Reference Period:</strong> 1995-2024</li>
+        <li><strong>Base Dataset:</strong> <a href="https://rmets.onlinelibrary.wiley.com/doi/full/10.1002/joc.3413" target="_blank">GridMET Evaporative Demand</a></li>
+    </ul>
+    <p><strong>Relevant Citations:</strong></p>
+    <ul>
+        <li><a href="https://journals.ametsoc.org/view/journals/hydr/17/6/jhm-d-15-0121_1.xml" target="_blank">EDDI Benchmark Reference (Hobbins et al., 2016)</a></li>
+        <li><a href="https://www.nature.com/articles/s41467-022-30316-5" target="_blank">Period of Record that Accounts for Climate Non-Stationarity</a></li>
+        <li><a href="https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2023WR036087" target="_blank">Detailed Drought Metric Calculation Methods</a></li>
+    </ul>
+`;
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -2206,6 +2363,18 @@ body.loaded .leaflet-control {
             //fin
           }
           if (this.value === 'Precipitation Percentiles') {
+            popup.innerHTML = `
+    <p><strong>Precipitation Percentiles</strong></p>
+    <p>Precipitation Percentiles provide a ranked measure of precipitation amounts for a specific time period, relative to a long-term dataset. Percentiles are useful for comparing precipitation across regions and identifying extremes such as droughts or wet periods.</p>
+    <ul>
+        <li><strong>Reference Period:</strong> 1995-2024</li>
+        <li><strong>Base Dataset:</strong> <a href="https://rmets.onlinelibrary.wiley.com/doi/full/10.1002/joc.3413" target="_blank">GridMET Precipitation</a></li>
+    </ul>
+    <p><strong>Relevant Citations:</strong></p>
+    <ul>
+        <li><a href="https://www.nature.com/articles/s41467-022-30316-5" target="_blank">Period of Record that Accounts for Climate Non-Stationarity</a></li>
+    </ul>
+`;
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -2276,6 +2445,18 @@ body.loaded .leaflet-control {
             //fin
           }
           if (this.value === 'Precipitation Percent of Normal') {
+            popup.innerHTML = `
+    <p><strong>Precipitation Percent of Normal</strong></p>
+    <p>Precipitation Percent of Normal is a simple drought indicator that compares the observed precipitation over a specific period to the long-term average (normal) for that same period. It is commonly used for quick assessments of precipitation deficits or surpluses.</p>
+    <ul>
+        <li><strong>Reference Period:</strong> 1995-2024</li>
+        <li><strong>Base Dataset:</strong> <a href="https://rmets.onlinelibrary.wiley.com/doi/full/10.1002/joc.3413" target="_blank">GridMET Precipitation</a></li>
+    </ul>
+    <p><strong>Relevant Citations:</strong></p>
+    <ul>
+        <li><a href="https://www.nature.com/articles/s41467-022-30316-5" target="_blank">Period of Record that Accounts for Climate Non-Stationarity</a></li>
+    </ul>
+`;
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -2346,6 +2527,18 @@ body.loaded .leaflet-control {
             //fin
           }
           if (this.value === 'Temperature Percentiles') {
+            popup.innerHTML = `
+    <p><strong>Temperature Percentiles (Maximum Temperature)</strong></p>
+    <p>Temperature Percentiles provide a ranked measure of maximum temperature for a specific time period, relative to a long-term dataset. They are useful for assessing extremes in temperature, such as heatwaves, and their potential impacts on drought and ecosystems.</p>
+    <ul>
+        <li><strong>Reference Period:</strong> 1995-2024</li>
+        <li><strong>Base Dataset:</strong> <a href="https://rmets.onlinelibrary.wiley.com/doi/full/10.1002/joc.3413" target="_blank">GridMET Maximum Temperature</a></li>
+    </ul>
+    <p><strong>Relevant Citations:</strong></p>
+    <ul>
+        <li><a href="https://www.nature.com/articles/s41467-022-30316-5" target="_blank">Period of Record that Accounts for Climate Non-Stationarity</a></li>
+    </ul>
+`;
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -2414,6 +2607,20 @@ body.loaded .leaflet-control {
             //fin
           }
           if (this.value === 'Snowpack') {
+            popup.innerHTML = `
+    <p><strong>Standardized Snow Water Equivalent (SWE)</strong></p>
+    <p>Standardized Snow Water Equivalent (SWE) is a drought index that measures snowpack conditions relative to historical norms. It uses statistical techniques to standardize SWE values, making it easier to compare snow conditions across regions and time periods.</p>
+    <ul>
+        <li><strong>Parametric Assumption:</strong> Gamma Distribution</li>
+        <li><strong>Reference Period:</strong> 2003-2024</li>
+        <li><strong>Base Dataset:</strong> <a href="https://nsidc.org/data/g02158/versions/1" target="_blank">SNODAS (Snow Data Assimilation System)</a></li>
+    </ul>
+    <p><strong>Relevant Citations:</strong></p>
+    <ul>
+        <li><a href="https://nsidc.org/sites/default/files/g02158-v001-userguide_2_1.pdf" target="_blank">Benchmark Reference: National Operational Hydrologic Remote Sensing Center (2004)</a></li>
+        <li><a href="https://www.nature.com/articles/s41467-022-30316-5" target="_blank">Period of Record that Accounts for Climate Non-Stationarity</a></li>
+    </ul>
+`;
             /*
             //remove old FGB controls (special case, otherwise use updateFgbControls())
             map.removeControl(snowFGBLayerControl);
@@ -2501,6 +2708,34 @@ body.loaded .leaflet-control {
             //fin
           }
           if (this.value === 'Soil Moisture') {
+            popup.innerHTML = `
+    <p><strong>Soil Moisture (Standardized Anomaly-Based)</strong></p>
+    <p>This soil moisture product combines data from two sources, NASA's SPoRT-LIS Soil Moisture model and the Topofire model, to provide high-resolution, standardized soil moisture anomalies. These anomalies are critical for monitoring drought conditions and understanding vegetation and crop health.</p>
+    <p><strong>SPoRT-LIS:</strong> The SPoRT-LIS provides a 3-km resolution soil moisture product in near real-time, integrating inputs like NLDAS-2 atmospheric data, Stage IV precipitation, and MODIS vegetation greenness. It supports a more detailed depiction of drought conditions compared to coarser observation networks. The product uses a 1981–2013 climatology for soil moisture percentiles and supports depths up to 200 cm.</p>
+    <p><strong>Topofire:</strong> The Topofire model incorporates terrain geometry and solar radiation to generate high-resolution (250m) daily soil moisture anomalies. These anomalies are calculated relative to a 30-year period (1992–2021) and account for total column soil moisture. The model's high spatial resolution makes it particularly effective for assessing terrain-driven variations in soil moisture.</p>
+    <ul>
+        <li><strong>Base Datasets:</strong>
+            <ul>
+                <li><a href="https://weather.ndc.nasa.gov/sport/case_studies/lis_CONUS.html" target="_blank">SPoRT-LIS Soil Moisture</a></li>
+                <li><a href="https://topofire.dbs.umt.edu/public_data/topofire_weather/daily_grids/" target="_blank">Topofire Soil Moisture</a></li>
+            </ul>
+        </li>
+        <li><strong>Reference Periods:</strong>
+            <ul>
+                <li>SPoRT-LIS: 1981–2013</li>
+                <li>Topofire: 1992–2021</li>
+            </ul>
+        </li>
+    </ul>
+    <p><strong>Relevant Citations:</strong></p>
+    <ul>
+        <li><a href="https://journals.ametsoc.org/view/journals/bams/100/9/bams-d-18-0178.1.xml" target="_blank">Topofire: BAMS Article (2019)</a></li>
+    </ul>
+    <p>Learn more about these products: 
+        <a href="https://weather.ndc.nasa.gov/sport/modeling/lis.html" target="_blank">SPoRT-LIS</a> | 
+        <a href="https://topofire.dbs.umt.edu/" target="_blank">Topofire</a>
+    </p>
+`;
             //remove old FGB controls (special case, otherwise use updateFgbControls())
             //update FGB controls 
             updateFgbControls()
@@ -2626,6 +2861,20 @@ body.loaded .leaflet-control {
 
           }
           if (this.value === 'GRACE Groundwater') {
+            popup.innerHTML = `
+    <p><strong>GRACE Groundwater Percentiles</strong></p>
+    <p>GRACE Groundwater Percentiles measure groundwater storage anomalies relative to a long-term dataset. These percentiles provide insights into groundwater availability and are useful for assessing drought conditions and water resource management.</p>
+    <p>Launched in 2002, NASA’s GRACE satellites were unique in their ability to measure variations in terrestrial water storage. Although the GRACE mission ended in 2017, the data record is now being extended by the GRACE-FO mission, which began in 2018. To improve spatial and temporal resolution, scientists integrate GRACE and GRACE-FO data with other ground- and space-based meteorological observations within a Land Surface Model using advanced data assimilation techniques.</p>
+    <ul>
+        <li><strong>Reference Period:</strong> 1948-2012</li>
+        <li><strong>Base Dataset:</strong> <a href="https://nasagrace.unl.edu/ConusData.aspx" target="_blank">GRACE Groundwater Data</a></li>
+    </ul>
+    <p><strong>Relevant Citations:</strong></p>
+    <ul>
+        <li><a href="https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2011WR011291" target="_blank">Benchmark Reference: Rodell et al. (2012)</a></li>
+    </ul>
+    <p>Learn more about GRACE Groundwater products <a href="https://nasagrace.unl.edu/" target="_blank">here</a>.</p>
+`;
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -2676,6 +2925,15 @@ body.loaded .leaflet-control {
             //fin
           }
           if (this.value === 'VHI') {
+            popup.innerHTML = `
+    <p><strong>Vegetation Health Index (VHI)</strong></p>
+    <p>The Vegetation Health Index (VHI) is a global, 4 km resolution, 7-day composite product that characterizes vegetation health by combining two indices: the Vegetation Condition Index (VCI) and the Temperature Condition Index (TCI).</p>
+    <p>VHI serves as a proxy for vegetation health and provides an integrated estimate of moisture and thermal conditions. It is widely used to assess crop conditions, predict yields, and anticipate losses in crop and pasture production. Index values below 40 indicate vegetation stress and potential losses, while values above 60 suggest favorable conditions and abundant production.</p>
+    <ul>
+        <li><strong>Base Dataset:</strong> <a href="https://www.star.nesdis.noaa.gov/smcd/emb/vci/VH/vh_browseVH.php" target="_blank">NOAA NESDIS STAR Vegetation Health Data</a></li>
+    </ul>
+    <p><strong>Data Access:</strong> <a href="https://www.star.nesdis.noaa.gov/smcd/emb/vci/VH/vh_ftp.php" target="_blank">Download VHI Data</a></p>
+`;
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -2727,6 +2985,20 @@ body.loaded .leaflet-control {
             //fin
           }
           if (this.value === 'ForDRI') {
+            popup.innerHTML = `
+    <p><strong>Forest Drought Indicator (ForDRI)</strong></p>
+    <p>The Forest Drought Indicator (ForDRI) is a tool designed to monitor drought impacts in forest ecosystems. It was developed by the National Drought Mitigation Center (NDMC) at the University of Nebraska-Lincoln (UNL) in collaboration with the U.S. Department of Agriculture (USDA) and the U.S. Forest Service (USFS).</p>
+    <p>ForDRI maps are produced weekly at a 1-km spatial resolution and provide insights into drought stress in forest regions across the continental U.S. (CONUS). The index integrates 12 different environmental variables, such as vegetation health, climate, evaporative demand, and soil moisture, into a single hybrid indicator to estimate forest drought stress.</p>
+    <ul>
+        <li><strong>Reference Period:</strong> 2003-2020</li>
+        <li><strong>Base Dataset:</strong> <a href="https://fordri.unl.edu/DataDownload.aspx" target="_blank">ForDRI Data</a></li>
+    </ul>
+    <p><strong>Relevant Citations:</strong></p>
+    <ul>
+        <li><a href="https://www.mdpi.com/2072-4292/12/21/3605" target="_blank">Benchmark Reference: ForDRI Development (2020)</a></li>
+    </ul>
+    <p>Learn more about ForDRI <a href="https://fordri.unl.edu/" target="_blank">here</a>.</p>
+`;
             //update FGB controls 
             updateFgbControls()
             //define variable of interest
@@ -2776,6 +3048,151 @@ body.loaded .leaflet-control {
               handleBaseLayerChange(map, e, time, 'layer-control-container');
             });
             //fin
+          }
+          if (this.value === 'Streamflow') {
+            popup.innerHTML = `
+    <p><strong>AI-Based Streamflow Percentiles</strong></p>
+    <p>The AI-Based Streamflow model (presented as percentiles) simulate natural streamflow, representing the natural runoff from basins. These predictions provide insights into relatively undisturbed hydrological conditions, excluding the effects of dams and surface water diversions. The predictions are generated independently for each HUC10 basin, offering basin-specific insights into streamflow conditions.</p>
+    <p>AI models leverage machine learning techniques to predict streamflow by learning patterns and relationships from data. This approach provides an alternative to traditional hydrological models, allowing for more flexible and accurate predictions in ungauged basins while capturing complex hydrological interactions.</p>
+    <p>The reference period for calculating streamflow percentiles is 1995–2024, and the model demonstrates strong performance with a median out-of-sample Nash-Sutcliffe Efficiency (NSE) of approximately 0.8. A publication detailing the methodology and results is pending.</p>
+    <ul>
+        <li><strong>Reference Period:</strong> 1995–2024</li>
+    </ul>
+    <p><strong>Relevant Citations:</strong></p>
+    <ul>
+        <li><a href="https://hess.copernicus.org/articles/27/139/2023/hess-27-139-2023.html" target="_blank">Benchmark Reference: Arsenault et al. (2023)</a></li>
+        <li><a href="https://www.nature.com/articles/s41467-022-30316-5" target="_blank">Period of Record that Accounts for Climate Non-Stationarity</a></li>
+    </ul>
+`;
+            //update FGB controls 
+            updateFgbControls()
+            //define variable of interest
+            var variable = 'Streamflow<br>Percentiles<br>(AI Modelled)'
+            //remove active layers from map and legend
+            cleanUp()
+            //clear the active layers group to repopulate
+            activeLayers = new L.LayerGroup();
+            //create new layer control and add it to the map
+            legend = L.control({ position: "bottomleft" });
+            layerControl = L.control.layers(null, null, { position: 'topleft', sortLayers: true, collapsed: false }).addTo(map);
+            setParent(layerControl.getContainer(), document.getElementById('timescale-container'));
+            // Define color scale for percentiles
+            var breaks = [0, 0.02, 0.05, 0.1, 0.2, 0.3, 0.7, 0.8, 0.9, 0.95, 0.98, 1];
+            var scale = chroma.scale(["#730000", "#E60000", "#FFAA00", "#FCD37F", "#FFFF00", "#FFFFFF", "#82FCF9", "#32E1FA", "#325CFE", "#4030E3", "#303B83"]).classes(breaks);
+
+            var currentOpacity = document.getElementById("opacitySlide").value
+
+            // Style function based on percentile values
+            function style(feature) {
+              var value = feature.properties.ft3_s_ecdf;
+              return {
+                fillColor: scale(value).hex(),
+                weight: 1,
+                opacity: currentOpacity,
+                color: 'darkgray',
+                fillOpacity: currentOpacity
+              };
+            }
+
+            function onEachFeature(feature, layer) {
+              // Popup for clicking on the polygon
+              if (feature.properties && feature.properties.basin_id) {
+                layer.bindPopup(
+                  `<strong>Basin ID:</strong> ${feature.properties.basin_id}<br>
+                <img src="https://data.climate.umt.edu/share/operational-plots/current_climatology_plot_${feature.properties.basin_id}.png"
+                      alt="Current Climatology Plot" style="width: 600px; height: auto;">`,
+                  { maxWidth: 620 }
+                );
+              }
+
+              if (feature.properties && feature.properties.basin_name && typeof feature.properties.ft3_s_ecdf === 'number') {
+                var percent = Math.round(feature.properties.ft3_s_ecdf * 100);
+                var suffix = getOrdinalSuffix(percent);
+                var tooltipContent = `${feature.properties.basin_name}: ${percent}${suffix} percentile`;
+
+                // Bind a tooltip but don't make it sticky
+                layer.bindTooltip(tooltipContent, {
+                  direction: 'auto',
+                  sticky: false,
+                });
+
+                // Open and close the tooltip on mouse events
+                layer.on('mouseover', function () {
+                  this.openTooltip();
+                });
+                layer.on('mouseout', function () {
+                  this.closeTooltip();
+                });
+              }
+            }
+
+            function getOrdinalSuffix(num) {
+              let remainder100 = num % 100;
+              if (remainder100 === 11 || remainder100 === 12 || remainder100 === 13) {
+                return 'th';
+              }
+
+              let remainder10 = num % 10;
+              switch (remainder10) {
+                case 1: return 'st';
+                case 2: return 'nd';
+                case 3: return 'rd';
+                default: return 'th';
+              }
+            }
+            // Global geoJSON layer
+            let streamflowML;
+
+            // Fetch GeoJSON data and add it to the map
+            fetch('https://data.climate.umt.edu/share/current_flow_percentile.geojson')
+              .then(response => response.json())
+              .then(data => {
+                streamflowML = L.geoJson(data, {
+                  style: style,
+                  onEachFeature: onEachFeature
+                }).addTo(map);
+                layerControl.addOverlay(streamflowML, "Streamflow Percentiles");
+                activeLayers.addLayer(streamflowML)
+
+              })
+              .catch(err => console.error('Error loading GeoJSON:', err));
+
+            document.getElementById("opacitySlide").addEventListener('input', function () {
+              currentOpacity = parseFloat(this.value);
+              streamflowML.eachLayer(function (layer) {
+                layer.setStyle({
+                  fillOpacity: currentOpacity,
+                  opacity: currentOpacity
+                });
+              });
+            });
+
+            var time = reformatDates(loadFile('https://data.climate.umt.edu/share/current_flow_percentile_time.txt'))
+
+            //populate the legend
+            legend.onAdd = function (map) {
+              var div = L.DomUtil.create("div", "legend");
+              div.innerHTML += "<h4>" + variable + "<br>" + time + "</h4>";
+              div.innerHTML += '<i style="background: #730000"></i><span>0 - 2 (D4)</span><br>';
+              div.innerHTML += '<i style="background: #E60000"></i><span>2 - 5 (D3)</span><br>';
+              div.innerHTML += '<i style="background: #FFAA00"></i><span>5 - 10 (D2)</span><br>';
+              div.innerHTML += '<i style="background: #FCD37F"></i><span>10 - 20 (D1)</span><br>';
+              div.innerHTML += '<i style="background: #FFFF00"></i><span>20 - 30 (D0)</span><br>';
+              div.innerHTML += '<i style="background: #FFFFFF"></i><span>30 - 70</span><br>';
+              div.innerHTML += '<i style="background: #82FCF9"></i><span>70 - 80</span><br>';
+              div.innerHTML += '<i style="background: #32E1FA"></i><span>80 - 90</span><br>';
+              div.innerHTML += '<i style="background: #325CFE"></i><span>90 - 95</span><br>';
+              div.innerHTML += '<i style="background: #4030E3"></i><span>95 - 98</span><br>';
+              div.innerHTML += '<i style="background: #303B83"></i><span>98 - 100</span><br>';
+              return div;
+            };
+            //add to map
+            legend.addTo(map);
+
+            // re-run function to get the new time id
+            const title = 'Streamflow Percentiles (AI Modelled) for ' + time; // Hardcoded title
+            addMapTitle(map, title, 'layer-control-container');
+
           }
         });
       });
