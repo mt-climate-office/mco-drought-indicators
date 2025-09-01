@@ -809,7 +809,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://unpkg.com/georaster"></script>
-  <script src="https://unpkg.com/georaster-layer-for-leaflet/dist/georaster-layer-for-leaflet.min.js"></script>
+  <script src="https://unpkg.com/georaster-layer-for-leaflet@3.8.0/dist/georaster-layer-for-leaflet.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://unpkg.com/flatgeobuf@3.22.0/dist/flatgeobuf-geojson.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css"
@@ -3051,7 +3051,7 @@
           }
           if (this.value === 'Streamflow') {
             popup.innerHTML = `
-    <p><strong>AI-Based Streamflow Percentiles</strong></p>
+    <p><strong>AI-Based Streamflow Percentiles (Experimental)</strong></p>
     <p>The AI-Based Streamflow model (presented as percentiles) simulate natural streamflow, representing the natural runoff from basins. These predictions provide insights into relatively undisturbed hydrological conditions, excluding the effects of dams and surface water diversions. The predictions are generated independently for each HUC10 basin, offering basin-specific insights into streamflow conditions.</p>
     <p>AI models leverage machine learning techniques to predict streamflow by learning patterns and relationships from data. This approach provides an alternative to traditional hydrological models, allowing for more flexible and accurate predictions in ungauged basins while capturing complex hydrological interactions.</p>
     <p>The reference period for calculating streamflow percentiles is 1995–2024, and the model demonstrates strong performance with a median out-of-sample Nash-Sutcliffe Efficiency (NSE) of approximately 0.8. A publication detailing the methodology and results is pending.</p>
@@ -3190,7 +3190,7 @@
             legend.addTo(map);
 
             // re-run function to get the new time id
-            const title = 'Streamflow Percentiles (AI Modelled) for ' + time; // Hardcoded title
+            const title = 'Streamflow Percentiles for ' + time + ' (AI Modelled - Experimental)'; // Hardcoded title
             addMapTitle(map, title, 'layer-control-container');
 
           }
