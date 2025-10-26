@@ -9,7 +9,6 @@ library(R.utils)
 export.dir = "/home/zhoylman/mco-drought-indicators-data/"
 
 get_snodas = function(date) {
-  
   for (d in seq_along(date)) {
     message("---- Processing ", format(date[d], "%Y-%m-%d"), " ----")
     
@@ -34,38 +33,33 @@ get_snodas = function(date) {
       tar.dir = path.expand(paste0(export.dir, "snodas/raw/SNODAS_", format(date[d], "%Y%m%d"), ".tar"))
       unzip.dir = path.expand(paste0(export.dir, "snodas/raw/SNODAS_", format(date[d], "%Y%m%d")))
       
-      # ---- Skip if processed files already exist ----
+      # ---- Define output files ----
       swe_out = paste0(export.dir, "snodas/processed/swe/snodas_swe_conus_", format(date[d], "%Y%m%d"), ".tif")
       depth_out = paste0(export.dir, "snodas/processed/snow_depth/snodas_snow_depth_conus_", format(date[d], "%Y%m%d"), ".tif")
-      if (file.exists(swe_out) && file.exists(depth_out)) {
+      
+      # ---- Skip if processed files already exist ----
+      if (isTRUE(file.exists(swe_out)) && isTRUE(file.exists(depth_out))) {
         message("Files already processed for ", format(date[d], "%Y-%m-%d"), ", skipping.")
         next
       }
       
-      # ---- Download file with verification ----
+      # ---- Download file ----
       res = httr::GET(url, write_disk(tar.dir, overwrite = TRUE))
-      if (httr::status_code(res) != 200 || file.info(tar.dir)$size < 1e6) {
-        stop("Download failed or file too small: ", url)
+      if (is.null(res) || httr::status_code(res) != 200 || is.na(file.info(tar.dir)$size) || file.info(tar.dir)$size < 1e6) {
+        stop("Download failed or file too small for ", format(date[d], "%Y-%m-%d"))
       }
       
-      # ---- Create unzip directory ----
+      # ---- Unpack tarball ----
       if (!dir.exists(unzip.dir)) dir.create(unzip.dir)
-      
-      # ---- Unpack tarball safely ----
-      untar_success = tryCatch({
+      untar_success = FALSE
+      try({
         untar(tarfile = tar.dir, exdir = unzip.dir)
-        TRUE
-      }, warning = function(w) {
-        message("Warning during untar: ", conditionMessage(w))
-        FALSE
-      }, error = function(e) {
-        message("Error during untar: ", conditionMessage(e))
-        FALSE
-      })
+        untar_success = TRUE
+      }, silent = TRUE)
       
-      if (!untar_success) stop("Failed to extract tarball for ", format(date[d], "%Y-%m-%d"))
+      if (!isTRUE(untar_success)) stop("Tar extraction failed for ", format(date[d], "%Y-%m-%d"))
       
-      # ---- Identify and process data files ----
+      # ---- Process files ----
       files = list.files(unzip.dir, full.names = TRUE)
       files_of_interest = c("1034", "1036")  # SWE and snow depth
       
@@ -73,7 +67,6 @@ get_snodas = function(date) {
         file_to_process = files[grepl(files_of_interest[i], files) & grepl(".dat.gz$", files)]
         if (length(file_to_process) == 0) next
         
-        # ---- Write ENVI header ----
         hdr_path = sub(".dat.gz", ".hdr", file_to_process)
         writeLines(
           "ENVI
@@ -87,17 +80,10 @@ interleave = bsq
 byte order = 1", con = hdr_path
         )
         
-        # ---- Unzip binary data ----
-        gunzip(file_to_process, destname = sub(".gz", "", file_to_process), overwrite = TRUE)
+        R.utils::gunzip(file_to_process, destname = sub(".gz", "", file_to_process), overwrite = TRUE)
         
-        # ---- Define output GeoTIFF path ----
-        processed_name = if (files_of_interest[i] == "1034") {
-          swe_out
-        } else if (files_of_interest[i] == "1036") {
-          depth_out
-        } else NA
+        processed_name = if (files_of_interest[i] == "1034") swe_out else depth_out
         
-        # ---- Convert to GeoTIFF ----
         if (date[d] > as.Date("2013-10-01")) {
           message("Data from after Oct 2013")
           system(paste0(
@@ -115,10 +101,10 @@ byte order = 1", con = hdr_path
         }
       }
       
-      # ---- Clean up raw files ----
+      # ---- Cleanup ----
       unlink(tar.dir)
       unlink(unzip.dir, recursive = TRUE)
-      message("Finished processing ", format(date[d], "%Y-%m-%d"))
+      message("✅ Finished ", format(date[d], "%Y-%m-%d"))
       
     }, error = function(e) {
       message("❌ Error on ", format(date[d], "%Y-%m-%d"), ": ", conditionMessage(e))
