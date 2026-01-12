@@ -40,7 +40,7 @@ foreach(i = 1:length(sites_of_interest),
       calc_future_swe() %>%
       plot_snotel()
     
-    ggsave(filename, plot = temp_plot, units = c("in"), width = 9, height = 7, dpi = 150)
+    ggsave(filename, plot = temp_plot, units = c("in"), width = 12, height = 9, dpi = 150)
   },
   error = function(e){
     print('error!!')

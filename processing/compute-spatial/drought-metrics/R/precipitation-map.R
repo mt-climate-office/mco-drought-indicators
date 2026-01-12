@@ -202,8 +202,8 @@ for(i in 1:length(thresh)){
     `values<-`(percentile)%>%
     `proj4string<-`("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
   #write out rasters
-  writeRaster(days_without_rast, paste0(export.dir, 'precipitation/days_since_', thresh[i],'_in_event.tif'), overwrite = T)
-  writeRaster(percentile_without_rast, paste0(export.dir, 'precipitation/percentile_since_', thresh[i],'_in_event.tif'), overwrite = T)
+  writeRaster(days_without_rast, paste0(export.dir, 'precipitation/days_since_', thresh[i],'_in_event_check.tif'), overwrite = T)
+  writeRaster(percentile_without_rast, paste0(export.dir, 'precipitation/percentile_since_', thresh[i],'_in_event_check.tif'), overwrite = T)
   print(i)
 }
 stopCluster(cl)

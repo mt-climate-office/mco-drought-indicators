@@ -79,7 +79,7 @@ writeRaster(delta_1, filename = paste0(snodas.dir,"processed/delta_snow_depth/de
 writeRaster(delta_3, filename = paste0(snodas.dir,"processed/delta_snow_depth/delta_3_depth_in.tif"), overwrite=TRUE)
 writeRaster(delta_7, filename = paste0(snodas.dir,"processed/delta_snow_depth/delta_7_depth_in.tif"),overwrite=TRUE)
 
-rm(today, delta_1, delta_3, delta_7)
+rm(delta_1, delta_3, delta_7)
 gc()
 gc()
 print('cleaned snow depth change workspace')
@@ -106,50 +106,19 @@ standardized_input = list.files(paste0(snodas.dir, '/processed/swe'), full.names
   as.list() %$%
   value %>%
   lapply(., process_raster_standardize) %>%
-  #lapply(., resample, y = template, method = 'ngb') %>%
-  brick()
+  brick() %>%
+  rast()
 
 print('check 3')
 
+standardized_swe_raster = app(standardized_input, gamma_fit_spi, cores = 20)
 
-#calucalte time integrated precip sum
-swe_vec = data.frame(matrix(nrow = length(values(standardized_input[[1]])), ncol = nlayers(standardized_input)))
-for(i in 1:nlayers(standardized_input)){
-  swe_vec[,i] = values(standardized_input[[i]])
-}
-
-#replace 0 values with very low value gamma cant take 0
-swe_vec[swe_vec == 0] = 0.1
-
-library(doParallel)
-cl = makeCluster(detectCores()-1)
-registerDoParallel(cl)
-
-gc()
-current_standardized_swe = parApply(cl, swe_vec, 1, FUN = spi_fun)
-gc()
-
-stopCluster(cl)
-
-print('check 4')
-
-
-#populate spatial template with data
-standardized_swe_raster = standardized_input[[1]]
-values(standardized_swe_raster) = current_standardized_swe
-
-#remove locations with 0 SWE -- 
-mask_ = standardized_input[[nlayers(standardized_input)]]
-values(mask_) = ifelse(values(mask_) > 0, 1, NA)
-standardized_swe_raster = standardized_swe_raster * mask_
-
-#import drought metric template for resampling to 4km
 template = raster(paste0(export.dir, 'spi/current_spi_30.tif'))
 
 #resmple to 4km
-standardized_swe_raster_resampled = resample(standardized_swe_raster, template, method="bilinear")
+standardized_swe_raster_resampled = terra::resample(standardized_swe_raster, rast(template), method="bilinear")
 
-#print('check 5')
+print('check 5')
 
 ###############################3
 
@@ -168,7 +137,7 @@ fileConn<-file(paste0(export.dir, "snodas/processed/standardized_swe/time.txt"))
 writeLines(standardized_dates$date[1] %>% as.character(), fileConn)
 close(fileConn)
 
-rm(standardized_swe_raster, current_standardized_swe, swe_vec, standardized_input)
+rm(standardized_swe_raster, standardized_input)
 gc()
 gc()
 print('cleaned standardized_swe workspace')
@@ -178,6 +147,7 @@ print('cleaned standardized_swe workspace')
 library(terra)
 library(elevatr)
 library(ggplot2)
+library(cowplot)
 
 watersheds = st_read('/home/zhoylman/mco-drought-indicators/processing/base-data/processed/watersheds_umrb.shp') 
 names = watersheds$HUC8
@@ -186,201 +156,180 @@ print('starting hypsome-swe')
 cl = makeCluster(detectCores()-1)
 registerDoParallel(cl)
 tictoc::tic()
+percent_of_ave_store = tibble()
 #length(names)
 #try for error handling
-percent_of_ave_store = list()
 
-try({
-  foreach(i = 1:length(names), .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2', 'progress'))%dopar%{
-    roi = watersheds %>% filter(HUC8 == names[i])
-    
-    swe = data.frame(files = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/swe/', full.names = T)) %>%
-      as_tibble() %>%
-      mutate(time = gsub("\\D", "", files),
-             date = as.Date(time, format = '%Y%m%d'),
-             month = lubridate::month(date),
-             day = lubridate::day(date)) %>%
-      filter(month == lubridate::month(Sys.Date()) & day == lubridate::day(Sys.Date())) %$%
-      files %>%
-      lapply(., rast) %>%
-      lapply(., terra::crop, roi %>% vect) %>%
-      lapply(., terra::mask, roi %>% vect) %>%
-      lapply(., terra::project, "epsg:5070")
-    
-    swe = swe %>%
-      lapply(., terra::resample, swe[[length(swe)]], method="bilinear") %>%
-      rast
-    
-    # summer = function(x){
-    #   return((((values(x) %>% sum(., na.rm = T)) /
-    #       (values(last) %>% sum(., na.rm = T)))*100))
-    # }
-    # years = 2004:2022
-    # for(i in 1:nlyr(swe)){
-    #   print(paste0(years[i], ' = ' , summer(swe[[i]]), ' % of 2022'))
-    # }
-    
-    mean_swe = median(swe, na.rm = T)
-    last = swe[[nlyr(swe)]]
-    
-    percent_of_ave = (((values(last) %>% sum(., na.rm = T)) /
-                         (values(mean_swe) %>% sum(., na.rm = T)))*100) %>%
-      round(.,  0)
-    
-    if(percent_of_ave == 'NaN'){
-      percent_of_ave = 0
-    }
-    
-    if(percent_of_ave > 300){
-      
-      percent_of_ave = '> 300'
-    }
-    
-    percent_of_ave_store[[i]] = percent_of_ave
-    
-    dem = get_elev_raster(roi, z = 9) %>%
-      rast %>%
-      crop(., roi %>% vect) %>%
-      mask(., roi %>% vect) %>%
-      project(., mean_swe, method = 'bilinear')
-    
-    data = data.frame(dem = values(dem),
-                      mean_swe_m = (((values(mean_swe)/1000) * (res(mean_swe)[1] * res(mean_swe)[2]))),
-                      year_2021 = (((values(last)/1000) * (res(mean_swe)[1] * res(mean_swe)[2])))) %>%
-      `colnames<-`(c('dem',  paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'), lubridate::year(Sys.Date()))) %>%
-      as_tibble() %>%
-      tidyr::drop_na() %>%
-      mutate(quantile = .bincode(dem, quantile(dem, seq(0.01,1,by = 0.01))),
-             lin.bins = .bincode(dem, seq(min(dem, na.rm = T)-1, max(dem, na.rm = T)+1, length.out = 50))) %>%
-      tidyr::pivot_longer(names_to = 'name', cols = c(`Median Climatology (2004 - 2024)`, `2024`)) %>%
-      group_by(lin.bins, name) %>%
-      summarise(n = length(value),
-                sum = sum(value, na.rm = T)) %>%
-      ungroup() %>%
-      left_join(., data.frame(dem = values(dem) * 3.28084,
+
+percent_of_ave_store = foreach(i = 1:length(names),
+        .packages=c('terra', 'dplyr', 'elevatr', 'ggplot2', 'progress', 'sf', 'exactextractr', 'tibble'),
+        .combine = 'c')%dopar%{
+          
+          tryCatch({
+            roi = watersheds %>% filter(HUC8 == names[i])
+            
+            tictoc::tic()
+            swe = data.frame(files = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/swe/', full.names = T)) %>%
+              as_tibble() %>%
+              mutate(time = gsub("\\D", "", files),
+                     date = as.Date(time, format = '%Y%m%d'),
+                     month = lubridate::month(date),
+                     day = lubridate::day(date)) %>%
+              filter(month == lubridate::month(Sys.Date()) & day == lubridate::day(Sys.Date())) %$%
+              files %>%
+              lapply(., rast) %>%
+              lapply(., terra::crop, roi %>% vect) %>%
+              lapply(., terra::mask, roi %>% vect) %>%
+              lapply(., terra::project, "epsg:5070")
+            tictoc::toc()
+            
+            swe = swe %>%
+              lapply(., terra::resample, swe[[length(swe)]], method="bilinear") %>%
+              rast
+            
+            mean_swe = median(swe, na.rm = T)
+            last = swe[[nlyr(swe)]]
+            
+            mean_swe_agg = exactextractr::exact_extract(mean_swe, roi %>% st_transform(., 'EPSG:5070'), 'sum')
+            last_swe_agg = exactextractr::exact_extract(last, roi %>% st_transform(., 'EPSG:5070'), 'sum')
+            
+            percent_of_ave = round((last_swe_agg/mean_swe_agg)*100,0)
+            
+            if(percent_of_ave == 'NaN'){
+              percent_of_ave = 0
+            }
+            
+            if(percent_of_ave > 300){
+              
+              percent_of_ave = '> 300'
+            }
+            
+            dem = get_elev_raster(roi, z = 9) %>%
+              rast %>%
+              crop(., roi %>% vect) %>%
+              mask(., roi %>% vect) %>%
+              terra::project(., mean_swe, method = 'bilinear')
+            
+            data = data.frame(dem = values(dem),
                               mean_swe_m = (((values(mean_swe)/1000) * (res(mean_swe)[1] * res(mean_swe)[2]))),
                               year_2021 = (((values(last)/1000) * (res(mean_swe)[1] * res(mean_swe)[2])))) %>%
-                  `colnames<-`(c('dem', paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'), lubridate::year(Sys.Date()))) %>%
-                  as_tibble() %>%
-                  tidyr::drop_na() %>%
-                  mutate(quantile = .bincode(dem, quantile(dem, seq(0.01,1,by = 0.01))),
-                         lin.bins = .bincode(dem, seq(min(dem, na.rm = T), max(dem, na.rm = T), length.out = 50))) %>%
-                  tidyr::pivot_longer(names_to = 'name', cols = c(dem)) %>%
-                  group_by(lin.bins, name) %>%
-                  summarise(mean_dem = mean(value, na.rm = T)) %>%
-                  ungroup() , by = 'lin.bins') %>%
-      dplyr::select(-name.y) %>%
-      mutate(name.x = forcats::fct_relevel(name.x , c(lubridate::year(Sys.Date()) %>% as.character(), paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')')))) %>%
-      bind_rows(data.frame(lin.bins = c(51,51, 0, 0),
-                           name.x = c(lubridate::year(Sys.Date()) %>% as.character(),  paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'),
-                                      lubridate::year(Sys.Date()) %>% as.character(),  paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')')),
-                           n = c(0,0,0,0),
-                           sum = c(0,0,0,0),
-                           mean_dem = c(max(.$mean_dem, na.rm = T)+2, max(.$mean_dem, na.rm = T)+2, min(.$mean_dem, na.rm = T)-2, min(.$mean_dem, na.rm = T)-2))) %>%
-      arrange(lin.bins)
-    
-    #compute # of average at all elevations
-    percent_of_normal_elev = data %>%
-      tidyr::pivot_wider(names_from = c('name.x'), values_from = sum) %>%
-      mutate(`Percent of Average` = (`2024`/`Median Climatology (2004 - 2024)`)*100,
-             `Percent of Average` = ifelse(`Percent of Average` > 300, 300, `Percent of Average`),
-             `Percent of Average` = ifelse(is.na(`Percent of Average`) & n > 0, 0, `Percent of Average`))
-    
-    
-    center_of_mass = data %>%
-      dplyr::group_by(name.x) %>%
-      summarize(com = weighted.mean(mean_dem, sum))
-    
-    n_int_digits = function(x) {
-      result = floor(log10(abs(x)))
-      result[!is.finite(result)] = 0
-      result
-    }
-    
-    magnitude = max(data$sum) %>% n_int_digits
-    
-    axis_tics = seq(-max(data$sum), max(data$sum), length.out = 5) %>% plyr::round_any(., 1*10^(magnitude-1))
-    
-    climatology = data %>%
-      filter(name.x == paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'))
-    
-    current = data %>%
-      filter(name.x == lubridate::year(Sys.Date()))
-    
-    plot = ggplot()+
-      geom_polygon(data = climatology, aes(y = mean_dem, x = sum, color = name.x, fill = name.x), alpha = 0.6) +
-      #geom_polygon(data = climatology, aes(y = mean_dem, x = -sum, color = name.x, fill = name.x), alpha = 0.6) +
-      geom_polygon(data = current, aes(y = mean_dem, x = sum, color = name.x, fill = name.x), alpha = 0.3) +
-      #geom_polygon(data = current, aes(y = mean_dem, x = -sum, color = name.x, fill = name.x), alpha = 0.3) +
-      geom_point(data = center_of_mass, aes(y = com, x = 0, fill = name.x), color = 'black', shape = 23, size = 4)+
-      theme_bw(base_size = 14)+
-      theme(legend.position = 'bottom')+
-      scale_x_continuous(breaks=axis_tics,
-                         labels= scales::comma(abs(axis_tics)))+
-      labs(x = 'Snow Water Equivalent (m³)', y = 'Elevation (ft)')+
-      scale_fill_manual(values = c('blue', 'darkgrey'))+
-      guides(fill = guide_legend(title.position = "left", title = NULL))+
-      scale_color_manual(values = c('blue', 'darkgrey'), guide = F)+
-      #ggtitle(paste0(paste0('Hypsome-SWE for ', roi$NAME, ' (HUC8: ', roi$HUC8, ')\n',max(time), ' (', percent_of_ave, '% of Normal)')))+
-      theme(plot.title = element_text(hjust = 0.5))+
-      theme(plot.margin=unit(c(1,1,1,1),"cm"))+
-      theme(legend.title.align=0.5) 
-    
-    title = cowplot::ggdraw() + cowplot::draw_label(paste0(paste0('Hypsome-SWE for ', roi$NAME, ' (HUC8: ', roi$HUC8, ')\n',max(time), ' (', percent_of_ave, '% of Normal)')), fontface='bold')
-    
-    plot_percent = ggplot(data = percent_of_normal_elev, aes(x = `Percent of Average`, y = mean_dem))+
-      geom_path()+
-      geom_vline(xintercept = 100, linetype = 'dashed')+
-      theme_bw(base_size = 14)+
-      labs(x = 'Percent of Average SWE', y = NULL)+
-      theme(plot.margin=unit(c(1,1,2.6,0),"cm"),
-            axis.title.y=element_blank(),
-            axis.text.y=element_blank(),
-            axis.ticks.y=element_blank())+
-      scale_x_continuous(breaks = c(0,100,200,300), labels = c("0%", '100%', '200%', ">300%"), limits = c(0,300))
-    
-    final = cowplot::plot_grid(title, cowplot::plot_grid(plot, plot_percent, align = 'h', rel_widths = c(1,0.5)), ncol = 1, rel_heights = c(0.1,1))
-    
-    ggsave(final, file = paste0('/home/zhoylman/mco-drought-indicators-data/snodas/plots/hypsome-swe-', roi$HUC8, '.png'), width = 8, height = 8, units = 'in')
-    rm(plot, current, climatology, percent_of_normal_elev, data, dem, swe, mean_swe, last, roi)
-    gc()
-    percent_of_ave_store
-  }
-})
+              `colnames<-`(c('dem',  paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'), lubridate::year(Sys.Date()))) %>%
+              as_tibble() %>%
+              tidyr::drop_na() %>%
+              mutate(quantile = .bincode(dem, quantile(dem, seq(0.01,1,by = 0.01))),
+                     lin.bins = .bincode(dem, seq(min(dem, na.rm = T)-1, max(dem, na.rm = T)+1, length.out = 50))) %>%
+              tidyr::pivot_longer(names_to = 'name', cols = c(`Median Climatology (2004 - 2026)`, `2026`)) %>%
+              group_by(lin.bins, name) %>%
+              summarise(n = length(value),
+                        sum = sum(value, na.rm = T)) %>%
+              ungroup() %>%
+              left_join(., data.frame(dem = values(dem) * 3.28084,
+                                      mean_swe_m = (((values(mean_swe)/1000) * (res(mean_swe)[1] * res(mean_swe)[2]))),
+                                      year_2021 = (((values(last)/1000) * (res(mean_swe)[1] * res(mean_swe)[2])))) %>%
+                          `colnames<-`(c('dem', paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'), lubridate::year(Sys.Date()))) %>%
+                          as_tibble() %>%
+                          tidyr::drop_na() %>%
+                          mutate(quantile = .bincode(dem, quantile(dem, seq(0.01,1,by = 0.01))),
+                                 lin.bins = .bincode(dem, seq(min(dem, na.rm = T), max(dem, na.rm = T), length.out = 50))) %>%
+                          tidyr::pivot_longer(names_to = 'name', cols = c(dem)) %>%
+                          group_by(lin.bins, name) %>%
+                          summarise(mean_dem = mean(value, na.rm = T)) %>%
+                          ungroup() , by = 'lin.bins') %>%
+              dplyr::select(-name.y) %>%
+              mutate(name.x = forcats::fct_relevel(name.x , c(lubridate::year(Sys.Date()) %>% as.character(), paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')')))) %>%
+              bind_rows(data.frame(lin.bins = c(51,51, 0, 0),
+                                   name.x = c(lubridate::year(Sys.Date()) %>% as.character(),  paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'),
+                                              lubridate::year(Sys.Date()) %>% as.character(),  paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')')),
+                                   n = c(0,0,0,0),
+                                   sum = c(0,0,0,0),
+                                   mean_dem = c(max(.$mean_dem, na.rm = T)+2, max(.$mean_dem, na.rm = T)+2, min(.$mean_dem, na.rm = T)-2, min(.$mean_dem, na.rm = T)-2))) %>%
+              arrange(lin.bins) %>%
+              mutate(sum = sum/1233)
+            
+            #compute # of average at all elevations
+            percent_of_normal_elev = data %>%
+              tidyr::pivot_wider(names_from = c('name.x'), values_from = sum) %>%
+              mutate(`Percent of Average` = (`2026`/`Median Climatology (2004 - 2026)`)*100,
+                     `Percent of Average` = ifelse(`Percent of Average` > 300, 300, `Percent of Average`),
+                     `Percent of Average` = ifelse(is.na(`Percent of Average`) & n > 0, 0, `Percent of Average`))
+            
+            
+            center_of_mass = data %>%
+              dplyr::group_by(name.x) %>%
+              summarize(com = weighted.mean(mean_dem, sum))
+            
+            n_int_digits = function(x) {
+              result = floor(log10(abs(x)))
+              result[!is.finite(result)] = 0
+              result
+            }
+            
+            magnitude = max(data$sum) %>% n_int_digits
+            
+            axis_tics = seq(-max(data$sum), max(data$sum), length.out = 5) %>% plyr::round_any(., 1*10^(magnitude-1))
+            
+            climatology = data %>%
+              filter(name.x == paste0('Median Climatology (2004 - ', lubridate::year(Sys.Date()), ')'))
+            
+            current = data %>%
+              filter(name.x == lubridate::year(Sys.Date()))
+            
+            plot = ggplot()+
+              geom_polygon(data = climatology, aes(y = mean_dem, x = sum, color = name.x, fill = name.x), alpha = 0.6) +
+              #geom_polygon(data = climatology, aes(y = mean_dem, x = -sum, color = name.x, fill = name.x), alpha = 0.6) +
+              geom_polygon(data = current, aes(y = mean_dem, x = sum, color = name.x, fill = name.x), alpha = 0.3) +
+              #geom_polygon(data = current, aes(y = mean_dem, x = -sum, color = name.x, fill = name.x), alpha = 0.3) +
+              geom_point(data = center_of_mass, aes(y = com, x = 0, fill = name.x), color = 'black', shape = 23, size = 4)+
+              theme_bw(base_size = 14)+
+              theme(legend.position = 'bottom')+
+              scale_x_continuous(breaks=axis_tics,
+                                 labels= scales::comma(abs(axis_tics)))+
+              labs(x = 'Snow Water Equivalent (acre-feet)', y = 'Elevation (ft)')+
+              scale_fill_manual(values = c('blue', 'darkgrey'))+
+              guides(fill = guide_legend(title.position = "left", title = NULL))+
+              scale_color_manual(values = c('blue', 'darkgrey'), guide = F)+
+              #ggtitle(paste0(paste0('Hypsome-SWE for ', roi$NAME, ' (HUC8: ', roi$HUC8, ')\n',max(time), ' (', percent_of_ave, '% of Normal)')))+
+              theme(plot.title = element_text(hjust = 0.5))+
+              theme(plot.margin=unit(c(1,1,1,1),"cm"))+
+              theme(legend.title.align=0.5) 
+            
+            title = cowplot::ggdraw() + cowplot::draw_label(paste0(paste0('Hypsome-SWE for ', roi$NAME, ' (HUC8: ', roi$HUC8, ')\n',max(time), ' (', percent_of_ave, '% of Normal)')), fontface='bold')
+            
+            plot_percent = ggplot(data = percent_of_normal_elev, aes(x = `Percent of Average`, y = mean_dem))+
+              geom_path()+
+              geom_vline(xintercept = 100, linetype = 'dashed')+
+              theme_bw(base_size = 14)+
+              labs(x = 'Percent of Average SWE', y = NULL)+
+              theme(plot.margin=unit(c(1,1,2.6,0),"cm"),
+                    axis.title.y=element_blank(),
+                    axis.text.y=element_blank(),
+                    axis.ticks.y=element_blank())+
+              scale_x_continuous(breaks = c(0,100,200,300), labels = c("0%", '100%', '200%', ">300%"), limits = c(0,300))
+            
+            final = cowplot::plot_grid(title, cowplot::plot_grid(plot, plot_percent, align = 'h', rel_widths = c(1,0.5)), ncol = 1, rel_heights = c(0.1,1))
+            
+            ggsave(final, file = paste0('/home/zhoylman/mco-drought-indicators-data/snodas/plots/hypsome-swe-', roi$HUC8, '.png'), width = 8, height = 8, units = 'in')
+            rm(plot, current, climatology, percent_of_normal_elev, data, dem, swe, mean_swe, last, roi)
+            gc()
+            list(percent_of_ave)
+            
+          }, error = function(e){
+            percent_of_ave = NA
+            list(percent_of_ave)
+          })
+}
+
 
 tictoc::toc()
 print('finished hypsome-swe')
 
 stopCluster(cl)
 
-# compute percent of normal swe for each huc
-swe = data.frame(files = list.files('/home/zhoylman/mco-drought-indicators-data/snodas/processed/swe/', full.names = T)) %>%
-  as_tibble() %>%
-  mutate(time = gsub("\\D", "", files),
-         date = as.Date(time, format = '%Y%m%d'),
-         month = lubridate::month(date),
-         day = lubridate::day(date)) %>%
-  filter(month == lubridate::month(Sys.Date()) & day == lubridate::day(Sys.Date())) %$%
-  files %>%
-  lapply(., rast) %>%
-  lapply(., terra::project, "epsg:5070")
-
-swe = swe %>%
-  lapply(., terra::resample, swe[[length(swe)]], method="bilinear") %>%
-  rast
-
-mean_swe = median(swe, na.rm = T)
-last = swe[[nlyr(swe)]]
-
-percent_median = (last/mean_swe)*100
-
-percent_median_huc = exactextractr::exact_extract(percent_median, watersheds, 'median')
-
-percent_median_huc[percent_median_huc > 300] = 300
+percent_of_ave_store_final = percent_of_ave_store %>%
+  unlist()
 
 watersheds_current = watersheds %>% 
-  mutate(percent_of_normal = percent_median_huc %>%
-           round(., 0))
+  mutate(percent_of_normal = percent_of_ave_store_final)
 
 write_sf(watersheds_current, '/home/zhoylman/mco-drought-indicators-data/snodas/current_watershed_percent/current_snodas_percent.geojson', delete_dsn = T)
 
@@ -447,12 +396,21 @@ base_year_waterYear = function(x){
   return(base_year)
 } 
 
+watersheds_area = watersheds  %>%
+  mutate(area = st_area(.)) %>%
+  dplyr::select(name = HUC8, area) %>%
+  st_drop_geometry()
+
 #compute climatology
 timeseries_append = timeseries_append %>%
   tidyr::pivot_longer(., cols = -c(time), values_to = 'swe') %>%
   mutate(water_year_yday = yday.waterYear(time)) %>%
   rowwise() %>%
   mutate(water_base_year = base_year_waterYear(time))
+
+# timeseries_append_in = timeseries_append %>%
+#   left_join(., watersheds_area) %>%
+#   mutate(swe = (swe/area)* 39.3701)
 
 snodas_climatology = timeseries_append %>%
   filter(water_base_year %notin% base_year) %>%
@@ -466,44 +424,103 @@ snodas_climatology = timeseries_append %>%
             swe_min = min(swe)) %>%
   mutate(time = as.Date(water_year_yday, origin = as.Date(paste0(base_year, '-09-30'), format = '%Y-%m-%d')))
 
+snodas_climatology_in = snodas_climatology %>%
+  left_join(., watersheds_area) %>%
+  mutate(swe_q50 = (swe_q50/area)* 39.3701,
+         swe_q05 = (swe_q05/area)* 39.3701,
+         swe_q25 = (swe_q25/area)* 39.3701,
+         swe_q75 = (swe_q75/area)* 39.3701,
+         swe_q95 = (swe_q95/area)* 39.3701,
+         swe_max = (swe_max/area)* 39.3701,
+         swe_min = (swe_min/area)* 39.3701) %>% 
+  dplyr::select(-area)
+
 this_year_swe = timeseries_append %>%
-  filter(water_base_year == base_year)
+  filter(water_base_year == base_year) %>%
+    left_join(., watersheds_area) %>%
+    mutate(swe = (swe/area)* 39.3701)
 
 plot_snodas = function(current_data, climatology_data, site_id_, base_year){
   data_select = current_data %>%
-    dplyr::filter(name == site_id_)
+    dplyr::filter(name == site_id_) %>%
+    units::drop_units()
 
   climatology_start_year = 2003
 
   climatology_data_select = climatology_data  %>%
     dplyr::filter(name == site_id_) %>%
-    mutate(WY_date = time)
+    mutate(WY_date = time) %>%
+    units::drop_units() %>% 
+    slice(-152)
 
   site_meta = watersheds %>%
     dplyr::filter(HUC8 == site_id_)
 
-  plot = ggplot()+
-    ggtitle(paste0(str_to_title(site_meta$NAME), " (", as.Date(max(data_select$time)), ")"), 'Data Derived from SNODAS')+
-    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q95, ymax = swe_max, fill = "95th - Max"), alpha = 0.25)+
-    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q75, ymax = swe_q95, fill = "75th - 95th"), alpha = 0.25)+
-    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q25, ymax = swe_q75, fill = "25th - 75th"), alpha = 0.25)+
-    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q05, ymax = swe_q25, fill = "5th - 25th"), alpha = 0.25)+
-    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_min, ymax = swe_q05, fill = "Min - 5th"), alpha = 0.25)+
-    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_min), color = 'darkred', size = 0.75)+
-    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_max), color = 'darkblue', size = 0.75)+
-    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_q50, color = "Median"), size = 0.75)+
-    geom_line(data = data_select, aes(x = time, y = swe, color = "Current"), size = 2)+
-    scale_color_manual(name = "",values = c(
-      'Median' = 'forestgreen',
-      'Current' = 'black')) +
-    scale_fill_manual(name = paste0('Percentiles\n(',climatology_start_year,' - 2022)'), values = c("darkblue","cyan","green","orange", 'darkred'),
-                      breaks = c("95th - Max", "75th - 95th", "25th - 75th", "5th - 25th", "Min - 5th")) +
-    ylab("Snow Water Equivalent (m³)")+
-    xlab("Date")+
-    theme_bw(base_size = 20)+
-    theme(plot.title = element_text(hjust = 0.5),
-          plot.subtitle = element_text(hjust = 0.5, size = 12),
-          legend.title.align=0.5)
+  plot = ggplot() +
+    # Title and subtitle
+    ggtitle(
+      paste0(str_to_title(site_meta$NAME), " (", as.Date(max(data_select$time)), ")"),
+      subtitle = "Bsin-wide Average SWE Depth - Data Derived from SNODAS"
+    ) +
+    
+    # Add percentile-based SWE bands
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q95, ymax = swe_max, fill = "95th - Max"), alpha = 0.2) +
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q75, ymax = swe_q95, fill = "75th - 95th"), alpha = 0.2) +
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q25, ymax = swe_q75, fill = "25th - 75th"), alpha = 0.2) +
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_q05, ymax = swe_q25, fill = "5th - 25th"), alpha = 0.2) +
+    geom_ribbon(data = climatology_data_select, aes(x = WY_date, ymin = swe_min, ymax = swe_q05, fill = "Min - 5th"), alpha = 0.2) +
+    
+    # Add climatological min/max lines
+    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_min), color = 'darkred', size = 1, linetype = "solid") +
+    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_max), color = 'darkblue', size = 1, linetype = "solid") +
+    
+    # Median and current year SWE lines
+    geom_line(data = climatology_data_select, aes(x = WY_date, y = swe_q50, color = "Median"), size = 1.2) +
+    geom_line(data = data_select, aes(x = time, y = swe, color = "Current"), size = 2) +
+    
+    # Define colors for lines (Current & Median)
+    scale_color_manual(
+      name = "",  # Remove the lines legend title
+      values = c('Median' = 'forestgreen', 'Current' = 'black')
+    ) +
+    
+    # Define colors for percentile fill bands
+    scale_fill_manual(
+      name = paste0('Percentiles\n(', climatology_start_year, ' - ', lubridate::year(Sys.Date()), ')\n'),  # Centered below
+      values = c(
+        "95th - Max" = "darkblue",
+        "75th - 95th" = "cyan",
+        "25th - 75th" = "green",
+        "5th - 25th" = "orange",
+        "Min - 5th" = "darkred"
+      ),
+      breaks = c("95th - Max", "75th - 95th", "25th - 75th", "5th - 25th", "Min - 5th")
+    ) +
+    
+    # Axis labels
+    ylab("Snow Water Equivalent (in)") +
+    xlab("Date") +
+    
+    # Apply theme customizations
+    theme_bw(base_size = 20) +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 22, face = "bold"),
+      plot.subtitle = element_text(hjust = 0.5, size = 14, face = "italic"),
+      legend.position = "bottom",
+      legend.box = "vertical",  # Stack legends vertically
+      legend.box.just = "top",  # Align to top
+      legend.spacing.y = unit(0, "cm"),  # Remove extra vertical spacing
+      legend.title = element_text(size = 14, face = "bold"),
+      legend.key.width = unit(1, "cm"),  # Widen legend keys
+      legend.title.align = 0.5  # Center the "Percentiles" title
+    ) +
+    
+    # Adjust legend layout to enforce ordering and centering
+    guides(
+      color = guide_legend(order = 2, override.aes = list(size = 2)),  # Lines legend first, no title
+      fill = guide_legend(order = 1, title.position = "top", title.hjust = 0.5, nrow = 1)  # Percentiles below, title centered
+    )
+  
   
   return(plot)
 }
@@ -511,9 +528,9 @@ plot_snodas = function(current_data, climatology_data, site_id_, base_year){
 for(i in 1:length(watersheds$HUC8)){
   #print(i)
   snodas_climatology_plot = plot_snodas(current_data = this_year_swe, 
-                                   climatology_data = snodas_climatology, 
+                                   climatology_data = snodas_climatology_in, 
                                    site_id_ = watersheds$HUC8[i], 
-                                   base_year = 2023)
+                                   base_year = Sys.Date() %>% lubridate::year())
   ggsave(snodas_climatology_plot, file = paste0('/home/zhoylman/mco-drought-indicators-data/snodas/plots/snodas-climatology-swe-', watersheds$HUC8[i], '.png'), 
          width = 10, height = 8, units = 'in')
 }

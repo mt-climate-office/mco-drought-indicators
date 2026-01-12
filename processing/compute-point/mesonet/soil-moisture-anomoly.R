@@ -138,7 +138,7 @@ st_write(anom_sf %>% dplyr::filter(generalized_depth == 'Deep') %>% drop_na(valu
 
 #plot conditions
 
-weeks_of_interest = c((Sys.time() %>% lubridate::week() - 12):  (Sys.time() %>% lubridate::week()))
+weeks_of_interest = c((Sys.time() %>% lubridate::week() - 8):  (Sys.time() %>% lubridate::week()))
 year_start = lubridate::year(Sys.time())
 corrected_weeks = c()
 
@@ -192,21 +192,22 @@ for(d in 1:length(depths)){
       grouped_cols = c('2017' = "#006302", '2018' = "#FFBF00",
                        '2019' = "#00FF40", '2020' = '#00d9ff',
                        '2021' =  '#0040FF', '2022' = '#A020F0',
-                       '2023' = '#FF0000', '2024' = '#000000')
+                       '2023' = '#FF0000', '2024' = '#4d5656',
+                       '2025' = 'black')
       
       if(year_start != lubridate::year(Sys.Date())){
         grouped_cols =  c('2016/2017' = '#006302', 
                           '2017/2018' = "#FF0000", '2018/2019' = "#FFBF00",
                           '2019/2020' = "#00FF40", '2020/2021' = '#00d9ff',
                           '2021/2022' =  '#0040FF', '2022/2023' = '#A020F0',
-                          '2023/2024' = '#000000')
+                          '2023/2024' = '#4d5656', '2024/2025' = '#000000')
       }
 
       temp_data = plotting_data %>%
         dplyr::filter(generalized_depth == depths[d],
                       station == temp_stations[i]) %>%
-        mutate(year_offset = abs(year - 2024), 
-              time = ifelse(year == 2024, as.Date(datetime), as.Date('2023-01-01') + (yday-1)),
+        mutate(year_offset = abs(year - 2025), 
+              time = ifelse(year == 2025, as.Date(datetime), as.Date('2024-01-01') + (yday-1)),
               time = ifelse(year_offset > 0 , as.Date(time) + lubridate::years(1), as.Date(time)),
               time = as.Date(time))
 
@@ -215,8 +216,8 @@ for(d in 1:length(depths)){
                       station == temp_stations[i]) %$%
         datetime %>%
         max() %>%
-        as.Date() %>%
-        format(., "%m-%d-%Y")
+        as.Date() 
+        # format(., "%m-%d-%Y")
 
       plot = ggplot()+
         geom_line(data = temp_data, aes(x = time, y = value, color = plot_year %>% as.factor), alpha = 0.2)+
@@ -233,7 +234,7 @@ for(d in 1:length(depths)){
         scale_color_manual(values=grouped_cols)
 
 
-      ggsave(plot, file = paste0('/home/zhoylman/mco-drought-indicators-data/mesonet/plots/', temp_stations[i], '_', depths[d], '_current.png'), height = 5, width = 6, units = 'in')
+      ggsave(plot, file = paste0('/home/zhoylman/mco-drought-indicators-data/mesonet/plots/', temp_stations[i], '_', depths[d], '_current.png'), height = 5, width = 6.5, units = 'in')
 
     }, error = function(e){
       NA

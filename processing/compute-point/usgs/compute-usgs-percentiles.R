@@ -2,7 +2,7 @@
 library(usgs.discharge)
 library(dplyr)
 
-future::plan(future::multisession, workers = 10)
+future::plan(future::multisession, workers = 4)
 
 #station meta
 stations = get_gauges(clip_shp = usgs.discharge::domain)
