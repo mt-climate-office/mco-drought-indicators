@@ -97,6 +97,78 @@
       display: none;
     }
 
+    /* Announcement modal overlay */
+    #announcement-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #announcement-modal {
+      background: #fff;
+      border-radius: 8px;
+      max-width: 560px;
+      width: 90%;
+      padding: 32px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    #announcement-modal h3 {
+      margin: 0 0 16px 0;
+      font-size: 20px;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    #announcement-modal p {
+      margin: 0 0 14px 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    #announcement-modal a {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+
+    #announcement-modal a:hover {
+      color: #1d4ed8;
+    }
+
+    #announcement-modal .modal-signature {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+      font-style: italic;
+    }
+
+    #announcement-close-btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 28px;
+      background-color: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    #announcement-close-btn:hover {
+      background-color: #1d4ed8;
+    }
+
     body:not(.loaded) .leaflet-control {
       display: none;
     }
@@ -607,6 +679,31 @@
       <center><b>Loading the UMRB Drought Indicators Dashboard<br>Please Wait...</b></center>
     </div>
   </div>
+
+  <!-- Announcement Modal -->
+  <div id="announcement-overlay">
+    <div id="announcement-modal">
+      <h3>New Dashboard Coming Soon</h3>
+      <p>
+        The Montana Climate Office is transitioning to a new and improved drought dashboard. The updated system
+        features a redesigned interface with enhanced functionality and is currently available in beta.
+      </p>
+      <p>
+        We invite you to preview the new dashboard at
+        <a href="https://d3drought.org/" target="_blank" rel="noopener">d3drought.org</a>.
+        Once it moves beyond the beta stage, this URL
+        (<a href="https://drought.climate.umt.edu/">drought.climate.umt.edu</a>)
+        will be updated to host the new system as well.
+      </p>
+      <p>
+        The new dashboard includes a built-in feedback button &mdash; we encourage you to share your thoughts,
+        report any bugs, or request new features.
+      </p>
+      <p class="modal-signature">Thank you,<br>The Montana Climate Office</p>
+      <button id="announcement-close-btn">Continue to Dashboard</button>
+    </div>
+  </div>
+
   <!-- Build Nav Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="">UMRB Drought Indicators Dashboard</a>
@@ -967,6 +1064,32 @@
 
         // Observe the body element for changes in its "class" attribute
         observer.observe(document.body, { attributes: true });
+
+        // Show announcement modal after page loads
+        var announcementOverlay = document.getElementById('announcement-overlay');
+        var announcementCloseBtn = document.getElementById('announcement-close-btn');
+
+        var announcementObserver = new MutationObserver(function (mutationsList) {
+          for (var mutation of mutationsList) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              if (document.body.classList.contains('loaded')) {
+                announcementOverlay.style.display = 'flex';
+                announcementObserver.disconnect();
+              }
+            }
+          }
+        });
+        announcementObserver.observe(document.body, { attributes: true });
+
+        announcementCloseBtn.addEventListener('click', function () {
+          announcementOverlay.style.display = 'none';
+        });
+
+        announcementOverlay.addEventListener('click', function (e) {
+          if (e.target === announcementOverlay) {
+            announcementOverlay.style.display = 'none';
+          }
+        });
 
         // Toggle popup visibility
         map.on('click', function () {
